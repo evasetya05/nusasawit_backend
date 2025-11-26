@@ -6,6 +6,10 @@ ALLOWED_HOSTS = ["nusasawit.sdmportabel.com", "www.nusasawit.sdmportabel.com"]
 
 CORS_ALLOW_ALL_ORIGINS = True
 
+# Tambahkan ini agar WSGI dan URLConf dikenali
+ROOT_URLCONF = 'nusasawit.urls'
+WSGI_APPLICATION = 'nusasawit.wsgi.application'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -16,4 +20,5 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+
 

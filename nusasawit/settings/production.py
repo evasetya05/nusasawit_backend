@@ -9,8 +9,8 @@ CORS_ALLOW_ALL_ORIGINS = True
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'sdmport_nusasawit',
-        'USER': 'sdmport_nusasawit_user',
+        'NAME': 'sdmporta_sdmport_nusasawit',
+        'USER': 'sdmporta_sdmport_nusasawit_user',
         'PASSWORD': '@Pontianak123',
         'HOST': 'localhost',
         'PORT': '5432',

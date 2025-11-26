@@ -1,3 +1,7 @@
 envl/
 envl/*
 *envl
+
+# Python cache
+__pycache__/
+*.pyc

@@ -52,12 +52,6 @@ class Migration(migrations.Migration):
             field=models.DateField(help_text='Tanggal akhir penugasan kerja'),
         ),
         
-        # Remove old work_date field
-        migrations.RemoveField(
-            model_name='workrequest',
-            name='work_date',
-        ),
-        
         # Update Meta class ordering
         migrations.AlterModelOptions(
             name='workrequest',

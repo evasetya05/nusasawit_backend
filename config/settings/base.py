@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'apps.modules.m9improvement',
 
     'api.tips', 
+    'api.mitra_borongan', 
 ]
 
 # Middleware

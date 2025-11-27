@@ -1,4 +1,5 @@
 {% extends 'dashboard/base.html' %}
+{% load humanize %}
 {% block content %}
 
 <div class="container" style="max-width:900px;margin:auto;padding:20px;">
@@ -58,7 +59,7 @@
             
             document.getElementById('satuan-display').textContent = satuan;
             document.getElementById('harga-display').textContent = harga.toLocaleString('id-ID');
-            document.getElementById('hasil-akhir').textContent = hasilAkhir.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('hasil-akhir').textContent = hasilAkhir.toLocaleString('id-ID', {maximumFractionDigits: 0});
           }
           
           boronganSelect.addEventListener('change', updateBoronganInfo);
@@ -108,21 +109,21 @@
             </td>
             <td style="border:1px solid #ddd;padding:8px;text-align:center;">
               {% if a.borongan %}
-                {{ a.realisasi }}
+                {{ a.realisasi|floatformat:0|intcomma }}
               {% else %}
                 -
               {% endif %}
             </td>
             <td style="border:1px solid #ddd;padding:8px;text-align:right;">
               {% if a.borongan %}
-                Rp {{ a.borongan.harga_borongan }}
+                Rp {{ a.borongan.harga_borongan|floatformat:0|intcomma }}
               {% else %}
                 -
               {% endif %}
             </td>
             <td style="border:1px solid #ddd;padding:8px;text-align:right;font-weight:bold;background:#f0f8ff;">
               {% if a.borongan and a.realisasi %}
-                Rp {{ a.get_hasil_akhir }}
+                Rp {{ a.get_hasil_akhir|floatformat:0|intcomma }}
               {% else %}
                 -
               {% endif %}

@@ -1,0 +1,33 @@
+{% extends 'dashboard/base.html' %}
+{% block content %}
+<div class="container" style="max-width:700px;margin:auto;padding:20px;">
+  <h2 style="text-align:center;margin-bottom:10px;">🏥 BPJS Karyawan</h2>
+  <p style="text-align:center;color:#666;margin-bottom:20px;">Pengaturan persentase potongan karyawan</p>
+
+  <form method="post" style="display:flex;flex-direction:column;gap:16px;background:#fff;border:1px solid #eee;border-radius:10px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+    {% csrf_token %}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div style="border:1px solid #e5e7eb;border-radius:8px;padding:12px;">
+        <h4 style="margin:0 0 10px 0;">🛡️ BPJS TK (Karyawan)</h4>
+        <label>JKK (%)</label>
+        {{ form.emp_jkk_pct }}
+        <label style="margin-top:8px;display:block;">JKM (%)</label>
+        {{ form.emp_jkm_pct }}
+        <label>JHT (%)</label>
+        {{ form.emp_jht_pct }}
+        <label style="margin-top:8px;display:block;">JP/Pensiun (%)</label>
+        {{ form.emp_jp_pct }}
+      </div>
+      <div style="border:1px solid #e5e7eb;border-radius:8px;padding:12px;">
+        <h4 style="margin:0 0 10px 0;">🏥 BPJS Kesehatan (Karyawan)</h4>
+        <label>JKN/Kesehatan (%)</label>
+        {{ form.emp_jkn_pct }}
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <a href="{% url 'compensation6:komponen_gaji' %}" class="btn btn-secondary" style="padding:8px 14px;border-radius:6px;background:#6c757d;color:#fff;text-decoration:none;">Kembali</a>
+      <button type="submit" class="btn btn-primary" style="padding:8px 14px;border-radius:6px;background:#2563eb;color:#fff;border:0;">Simpan</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

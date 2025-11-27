@@ -1,0 +1,173 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<div class="container" style="max-width:900px;margin:auto;padding:20px;">
+  <h2 style="text-align:center;margin-bottom:20px;">Pengajuan Cuti Secara Hirarki</h2>
+
+  <!-- Form Pengajuan Cuti -->
+  {% if can_submit %}
+  <div style="background:#fff;border:1px solid #eee;border-radius:10px;padding:20px;margin-bottom:30px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+    <h4>Ajukan Cuti Baru</h4>
+    <form method="post">
+      {% csrf_token %}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+        <div>{{ form.start_date.label }}: {{ form.start_date }}</div>
+        <div>{{ form.end_date.label }}: {{ form.end_date }}</div>
+      </div>
+      <div style="margin-top:15px;">{{ form.leave_type.label }}: {{ form.leave_type }}</div>
+      <div style="margin-top:15px;">{{ form.reason.label }}: {{ form.reason }}</div>
+      <button type="submit" style="margin-top:15px;padding:10px 20px;background:#2563eb;color:#fff;border:0;border-radius:6px;">Ajukan Cuti</button>
+    </form>
+  </div>
+  {% else %}
+  <div style="background:#e9ecef;padding:20px;border-radius:8px;margin-bottom:30px;">
+    <h4 style="text-align:center;color:#6c757d;">Anda tidak dapat mengajukan cuti karena tidak memiliki profil karyawan.</h4>
+  </div>
+  {% endif %}
+
+  <!-- List Pengajuan Cuti -->
+  <div style="background:#fff;border:1px solid #eee;border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+    <h4>Riwayat Pengajuan Cuti</h4>
+    {% if is_owner %}
+      {% for emp_name, emp_leaves in leaves.items %}
+        <h5 style="margin-top:20px; color:#495057;">{{ emp_name }}</h5>
+        {% if emp_leaves %}
+          <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+            <thead>
+              <tr style="background:#f8f9fa;">
+                <th style="border:1px solid #ddd;padding:8px;">Tanggal Mulai</th>
+                <th style="border:1px solid #ddd;padding:8px;">Tanggal Akhir</th>
+                <th style="border:1px solid #ddd;padding:8px;">Jenis Cuti</th>
+                <th style="border:1px solid #ddd;padding:8px;">Alasan</th>
+                <th style="border:1px solid #ddd;padding:8px;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for l in emp_leaves %}
+              <tr>
+                <td style="border:1px solid #ddd;padding:8px;">{{ l.start_date }}</td>
+                <td style="border:1px solid #ddd;padding:8px;">{{ l.end_date }}</td>
+                <td style="border:1px solid #ddd;padding:8px;">{{ l.get_leave_type_display }}</td>
+                <td style="border:1px solid #ddd;padding:8px;">{{ l.reason }}</td>
+                <td style="border:1px solid #ddd;padding:8px;">
+                  {% if l.status == 'pending' %}
+                    <span style="color:orange;">Menunggu Persetujuan Supervisor</span>
+                  {% elif l.status == 'approved_supervisor' %}
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+                      <span style="color:blue;">Disetujui Supervisor</span>
+                      <form method="post" action="{% url 'compensation6:approve_leave' l.id 'approve' %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" style="padding:6px 12px;background:#16a34a;color:white;border:none;border-radius:4px;font-size:12px;cursor:pointer;">Setujui (Owner)</button>
+                      </form>
+                      <form method="post" action="{% url 'compensation6:approve_leave' l.id 'reject' %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" style="padding:6px 12px;background:#dc2626;color:white;border:none;border-radius:4px;font-size:12px;cursor:pointer;">Tolak</button>
+                      </form>
+                    </div>
+                  {% elif l.status == 'approved_hr' %}
+                    <span style="color:green;">Disetujui HR</span>
+                  {% else %}
+                    <span style="color:red;">Ditolak</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p>Tidak ada pengajuan cuti.</p>
+        {% endif %}
+      {% empty %}
+        <p>Belum ada pengajuan cuti dari karyawan manapun.</p>
+      {% endfor %}
+    {% else %}
+      {% if leaves %}
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="background:#f8f9fa;">
+              <th style="border:1px solid #ddd;padding:8px;">Tanggal Mulai</th>
+              <th style="border:1px solid #ddd;padding:8px;">Tanggal Akhir</th>
+              <th style="border:1px solid #ddd;padding:8px;">Jenis Cuti</th>
+              <th style="border:1px solid #ddd;padding:8px;">Alasan</th>
+              <th style="border:1px solid #ddd;padding:8px;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for l in leaves %}
+            <tr>
+              <td style="border:1px solid #ddd;padding:8px;">{{ l.start_date }}</td>
+              <td style="border:1px solid #ddd;padding:8px;">{{ l.end_date }}</td>
+              <td style="border:1px solid #ddd;padding:8px;">{{ l.get_leave_type_display }}</td>
+              <td style="border:1px solid #ddd;padding:8px;">{{ l.reason }}</td>
+              <td style="border:1px solid #ddd;padding:8px;">
+                {% if l.status == 'pending' %}<span style="color:orange;">Menunggu</span>
+                {% elif l.status == 'approved_supervisor' %}<span style="color:blue;">Disetujui Supervisor</span>
+                {% elif l.status == 'approved_hr' %}<span style="color:green;">Disetujui HR</span>
+                {% else %}<span style="color:red;">Ditolak</span>{% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p>Belum ada pengajuan cuti.</p>
+      {% endif %}
+    {% endif %}
+  </div>
+
+  {% if team_leaves %}
+  <div style="background:#fff;border:1px solid #eee;border-radius:10px;padding:20px;margin-top:24px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+    <h4>Riwayat Pengajuan Cuti Anggota</h4>
+    <p style="color:#6b7280;font-size:14px;margin-bottom:16px;">Pengajuan cuti bawahan yang membutuhkan persetujuan Anda sebagai atasan langsung.</p>
+    {% for emp_name, emp_leaves in team_leaves.items %}
+      <div style="margin-top:18px;border:1px solid #e5e7eb;border-radius:8px;">
+        <div style="background:#f3f4f6;padding:10px 16px;border-bottom:1px solid #e5e7eb;font-weight:600;color:#1f2937;">
+          {{ emp_name }}
+        </div>
+        <div style="padding:0 16px 16px;overflow-x:auto;">
+          {% if emp_leaves %}
+          <table style="width:100%;border-collapse:collapse;margin-top:12px;">
+            <thead>
+              <tr style="background:#f9fafb;">
+                <th style="border:1px solid #ddd;padding:8px;">Tanggal Mulai</th>
+                <th style="border:1px solid #ddd;padding:8px;">Tanggal Akhir</th>
+                <th style="border:1px solid #ddd;padding:8px;">Jenis Cuti</th>
+                <th style="border:1px solid #ddd;padding:8px;">Alasan</th>
+                <th style="border:1px solid #ddd;padding:8px;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for l in emp_leaves %}
+              <tr>
+                <td style="border:1px solid #ddd;padding:8px;">{{ l.start_date }}</td>
+                <td style="border:1px solid #ddd;padding:8px;">{{ l.end_date }}</td>
+                <td style="border:1px solid #ddd;padding:8px;">{{ l.get_leave_type_display }}</td>
+                <td style="border:1px solid #ddd;padding:8px;">{{ l.reason }}</td>
+                <td style="border:1px solid #ddd;padding:8px;">
+                  {% if l.status == 'pending' %}
+                    <strong style="color:orange;"><a href="{% url 'compensation6:leave_approvals' %}" style="color:#1d4ed8;text-decoration:underline;">menunggu Persetujuan</a>.</strong>
+                  {% elif l.status == 'approved_supervisor' %}
+                    <span style="color:blue;">Disetujui Supervisor</span>
+                  {% elif l.status == 'approved_hr' %}
+                    <span style="color:green;">Disetujui HR</span>
+                  {% else %}
+                    <span style="color:red;">Ditolak</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+            <p style="margin:12px 0;color:#6b7280;">Belum ada pengajuan dari {{ emp_name }}.</p>
+          {% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <p style="text-align:center;color:#6b7280;">Belum ada pengajuan dari anggota tim.</p>
+    {% endfor %}
+    <div style="margin-top:12px;font-size:13px;color:#6b7280;">Gunakan menu "Approval Cuti" untuk memberikan keputusan.</div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

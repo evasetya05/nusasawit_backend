@@ -1,57 +1,28 @@
 {% extends 'dashboard/base.html' %}
 {% block content %}
-  <h1>Compensation and Benefit</h1>
-  <!-- Floating Feedback Button -->
-  <div class="floating-button feedback-button" onclick="openGoogleForm()">💬 Berikan Saran</div>
-  <!-- Floating WhatsApp Button -->
-  <div class="floating-button whatsapp-button" onclick="openWhatsAppChat()">📲 Konsultasikan Hasil</div>
-  <script>
-        // Function to open Google Form
-        function openGoogleForm() {
-            const googleFormLink = "https://forms.gle/YOUR_GOOGLE_FORM_LINK"; // Replace with your actual form link
-            window.open(googleFormLink, '_blank');
-        }
+<h2>Compensation Dashboard</h2>
 
-        // Function to open WhatsApp chat
-        function openWhatsAppChat() {
-            const phoneNumber = "+6285348178999";
-            const message = encodeURIComponent("Halo, saya ingin konsultasi mengenai hasil tes.");
-            const whatsappURL = `https://wa.me/${phoneNumber}?text=${message}`;
-            window.open(whatsappURL, '_blank');
-        }
-  </script>
-  <style>
-        /* General Floating Button Styles */
-        .floating-button {
-            position: fixed;
-            bottom: 15px;
-            right: 15px;
-            background-color: #ff9800; /* Orange */
-            color: white;
-            padding: 12px 20px;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 20px;
-            cursor: pointer;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease, background-color 0.3s ease;
-            text-align: center;
-            white-space: nowrap;
-        }
+  <div class="container mt-5" style="max-width:800px;margin:auto;text-align:center;">
+  <h2>💰 Kompensasi & Penggajian</h2>
+  <p>Pilih menu di bawah untuk melanjutkan:</p>
+  <div style="display:flex;justify-content:space-around;flex-wrap:wrap;gap:16px;">
+    <a href="{% url 'compensation6:payroll_period_list' %}"
+       style="background:#4CAF50;color:white;padding:20px 40px;border-radius:8px;text-decoration:none;">
+       📅 Kelola Periode Gaji
+    </a>
+    <a href="{% url 'compensation6:payroll_list' %}"
+       style="background:#2196F3;color:white;padding:20px 40px;border-radius:8px;text-decoration:none;">
+       🧾 Daftar Payroll
+    </a>
+    <a href="{% url 'compensation6:komponen_gaji' %}"
+       style="background:#FF9800;color:white;padding:20px 40px;border-radius:8px;text-decoration:none;">
+       💸 Komponen Gaji
+    </a>
+  </div>
+</div>
 
-        .floating-button:hover {
-            transform: scale(1.05);
-            background-color: #e68900; /* Darker orange */
-        }
 
-        /* Adjust positions for multiple buttons */
-        .whatsapp-button {
-            bottom: 70px; /* Position above feedback button */
-            background-color: #25D366; /* WhatsApp green */
-        }
+</form>
 
-        .whatsapp-button:hover {
-            background-color: #1ebe57;
-        }
-  </style>
-{% endblock content %}
+</ul>
+{% endblock %}

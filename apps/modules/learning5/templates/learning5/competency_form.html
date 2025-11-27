@@ -1,0 +1,93 @@
+{% extends 'dashboard/base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+<div class="container mt-4">
+  {% if edit_mode %}
+    <h4 class="mb-3">Edit Kompetensi</h4>
+  {% else %}
+    <h4 class="mb-3">Tambah Kompetensi Baru</h4>
+    <p class="text-muted">
+      Pastikan setiap kompetensi selaras dengan **Visi, Misi, dan Nilai Inti** perusahaan.
+    </p>
+  {% endif %}
+
+  <div class="card mb-4 bg-light">
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+
+        <!-- Name -->
+        <div class="mb-3">
+          <label for="{{ form.name.id_for_label }}" class="form-label">Nama Kompetensi</label>
+          {{ form.name }}
+          {% if form.name.errors %}
+            <div class="text-danger">{{ form.name.errors }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+          <label for="{{ form.description.id_for_label }}" class="form-label">Deskripsi Kompetensi</label>
+          {{ form.description }}
+          {% if form.description.errors %}
+            <div class="text-danger">{{ form.description.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="d-flex justify-content-end">
+          {% if edit_mode %}
+            <a href="{% url 'learning5:competency_add' %}" class="btn btn-secondary me-2">Batal</a>
+          {% endif %}
+          <button type="submit" class="btn btn-primary">
+            {% if edit_mode %}Perbarui Kompetensi{% else %}Simpan Kompetensi{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <hr>
+
+  <h5>Daftar Kompetensi (Berdasarkan Kategori Strategis)</h5>
+  <table class="table table-bordered table-hover">
+    <thead class="table-light">
+      <tr>
+        <th>Nama Kompetensi</th>
+        <th>Jenis Kompetensi</th>
+        <th>Deskripsi & Aksi</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in competencies %}
+      <tr>
+        <td>
+          <a href="{% url 'learning5:competency_edit' c.pk %}" class="text-primary text-decoration-none fw-bold">
+            {{ c.name }}
+          </a>
+        </td>
+        <td>
+          {% if c.category == 'Core' %}
+            <span class="badge bg-success">Inti (Core)</span>
+          {% elif c.category == 'Functional' %}
+            <span class="badge bg-info">Fungsional</span>
+          {% elif c.category == 'Leadership' %}
+            <span class="badge bg-warning text-dark">Kepemimpinan</span>
+          {% else %}
+            {{ c.category|default:"-" }}
+          {% endif %}
+        </td>
+        <td>
+          {{ c.description|truncatechars:100 }}
+          <a href="{% url 'learning5:competency_edit' c.pk %}" class="text-decoration-none ms-2">
+            (Edit)
+          </a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="3" class="text-center p-3">Belum ada kompetensi yang ditambahkan. Mulai buat dari Visi & Misi perusahaan.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

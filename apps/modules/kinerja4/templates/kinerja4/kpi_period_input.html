@@ -1,0 +1,180 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+  <h1 class="h3 mb-4">{{ title }}</h1>
+
+  {% if not is_supervisor %}
+  <div class="card shadow mb-4">
+    <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary">{{ kpi.title }} — {{ kpi.employee.user.get_full_name|default:kpi.employee.user.username }}</h6>
+      <small class="text-muted">Siklus: {{ kpi.cycle.name }} ({{ kpi.cycle.get_period_display }})</small>
+    </div>
+    <div class="card-body">
+      <form method="post" class="row g-3">
+        {% csrf_token %}
+        <div class="col-md-3">
+          <label class="form-label">Periode</label>
+          {% if kpi.cycle.period == 'weekly' %}
+            {{ form.week }}
+            <div class="form-text">Pilih minggu (format: YYYY-Www)</div>
+            {% if form.week.errors %}<div class="text-danger small">{{ form.week.errors }}</div>{% endif %}
+          {% else %}
+            {{ form.month }}
+            <div class="form-text">Pilih bulan (format: MMMM-YY)</div>
+            {% if form.month.errors %}<div class="text-danger small">{{ form.month.errors }}</div>{% endif %}
+          {% endif %}
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Actual</label>
+          {{ form.actual_value }}
+          {% if form.actual_value.errors %}<div class="text-danger small">{{ form.actual_value.errors }}</div>{% endif %}
+          {% if not can_edit_actual %}
+            <div class="text-muted small fst-italic"></div>
+          {% endif %}
+        </div>
+
+        {% if not is_supervisor %}
+          <div class="col-md-3">
+            <label class="form-label">Catatan</label>
+            {{ form.notes }}
+            {% if form.notes.errors %}<div class="text-danger small">{{ form.notes.errors }}</div>{% endif %}
+          </div>
+        {% endif %}
+
+        {% if is_supervisor %}
+          <div class="col-md-3 d-flex flex-column">
+            <label class="form-label">Catatan Supervisor</label>
+            {{ form.notes_supervisor }}
+            {% if form.notes_supervisor.errors %}
+              <div class="text-danger small">{{ form.notes_supervisor.errors }}</div>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        <div class="col-12 d-flex gap-2">
+          {% if can_edit_period %}
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Simpan</button>
+          {% endif %}
+          <a href="{% url 'kinerja4:kpi_detail' kpi.id %}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="card shadow">
+    <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary">Data Per Periode</h6>
+    </div>
+    <div class="card-body">
+      <form method="post" id="table-form">
+        {% csrf_token %}
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Periode</th>
+              <th>Target</th>
+              <th>Actual</th>
+              <th>Variance</th>
+              <th>Catatan</th>
+              <th>Catatan Supervisor</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in rows %}
+              <tr>
+                <td>{{ r.label }}</td>
+                <td>
+                  {% if is_supervisor %}
+                    <input type="number" name="target_{{ r.label }}" value="{{ r.target_value|default:'' }}" class="form-control form-control-sm" step="any" />
+                  {% else %}
+                    {{ r.target_value|default:'-' }}
+                  {% endif %}
+                </td>
+                <td>{{ r.score|default:'-' }}</td>
+                <td>{{ r.variance|default:'-' }}</td>
+                <td>
+                  {% if is_employee %}
+                    <input type="text" name="notes_{{ r.label }}" value="{{ r.notes|default:'' }}" class="form-control form-control-sm" />
+                  {% else %}
+                    {{ r.notes|default:'-' }}
+                  {% endif %}
+                </td>
+                <td>
+                  {% if is_supervisor %}
+                    <input type="text" name="notes_supervisor_{{ r.label }}" value="{{ r.notes_supervisor|default:'' }}" class="form-control form-control-sm" />
+                  {% else %}
+                    {{ r.notes_supervisor|default:'-' }}
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="badge
+                    {% if r.status == 'APPROVED' %}bg-success
+                    {% elif r.status == 'REJECTED' %}bg-danger
+                    {% else %}bg-warning{% endif %}">
+                    {{ r.status|default:'-' }}
+                  </span>
+                </td>
+                <td>
+                  {% if r.status == 'PENDING' and is_supervisor %}
+                    {% include "./partials/_evaluation_approval.html" with evaluation=r %}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="8" class="text-center">Belum ada data</td></tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr class="fw-bold">
+              <td>Total</td>
+              <td>{{ total_target|default:0|floatformat:2 }}</td>
+              <td>{{ total_actual|default:0|floatformat:2 }}</td>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      {% if is_supervisor or is_employee %}
+        <div class="mt-3">
+          <button type="submit" name="submit_table" class="btn btn-primary"><i class="fas fa-save"></i> Simpan Perubahan</button>
+        </div>
+      {% endif %}
+    </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function() {
+    var canEdit = {{ can_edit_period|yesno:'true,false' }};
+    var canEditActual = {% if can_edit_actual %}true{% else %}false{% endif %};
+    var form = document.querySelector('form');
+    if (form) {
+      Array.prototype.forEach.call(form.querySelectorAll('input, select, textarea, button[type="submit"]'), function(el) {
+        if (el.name && el.name !== 'csrfmiddlewaretoken') {
+          if (!canEdit) {
+            el.setAttribute('disabled', 'disabled');
+          } else if (el.name === 'actual_value' && !canEditActual) {
+            el.setAttribute('readonly', 'readonly');
+            el.style.textDecoration = 'underline';
+          }
+        }
+      });
+    }
+  })();
+</script>
+{% endblock %}

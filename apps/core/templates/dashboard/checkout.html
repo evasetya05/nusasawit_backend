@@ -1,0 +1,189 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block sidebar %}{% endblock %}
+{% block main %}
+<main class="overflow-auto" style="background-color: #E0E8F3;">
+  <div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0">Checkout Pro Plan</h2>
+      <a href="{% url 'pricing' %}" class="btn btn-outline-secondary">Kembali ke Harga</a>
+    </div>
+
+    <div class="row g-4">
+      <!-- Left: Form -->
+      <div class="col-12 col-lg-8">
+        <div class="card shadow-sm border-0">
+          <div class="card-body">
+            <h5 class="card-title mb-3">Informasi Pelanggan</h5>
+            <form id="checkout-form" method="post" action="{% url 'payment' %}">
+              {% csrf_token %}
+              {% if user.is_authenticated and user.is_owner %}
+                <div class="row g-3 mb-3">
+                  <div class="col-md-6">
+                    <label class="form-label">Nama Perusahaan</label>
+                    <input type="text" class="form-control" name="company_name" readonly value="{{ user.company.name }}">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" name="email" readonly value="{{ user.email }}">
+                  </div>
+                </div>
+              {% else %}
+                <div class="alert alert-info d-flex justify-content-between align-items-center" role="alert">
+                  <div>
+                    Silakan login atau daftar untuk melanjutkan checkout.
+                  </div>
+                  <div class="d-flex gap-2">
+                    <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-sm btn-primary">Login</a>
+                    <a href="{% url 'django_registration_register' %}" class="btn btn-sm btn-outline-primary">Daftar</a>
+                  </div>
+                </div>
+              {% endif %}
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label">Jumlah Pengguna</label>
+                    <select class="form-select" name="user_pack" id="user-pack">
+                      <option value="0" selected>Hingga 20 pengguna (+Rp10.000/20 pengguna)</option>
+                      <option value="10000">+ Rp10.000 (20 pengguna)</option>
+                      <option value="20000">+ Rp20.000 (40 pengguna)</option>
+                      <option value="30000">+ Rp30.000 (60 pengguna)</option>
+                      <option value="40000">+ Rp40.000 (80 pengguna)</option>
+                      <option value="50000">+ Rp50.000 (100 pengguna)</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Siklus Penagihan</label>
+                    <div class="d-flex gap-3 align-items-center" id="billing-cycle-group">
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="billing_cycle" id="cycle-monthly" value="monthly" checked>
+                        <label class="form-check-label" for="cycle-monthly">Bulanan</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="billing_cycle" id="cycle-yearly" value="yearly">
+                        <label class="form-check-label" for="cycle-yearly">Tahunan</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              <hr class="my-4">
+
+              <h5 class="card-title mb-3">Pilih Modul</h5>
+              <p class="text-muted small">Pilih modul yang anda butuhkan. Harga akan ditambahkan ke biaya dasar Pro.</p>
+              <div class="row row-cols-1 row-cols-md-2 g-3" id="modules-list" data-base-price="{{ base_price }}">
+                {% for m in modules %}
+                <div class="col">
+                  <div class="form-check border rounded p-3 h-100">
+                    <input class="form-check-input module-checkbox" type="checkbox" name="modules" value="{{ m.key }}" id="mod-{{ m.key }}" data-price="{{ m.price }}">
+                    <label class="form-check-label w-100" for="mod-{{ m.key }}">
+                      <div class="d-flex justify-content-between">
+                        <span>{{ m.name }}</span>
+                        <strong class="text-nowrap">Rp{{ m.price|floatformat:0 }}</strong>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+
+              <div class="mt-4 d-flex gap-2">
+                {% if user.is_authenticated %}
+                  <button type="submit" class="btn btn-primary">Lanjutkan Pembayaran</button>
+                  <a href="{% url 'pricing' %}" class="btn btn-outline-secondary">Batal</a>
+                {% else %}
+                  <a href="{% url 'login' %}" class="btn btn-primary">Login untuk Lanjut</a>
+                  <a href="{% url 'django_registration_register' %}" class="btn btn-outline-primary">Daftar</a>
+                  <a href="{% url 'pricing' %}" class="btn btn-outline-secondary">Kembali</a>
+                {% endif %}
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Summary -->
+      <div class="col-12 col-lg-4">
+        <div class="card shadow-sm border-0 position-sticky" style="top: 1rem;">
+          <div class="card-body">
+            <h5 class="card-title">Ringkasan</h5>
+            <ul class="list-group list-group-flush mb-3" id="summary-list">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>Pro (Biaya dasar)</span>
+                <span id="summary-base">Rp{{ base_price|floatformat:0 }}</span>
+              </li>
+            </ul>
+            <div class="d-flex justify-content-between">
+              <strong id="summary-label">Total per bulan</strong>
+              <strong id="summary-total">Rp{{ base_price|floatformat:0 }}</strong>
+            </div>
+            <p class="text-muted small mt-2">Belum termasuk pajak bila ada.</p>
+            {% if not user.is_authenticated %}
+              <div class="alert alert-warning mt-3 mb-0 py-2">Silakan login/daftar untuk melanjutkan pembayaran.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const modulesContainer = document.getElementById('modules-list');
+      const basePrice = parseInt(modulesContainer.getAttribute('data-base-price') || '0', 10);
+      const userPackSelect = document.getElementById('user-pack');
+      const billingCycleGroup = document.getElementById('billing-cycle-group');
+      const checkboxes = modulesContainer.querySelectorAll('.module-checkbox');
+      const summaryList = document.getElementById('summary-list');
+      const summaryTotal = document.getElementById('summary-total');
+      const summaryLabel = document.getElementById('summary-label');
+      const currency = new Intl.NumberFormat('id-ID');
+
+      function recalc() {
+        let monthlyTotal = basePrice;
+
+        // Add user pack price
+        const userPackPrice = parseInt(userPackSelect.value || '0', 10);
+        monthlyTotal += isNaN(userPackPrice) ? 0 : userPackPrice;
+
+        // Remove all module rows except the first (base price)
+        [...summaryList.querySelectorAll('li')].forEach((li, idx) => { if (idx > 0) li.remove(); });
+
+        checkboxes.forEach(cb => {
+          const price = parseInt(cb.dataset.price || '0', 10);
+          if (cb.checked) {
+            monthlyTotal += price;
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            const label = document.querySelector('label[for="' + cb.id + '"] span');
+            li.innerHTML = `<span>${label ? label.textContent : cb.value}</span><span>Rp${currency.format(price)}</span>`;
+            summaryList.appendChild(li);
+          }
+        });
+
+        // Add user pack row if selected
+        if (!isNaN(userPackPrice) && userPackPrice > 0) {
+          const li = document.createElement('li');
+          li.className = 'list-group-item d-flex justify-content-between align-items-center';
+          li.innerHTML = `<span>Paket Pengguna</span><span>Rp${currency.format(userPackPrice)}</span>`;
+          summaryList.appendChild(li);
+        }
+
+        // Billing cycle multiplier
+        const selectedCycle = document.querySelector('input[name="billing_cycle"]:checked')?.value || 'monthly';
+        const total = selectedCycle === 'yearly' ? monthlyTotal * 12 : monthlyTotal;
+        summaryLabel.textContent = selectedCycle === 'yearly' ? 'Total per tahun' : 'Total per bulan';
+        summaryTotal.textContent = 'Rp' + currency.format(total);
+      }
+
+      checkboxes.forEach(cb => cb.addEventListener('change', recalc));
+      userPackSelect.addEventListener('change', recalc);
+      billingCycleGroup.querySelectorAll('input[type="radio"]').forEach(r => r.addEventListener('change', recalc));
+      recalc();
+
+      // Form will submit to payment step
+    })();
+  </script>
+  {% include "./partials/footer.html" %}
+  {% include "./partials/fab.html" %}
+</main>
+{% endblock %}

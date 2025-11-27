@@ -1,0 +1,130 @@
+{% extends 'dashboard/base.html' %}
+{% load sidebar_menu %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Daftar Keluhan Karyawan</h1>
+    {% if user.is_authenticated and is_owner %}
+      <div class="d-flex align-items-center gap-3">
+        <span class="badge {% if company_ir_menu_visible %}bg-success{% else %}bg-secondary{% endif %}">
+          {% if company_ir_menu_visible %}Terlihat oleh karyawan{% else %}Disembunyikan dari karyawan{% endif %}
+        </span>
+        {% if company_ir_menu_visible %}
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="set_ir_menu_visibility" value="false">
+            <button type="submit" class="btn btn-sm btn-outline-danger">
+              Sembunyikan dari karyawan
+            </button>
+          </form>
+        {% else %}
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="set_ir_menu_visibility" value="true">
+            <button type="submit" class="btn btn-sm btn-outline-success">
+              Tampilkan ke karyawan
+            </button>
+          </form>
+        {% endif %}
+      </div>
+    {% elif user.is_authenticated %}
+      <a href="{% url 'ir8:complaint_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Ajukan Keluhan
+      </a>
+    {% endif %}
+  </div>
+
+  <div class="alert {% if company_ir_menu_visible %}alert-info{% else %}alert-warning{% endif %} shadow-sm">
+    {% if company_ir_menu_visible %}
+      Menu Industrial Relation saat ini terlihat oleh karyawan sehingga mereka dapat mengajukan keluhan.
+    {% else %}
+      Menu Industrial Relation sedang disembunyikan. Karyawan tidak dapat melihat menu ini ataupun mengajukan keluhan baru.
+    {% endif %}
+  </div>
+
+  {% if complaints %}
+    <div class="card shadow mb-4">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Judul Keluhan</th>
+                <th>Status</th>
+                <th>Pelapor</th>
+                <th>Tanggal Dibuat</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in complaints %}
+                <tr>
+                  <td>
+                    <a href="{% url 'ir8:complaint_detail' c.pk %}" class="text-decoration-none fw-bold">
+                      {{ c.title }}
+                    </a>
+                  </td>
+                  <td>
+                    <span class="badge
+                      {% if c.status == 'submitted' %}bg-warning
+                      {% elif c.status == 'in_review' %}bg-info
+                      {% elif c.status == 'resolved' %}bg-success
+                      {% else %}bg-secondary{% endif %}">
+                      {{ c.get_status_display }}
+                    </span>
+                  </td>
+                  <td>{% if c.is_anonymous %}Anonymous{% else %}{{ c.reporter }}{% endif %}</td>
+                  <td>{{ c.created_at|date:"d M Y, H:i" }}</td>
+                  <td>
+                    {% if is_owner %}
+                      <a href="{% url 'ir8:complaint_review' c.pk %}" class="btn btn-sm btn-warning">
+                        <i class="fas fa-edit"></i> Review
+                      </a>
+                    {% else %}
+                      <a href="{% url 'ir8:complaint_detail' c.pk %}" class="btn btn-sm btn-outline-primary me-1">
+                        <i class="fas fa-eye"></i> Lihat
+                      </a>
+                      {% if user.is_staff %}
+                        <a href="{% url 'ir8:complaint_review' c.pk %}" class="btn btn-sm btn-outline-warning">
+                          <i class="fas fa-edit"></i> Review
+                        </a>
+                      {% endif %}
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    {% if is_paginated %}
+      <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+          {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Sebelumnya</a>
+            </li>
+          {% endif %}
+          <li class="page-item disabled">
+            <span class="page-link">Halaman {{ page_obj.number }} dari {{ page_obj.paginator.num_pages }}</span>
+          </li>
+          {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.next_page_number }}">Selanjutnya</a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+  {% else %}
+    <div class="alert alert-info text-center">
+      <i class="fas fa-info-circle fa-2x mb-2"></i>
+      <h5>Belum ada keluhan</h5>
+      <p>Jika Anda memiliki keluhan, silakan ajukan melalui tombol di atas.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

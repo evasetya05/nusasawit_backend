@@ -4,3 +4,43 @@
     --bs-alert-border-color: var(--bs-danger-border-subtle);
     --bs-alert-link-color: var(--bs-danger-text-emphasis);
 }
+
+/* Sidebar styling */
+.sidebar-panel {
+    background-color: #2c3e50;
+    border-right: 1px solid #34495e;
+}
+
+.sidebar-panel .nav-link {
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.3s ease;
+}
+
+.sidebar-panel .nav-link:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-panel .nav-link.active {
+    background-color: #3498db;
+    color: #ffffff;
+}
+
+.header-navbar {
+    background-color: #34495e;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-navbar .navbar-brand {
+    color: #ffffff !important;
+    font-weight: bold;
+    font-size: 1.3rem;
+}
+
+.header-navbar .nav-link {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.header-navbar .nav-link:hover {
+    color: #ffffff !important;
+}

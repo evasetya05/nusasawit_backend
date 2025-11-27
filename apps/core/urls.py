@@ -10,13 +10,16 @@ from .views.company_views import (
     PositionUpdateView,
     PositionDeleteView,
 )
-from .views.index_views import index
+from .views.index_views import index, pricing, checkout, payment
 from .views.user_views import ListUserView, EditUserView, user_profile
 
 index_pattern = (
     [
         path('', index, name="index"),
         path('dashboard/', index, name="dashboard"),
+        path('pricing/', pricing, name="pricing"),
+        path('checkout/', checkout, name="checkout"),
+        path('payment/', payment, name="payment"),
     ]
 )
 

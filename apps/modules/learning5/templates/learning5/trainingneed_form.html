@@ -1,0 +1,147 @@
+{% extends 'dashboard/base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0">
+            {% if edit_mode %}
+              Edit Kebutuhan Pelatihan
+            {% else %}
+              Tambah Kebutuhan Pelatihan
+            {% endif %}
+          </h4>
+        </div>
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+
+            <!-- Employee -->
+            <div class="mb-3">
+              <label for="{{ form.employee.id_for_label }}" class="form-label">Karyawan</label>
+              {{ form.employee }}
+              {% if form.employee.errors %}
+                <div class="text-danger">{{ form.employee.errors }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Competency Row -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="{{ form.competency.id_for_label }}" class="form-label">Kompetensi</label>
+                {{ form.competency }}
+                {% if form.competency.errors %}
+                  <div class="text-danger">{{ form.competency.errors }}</div>
+                {% endif %}
+              </div>
+              <div class="col-md-6">
+                <label for="{{ form.detail_competency.id_for_label }}" class="form-label">Detail Kompetensi</label>
+                {{ form.detail_competency }}
+                {% if form.detail_competency.errors %}
+                  <div class="text-danger">{{ form.detail_competency.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Scores Row -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="{{ form.current_score.id_for_label }}" class="form-label">Skor Sekarang (0-5)</label>
+                {{ form.current_score }}
+                {% if form.current_score.errors %}
+                  <div class="text-danger">{{ form.current_score.errors }}</div>
+                {% endif %}
+              </div>
+              <div class="col-md-6">
+                <label for="{{ form.desired_score.id_for_label }}" class="form-label">Skor Yang Diinginkan (0-5)</label>
+                {{ form.desired_score }}
+                {% if form.desired_score.errors %}
+                  <div class="text-danger">{{ form.desired_score.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Dates Row -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="{{ form.when_to_traine.id_for_label }}" class="form-label">Kapan Dilatih</label>
+                {{ form.when_to_traine }}
+                {% if form.when_to_traine.errors %}
+                  <div class="text-danger">{{ form.when_to_traine.errors }}</div>
+                {% endif %}
+              </div>
+              <div class="col-md-6">
+                <label for="{{ form.done_at.id_for_label }}" class="form-label">Tanggal Selesai</label>
+                {{ form.done_at }}
+                {% if form.done_at.errors %}
+                  <div class="text-danger">{{ form.done_at.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Training Type and Cost Row -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="{{ form.jenis_pelatihan.id_for_label }}" class="form-label">Jenis Pelatihan</label>
+                {{ form.jenis_pelatihan }}
+                {% if form.jenis_pelatihan.errors %}
+                  <div class="text-danger">{{ form.jenis_pelatihan.errors }}</div>
+                {% endif %}
+              </div>
+              <div class="col-md-6">
+                <label for="{{ form.cost.id_for_label }}" class="form-label">Biaya</label>
+                {{ form.cost }}
+                {% if form.cost.errors %}
+                  <div class="text-danger">{{ form.cost.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="mb-3">
+              <label for="{{ form.notes.id_for_label }}" class="form-label">Catatan</label>
+              {{ form.notes }}
+              {% if form.notes.errors %}
+                <div class="text-danger">{{ form.notes.errors }}</div>
+              {% endif %}
+            </div>
+
+            <div class="d-flex justify-content-end">
+              <a href="{% url 'learning5:trainingneed_list' %}" class="btn btn-secondary me-2">Batal</a>
+              <button type="submit" class="btn btn-primary">Simpan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const competencySelect = document.getElementById('id_competency');
+    const detailSelect = document.getElementById('id_detail_competency');
+
+    competencySelect.addEventListener('change', function() {
+      const selectedText = competencySelect.options[competencySelect.selectedIndex].text;
+      detailSelect.innerHTML = '<option value="">Memuat...</option>';
+      if (!selectedText) return;
+
+      fetch(`/learning/ajax/load-detail-competencies/?competency_name=${encodeURIComponent(selectedText)}`)
+        .then(response => response.json())
+        .then(data => {
+          detailSelect.innerHTML = '<option value="">---------</option>';
+          data.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item.id;
+            opt.textContent = item.description;
+            detailSelect.appendChild(opt);
+          });
+        });
+    });
+  });
+</script>
+
+{% endblock %}

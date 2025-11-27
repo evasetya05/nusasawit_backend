@@ -1,0 +1,191 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block content %}
+  <div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+      <div>
+        <h1 class="h3 mb-1">Detail KPI</h1>
+      </div>
+      <div class="d-flex align-items-center gap-2" id="kpi-actions">
+        {% if can_edit %}
+          <a href="{% url 'kinerja4:kpi_edit' kpi.id %}" class="btn btn-primary">
+            <i class="fas fa-edit"></i>
+          </a>
+          <a hx-get="{% url 'kinerja4:kpi_submit' kpi.id %}"
+             hx-target="#kpi-actions"
+             hx-swap="outerHTML"
+             class="btn btn-warning">
+            <i class="fas fa-paper-plane"></i>
+          </a>
+        {% endif %}
+        {% if can_approve %}
+          {% include "./partials/_kpi_approval.html" %}
+        {% endif %}
+        <a href="{% url 'kinerja4:kpi_list' %}" class="btn btn-light border">
+          <i class="fas fa-arrow-left"></i>
+        </a>
+      </div>
+    </div>
+
+    {% if not kpi %}
+      <div class="alert alert-danger">KPI tidak ditemukan atau Anda tidak memiliki izin untuk melihatnya.</div>
+    {% else %}
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <div class="card shadow-sm h-100">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+              <h6 class="m-0 font-weight-bold text-primary">{{ kpi.title }}</h6>
+              <span id="kpi-status" class="badge {% if kpi.status == 'SUBMITTED' %} bg-warning {% elif kpi.status == 'APPROVED' %} bg-success {% elif kpi.status == 'REJECTED' %} bg-danger {% else %} bg-secondary {% endif %}">{{ kpi.get_status_display }}</span>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-1"><strong>Karyawan</strong></div>
+                  <div class="mb-3">{{ kpi.employee }}</div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-1"><strong>Supervisor</strong></div>
+                  <div class="mb-3">{{ kpi.supervisor|default:"-" }}</div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-1"><strong>Dibuat</strong></div>
+                  <div class="mb-3">{{ kpi.created_at|date:"d M Y H:i" }}</div>
+                </div>
+                {% if kpi.cycle %}
+                <div class="col-md-6">
+                  <div class="mb-1"><strong>Siklus</strong></div>
+                  <div class="mb-3">{{ kpi.cycle }}</div>
+                </div>
+                {% endif %}
+                <div class="col-12">
+                  <div class="mb-1"><strong>Deskripsi</strong></div>
+                  <div>{{ kpi.description|linebreaksbr }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card shadow-sm h-100">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">Grafik Target vs Actual</h6>
+            </div>
+            <div class="card-body">
+              <div style="height: 320px;">
+                <canvas id="kpiChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="m-0">Target & Capaian per Periode</h6>
+        <div id="kpi-period-action">
+          {% if kpi.status == 'APPROVED' %}
+            <a href="{% url 'kinerja4:kpi_period_input' kpi.id %}" class="btn btn-primary btn-sm">
+              <i class="fas fa-calendar-plus"></i>
+              {% if is_manager %}Review{% else %}Input{% endif %}
+            </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-sm table-striped align-middle">
+              <thead>
+                <tr>
+                  <th>Periode</th>
+                  <th class="text-end">Target</th>
+                  <th class="text-end">Actual</th>
+                  <th class="text-end">Var</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in rows %}
+                  <tr>
+                    <td>{{ r.label }}</td>
+                    <td class="text-end">{{ r.target_value|default:0 }}</td>
+                    <td class="text-end">{{ r.score|default:0 }}</td>
+                    <td class="text-end">{% if r.variance is not None %}{{ r.variance }}{% else %}-{% endif %}</td>
+                    <td>
+                      {% if r.status == 'APPROVED' %}
+                        <span class="badge bg-success">Approved</span>
+                      {% elif r.status == 'PENDING' %}
+                        <span class="badge bg-warning">Pending</span>
+                      {% elif r.status == 'REJECTED' %}
+                        <span class="badge bg-danger">Rejected</span>
+                      {% else %}
+                        <span class="badge bg-secondary">-</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="5" class="text-center text-muted">Belum ada data periode.</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Total</th>
+                  <th class="text-end">{{ total_target|default:0 }}</th>
+                  <th class="text-end">{{ total_actual|default:0 }}</th>
+                  <th class="text-end">{% if achievement_pct is not None %}{{ achievement_pct }}%{% else %}-{% endif %}</th>
+                  <th></th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <script src="{% static 'vendor/chart.js' %}"></script>
+  <script>
+    (function() {
+      const ctx = document.getElementById('kpiChart');
+      if (!ctx) return;
+      const labels = {{ chart_labels_json|default:'[]'|safe }};
+      const targets = {{ chart_targets_json|default:'[]'|safe }};
+      const actuals = {{ chart_actuals_json|default:'[]'|safe }};
+      if (labels.length === 0) return;
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Target',
+              data: targets,
+              borderColor: 'rgba(54, 162, 235, 1)',
+              backgroundColor: 'rgba(54, 162, 235, 0.2)',
+              tension: 0.3
+            },
+            {
+              label: 'Actual',
+              data: actuals,
+              borderColor: 'rgba(75, 192, 192, 1)',
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              tension: 0.3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          stacked: false,
+          plugins: { legend: { position: 'bottom' } },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    })();
+  </script>
+{% endblock %}

@@ -4,17 +4,19 @@ from apps.core.models import Company
 from .models import (
     Applicant,
     Test,
-    Question,
     UserTest,
     UserAnswer,
     TestResult,
-    UserAnswerInterview,
 )
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg, Count, Sum
-from itertools import groupby
+from django.views.generic import View
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import Big5TestForm, ApplicantForm, DopeTestForm, InterviewForm
+
+from .services.recruitment_service import RecruitmentService
+from .services.interview_service import InterviewService
 
 
 # View for the test form (public)
@@ -117,6 +119,13 @@ def personality_test_result(request):
     tested_applicants = UserTest.objects.filter(
         test=Test.objects.get(name="Big 5"), result__company=request.user.company
     ).prefetch_related("user_answer")
+
+    applicant_id = request.GET.get("applicant")
+    if applicant_id:
+        try:
+            tested_applicants = tested_applicants.filter(result_id=int(applicant_id))
+        except (TypeError, ValueError):
+            tested_applicants = tested_applicants.none()
     return render(
         request,
         "m2recruit/personality_test/personality_test_result.html",
@@ -174,6 +183,13 @@ def dope_test_result(request):
         test=Test.objects.get(name="Dope"), result__company=request.user.company
     ).prefetch_related("user_answer")
 
+    applicant_id = request.GET.get("applicant")
+    if applicant_id:
+        try:
+            tested_applicants = tested_applicants.filter(result_id=int(applicant_id))
+        except (TypeError, ValueError):
+            tested_applicants = tested_applicants.none()
+
     return render(
         request,
         "m2recruit/dope/dope_test_result.html",
@@ -190,59 +206,52 @@ def thank_you(request):
     return render(request, "m2recruit/thank_you.html")
 
 
-def pertanyaan_interviews(request):
-    interview_test = Test.objects.get(name="Interview")
-    questions = Question.objects.filter(test=interview_test)
+class PertanyaanInterviewView(LoginRequiredMixin, View):
+    template_name = "m2recruit/interviews/pertanyaan_interviews.html"
+    service = InterviewService()
 
-    if request.method == "POST":
-        form = InterviewForm(request.POST, questions=questions)
-        if form.is_valid():
-            pelamar_id = request.POST.get("pelamar")
-            test_result = get_object_or_404(TestResult, id=pelamar_id)
-            user_test = UserTest.objects.create(
-                result=test_result,
-                test=interview_test,
-            )
-            for question in questions:
-                rating = form.cleaned_data[f"rating_{question.id}"]
-                comment = form.cleaned_data[f"comment_{question.id}"]
-                UserAnswerInterview.objects.create(
-                    user_test=user_test,
-                    question=question,
-                    answer_value=rating,
-                    comment=comment,
-                )
-            total_rating = UserAnswerInterview.objects.filter(
-                user_test=user_test
-            ).aggregate(total=Sum("answer_value"))["total"]
-            user_test.score_summary = total_rating
-            user_test.save()
-            return redirect("interviews")
-    else:
+    def get(self, request, *args, **kwargs):
+        interview_test = self.service.get_interview_test()
+        questions = self.service.get_questions(interview_test)
+        available_tests = self.service.get_available_tests(request.user.company)
+
+        selected_id = request.GET.get("test_result")
+        selected_applicant = self.service.get_selected_applicant(selected_id, available_tests)
+
         form = InterviewForm(questions=questions)
 
-        tests = TestResult.objects.filter(company=request.user.company).select_related(
-            "user"
+        context = self.service.get_context_data(
+            selected_applicant=selected_applicant,
+            available_tests=available_tests,
+            form=form,
+            questions=questions
         )
 
-        # Get IDs of applicants who have already been interviewed
-        interviewed_applicants = tests.filter(user_test__test=Test.objects.get(
-            name='Interview')).values_list('user_id', flat=True)
+        return render(request, self.template_name, context)
 
-        # Filter applicants who have NOT been interviewed
-        available_tests = [
-            test for test in tests if test.user.id not in interviewed_applicants
-        ]
+    def post(self, request, *args, **kwargs):
+        interview_test = self.service.get_interview_test()
+        questions = self.service.get_questions(interview_test)
+        available_tests = self.service.get_available_tests(request.user.company)
 
-        return render(
-            request,
-            "m2recruit/interviews/pertanyaan_interviews.html",
-            {
-                "questions": questions,
-                "applicants": available_tests,
-                "form": form,
-            },
+        selected_id = request.POST.get("test_result")
+        selected_applicant = self.service.get_selected_applicant(selected_id, available_tests)
+
+        form = InterviewForm(request.POST, questions=questions)
+
+        user_test = self.service.process_interview_form(form, selected_applicant, questions)
+
+        if user_test:
+            return redirect("interviews")
+
+        context = self.service.get_context_data(
+            selected_applicant=selected_applicant,
+            available_tests=available_tests,
+            form=form,
+            questions=questions
         )
+
+        return render(request, self.template_name, context)
 
 
 @login_required
@@ -250,6 +259,14 @@ def interviews(request):
     tested_applicants = UserTest.objects.filter(
         test=Test.objects.get(name="Interview"), result__company=request.user.company
     ).prefetch_related("user_answer")
+
+    applicant_id = request.GET.get("applicant")
+    if applicant_id:
+        try:
+            tested_applicants = tested_applicants.filter(result_id=int(applicant_id))
+        except (TypeError, ValueError):
+            tested_applicants = tested_applicants.none()
+
     return render(
         request,
         "m2recruit/interviews/interviews.html",
@@ -259,9 +276,14 @@ def interviews(request):
     )
 
 
-@login_required
-def recruit_dashboard(request):
-    if request.method == "POST":
+class RecruitDashboardView(LoginRequiredMixin, View):
+    template_name = 'm2recruit/recruit_dashboard.html'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.recruitment_service = RecruitmentService()
+
+    def post(self, request, *args, **kwargs):
         applicant_id = request.POST.get("applicant_id")
         new_status = request.POST.get("status")
 
@@ -272,27 +294,16 @@ def recruit_dashboard(request):
 
         return redirect("recruit_dashboard")
 
-    user_test = UserTest.objects.filter(
-        result__company=request.user.company).select_related('result', 'test').all()
-    personality_data = list(user_test)
-    personality_data.sort(key=lambda x: x.result_id)
-    grouped_data = []
-    for applicant, group in groupby(personality_data, key=lambda x: x.result):
-        grouped = list(group)
-        agg = {'applicant': applicant}
-        for item in grouped:
-            agg[item.test.name.replace(' ', '_')] = item.score_summary
-            if item.test.name == 'Dope':
-                agg['dope_personality'] = item.dope_personality
+    def get(self, request, *args, **kwargs):
+        user_tests = UserTest.objects.filter(
+            result__company=request.user.company
+        ).select_related('result', 'test').all()
 
-        grouped_data.append(agg)
+        grouped_by_status = self.recruitment_service.get_grouped_applicants(user_tests)
 
-    sorted_averages = sorted(
-        grouped_data, key=lambda x: x['applicant'].id, reverse=True)
-
-    return render(request, 'm2recruit/recruit_dashboard.html', {
-        'applicants': sorted_averages,
-    })
+        return render(request, self.template_name, {
+            'applicants_grouped': grouped_by_status,
+        })
 
 
 @login_required

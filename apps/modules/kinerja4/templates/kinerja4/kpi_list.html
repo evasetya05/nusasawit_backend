@@ -1,0 +1,164 @@
+{% extends 'dashboard/base.html' %}
+{% load sidebar_menu %}
+{% block content %}
+  <div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+      <h1 class="h3 mb-0 text-gray-800">KPI Saya</h1>
+      <a href="{% url 'kinerja4:kpi_create' %}"
+         class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+        <i class="fas fa-plus fa-sm text-white-50"></i> Buat KPI
+      </a>
+    </div>
+    <div class="card shadow mb-4">
+      <div class="card-body">
+        {% if my_kpis %}
+          <table class="table">
+            <thead class="bg-white text-gray-600 uppercase text-xs">
+              <tr>
+                <th class="px-2 py-2 border border-gray-200">Judul</th>
+                <th class="px-2 py-2 border border-gray-200">Deskripsi</th>
+                <th class="px-2 py-2 border border-gray-200">Siklus</th>
+                <th class="px-2 py-2 border border-gray-200">Target</th>
+                <th class="px-2 py-2 border border-gray-200">Nilai</th>
+                <th class="px-2 py-2 border border-gray-200">% Variance</th>
+                <th class="px-2 py-2 border border-gray-200">Bobot</th>
+                <th class="px-2 py-2 border border-gray-200">% Tertimbang</th>
+                <th class="px-2 py-2 border border-gray-200">Status</th>
+                <th class="px-2 py-2 border border-gray-200">Dibuat</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for k in my_kpis %}
+                <tr class="border-t border-gray-200 hover:bg-white transition">
+                  <td class="px-2 py-2 border border-gray-200">
+                    <a class="text-blue-600 hover:underline"
+                       href="{% url 'kinerja4:kpi_detail' k.kpi.id %}">{{ k.kpi.title }}</a>
+                  </td>
+                  <td class="px-2 py-2 border border-gray-200">{{ k.kpi.description|truncatechars:50 }}</td>
+                  <td class="px-2 py-2 border border-gray-200">{{ k.kpi.cycle|default:"-" }}</td>
+                  <td class="px-2 py-2 border border-gray-200">{{ k.target|default:'-' }}</td>
+                  <td class="px-2 py-2 border border-gray-200">{{ k.score|default:'-' }}</td>
+                  <td class="px-2 py-2 border border-gray-200">{{ k.pct|default:'-' }}%</td>
+                  <td class="px-2 py-2 border border-gray-200">{{ k.kpi.weight|floatformat:"0" }}%</td>
+                  <td class="px-2 py-2 border border-gray-200">{{ k.weighted_pct|default:'-' }}%</td>
+                  <td class="px-2 py-2 border border-gray-200">
+                    <span class="badge {% if k.kpi.status == 'SUBMITTED' %}bg-warning {% elif k.kpi.status == 'APPROVED' %}bg-success {% elif k.kpi.status == 'REJECTED' %}bg-danger {% else %}bg-secondary{% endif %}">
+                      {{ k.kpi.get_status_display }}
+                    </span>
+                  </td>
+                  <td class="px-2 py-2 border border-gray-200">{{ k.kpi.created_at|date:"Y-m-d H:i" }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot class="bg-gray-100 font-semibold">
+              <tr>
+                <td colspan="5" class="px-2 py-2">Total</td>
+                <td class="px-2 py-2">{{ my_total_pct|floatformat:2 }}%</td>
+                <td class="px-2 py-2"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Bobot harus berjumlah 100%">{{ my_total_weight|floatformat:"0" }}%</td>
+                <td class="px-2 py-2">{{ my_total_weighted_pct|floatformat:2 }}%</td>
+                <td colspan="2" class="px-2 py-2"></td>
+              </tr>
+            </tfoot>
+          </table>
+        {% else %}
+          <p>Belum ada KPI.</p>
+        {% endif %}
+      </div>
+    </div>
+    {% if supervised_kpis_submitted %}
+      <div class="card shadow border-warning">
+        <div class="card-header py-3 text-bg-warning">
+          <h2 class="h4 mb-0 text-gray-800">Tunggu Persetujuan</h2>
+        </div>
+        <div class="card-body">
+          <table class="table">
+            <thead class="bg-white text-gray-600 uppercase text-xs">
+              <tr>
+                <th class="px-2 py-2 border border-gray-200">Nama</th>
+                <th class="px-2 py-2 border border-gray-200">Judul</th>
+                <th class="px-2 py-2 border border-gray-200">Deskripsi</th>
+                <th class="px-2 py-2 border border-gray-200">Siklus</th>
+                <th class="px-2 py-2 border border-gray-200">Target</th>
+                <th class="px-2 py-2 border border-gray-200">Bobot</th>
+                <th class="px-2 py-2 border border-gray-200">Dibuat</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for k in supervised_kpis_submitted %}
+                <tr class="border-t border-gray-200 hover:bg-white transition">
+                  <td class="px-2 py-2 border border-gray-200">{{ k.kpi.employee.name }}</td>
+                  <td class="px-2 py-2 border border-gray-200">
+                    <a class="text-blue-600 hover:underline"
+                       href="{% url 'kinerja4:kpi_detail' k.kpi.id %}">{{ k.kpi.title }}</a>
+                  </td>
+                  <td class="px-2 py-2 border border-gray-200">{{ k.kpi.description|truncatechars:50 }}</td>
+                  <td class="px-2 py-2 border border-gray-200">{{ k.kpi.cycle|default:"-" }}</td>
+                  <td class="px-2 py-2 border border-gray-200">{{ k.target|default:'-' }}</td>
+                  <td class="px-2 py-2 border border-gray-200">{{ k.kpi.weight|floatformat:"0" }}%</td>
+                  <td class="px-2 py-2 border border-gray-200">{{ k.kpi.created_at|date:"Y-m-d H:i" }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% endif %}
+    <div class="card shadow mt-4">
+      <div class="card-header py-3">
+        <h2 class="h4 mb-0 text-gray-800">KPI Anggota</h2>
+      </div>
+      <div class="card-body">
+        {% if supervised_kpis_others %}
+          <table class="table table-bordered">
+            <thead class="bg-white text-gray-600 uppercase text-xs">
+              <tr>
+                <th class="px-2 py-2 border border-gray-200">Judul</th>
+                <th class="px-2 py-2 border border-gray-200">Deskripsi</th>
+                <th class="px-2 py-2 border border-gray-200">Siklus</th>
+                <th class="px-2 py-2 border border-gray-200">Target</th>
+                <th class="px-2 py-2 border border-gray-200">Nilai</th>
+                <th class="px-2 py-2 border border-gray-200">% Variance</th>
+                <th class="px-2 py-2 border border-gray-200">Bobot</th>
+                <th class="px-2 py-2 border border-gray-200">% Tertimbang</th>
+                <th class="px-2 py-2 border border-gray-200">Status</th>
+                <th class="px-2 py-2 border border-gray-200">Dibuat</th>
+              </tr>
+            </thead>
+            {% regroup supervised_kpis_others by kpi.employee as employee_groups %}
+            {% for group in employee_groups %}
+              <tbody>
+                <tr class="table-active">
+                  <td colspan="10" class="px-2 py-2 fw-semibold">{{ group.grouper }}</td>
+                </tr>
+                {% for k in group.list %}
+                  <tr class="border-t border-gray-200 hover:bg-white transition">
+                    <td class="px-2 py-2 border border-gray-200">
+                      <a class="text-blue-600 hover:underline"
+                         href="{% url 'kinerja4:kpi_detail' k.kpi.id %}">{{ k.kpi.title }}</a>
+                    </td>
+                    <td class="px-2 py-2 border border-gray-200">{{ k.kpi.description|truncatechars:50 }}</td>
+                    <td class="px-2 py-2 border border-gray-200">{{ k.kpi.cycle|default:"-" }}</td>
+                    <td class="px-2 py-2 border border-gray-200">{{ k.target|default:'-' }}</td>
+                    <td class="px-2 py-2 border border-gray-200">{{ k.score|default:'-' }}</td>
+                    <td class="px-2 py-2 border border-gray-200">{{ k.pct|default:'-' }}%</td>
+                    <td class="px-2 py-2 border border-gray-200">{{ k.kpi.weight|floatformat:"0" }}%</td>
+                    <td class="px-2 py-2 border border-gray-200">{{ k.weighted_pct|default:'-' }}%</td>
+                    <td class="px-2 py-2 border border-gray-200">
+                      <span class="badge {% if k.kpi.status == 'SUBMITTED' %}bg-warning {% elif k.kpi.status == 'APPROVED' %}bg-success {% elif k.kpi.status == 'REJECTED' %}bg-danger {% else %}bg-secondary{% endif %}">{{ k.kpi.get_status_display }}</span>
+                    </td>
+                    <td class="px-2 py-2 border border-gray-200">{{ k.kpi.created_at|date:"Y-m-d H:i" }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            {% endfor %}
+          </table>
+        {% else %}
+          <p>Tidak ada KPI lainnya.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

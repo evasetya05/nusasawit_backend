@@ -1,0 +1,55 @@
+<footer class="py-4 pb-0 text-white mt-5 footer-section mt-auto">
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <h5>Quick Links</h5>
+        <ul class="list-unstyled">
+          <li><a href="{% url 'index' %}">Home</a></li>
+          <li><a href="{% url 'pricing' %}">Pricing</a></li>
+          <li><a href="{% url 'blog:blog_list' %}">Blog</a></li>
+          <li><a href="{% url 'dope' %}">Psychometric</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <h5>Alamat</h5>
+        <small>
+          <div>Komplek Ammelia 1 No A5, Jl. Parit Bugis</div>
+          <div>Desa Arang Limbung, Kec. Sungai Raya</div>
+          <div>Kab. Kubu Raya. Kalimantan Barat</div>
+          <div>78391</div>
+        </small>
+      </div>
+      <div class="col">
+        <h5>Hubungi Kami</h5>
+        <small>
+          <div>+6285348178999</div>
+        </small>
+      </div>
+    </div>
+  </div>
+  <hr class="my-3 footer-line" />
+  <div class="container d-flex py-0 justify-content-between">
+    <p>© 2025 SKN. All rights reserved.</p>
+    <p>Contact us: <a href="mailto:contact@sdmportabel.com" class="text-white">contact@sdmportabel.com</a></p>
+    <p>
+      <a href="{% url 'privacy-policy' %}" class="text-white">Privacy Policy</a> &
+      <a href="{% url 'terms-of-service' %}" class="text-white">Terms of Service</a>
+    </p>
+  </div>
+</footer>
+
+<style>
+  footer {
+    color: white;
+    background-color: #333;
+  }
+
+  footer a {
+    color: white;
+    text-decoration: none;
+  }
+
+  footer a:hover {
+    text-decoration: underline;
+  }
+</style>

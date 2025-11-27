@@ -59,9 +59,28 @@ class InterviewForm(forms.Form):
         for question in questions:
             self.fields[f'rating_{question.id}'] = forms.IntegerField(
                 widget=forms.NumberInput(attrs={'min': 1, 'max': 5}),
-                required=False,
+                min_value=1,
+                max_value=5,
+                required=True,
             )
             self.fields[f'comment_{question.id}'] = forms.CharField(
                 widget=forms.Textarea,
                 required=False,
             )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        rating_fields = [name for name in self.fields if name.startswith('rating_')]
+        missing_ratings = [name for name in rating_fields if cleaned_data.get(name) in (None, '')]
+
+        if missing_ratings:
+            raise forms.ValidationError(_('Semua penilaian wajib diisi.'))
+
+        comment_fields = [name for name in self.fields if name.startswith('comment_')]
+        has_comment = any(cleaned_data.get(name, '').strip() for name in comment_fields)
+
+        if not has_comment:
+            raise forms.ValidationError(_('Minimal satu komentar harus diisi.'))
+
+        return cleaned_data

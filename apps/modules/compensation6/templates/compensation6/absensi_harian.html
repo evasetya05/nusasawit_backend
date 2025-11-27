@@ -1,0 +1,65 @@
+{% extends 'dashboard/base.html' %}
+{% block content %}
+
+<div class="container" style="max-width:900px;margin:auto;padding:20px;">
+  <h2 style="text-align:center;margin-bottom:20px;">Absensi Harian</h2>
+
+  <!-- Form Clock In/Out -->
+  <div style="background:#fff;border:1px solid #eee;border-radius:10px;padding:20px;margin-bottom:30px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+    <h4>Catat Absensi</h4>
+    <form method="post">
+      {% csrf_token %}
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px;">
+        <div>{{ form.employee.label }}: {{ form.employee }}</div>
+        <div>{{ form.date.label }}: {{ form.date }}</div>
+        <div>{{ form.status.label }}: {{ form.status }}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:15px;">
+        <div>{{ form.clock_in.label }}: {{ form.clock_in }}</div>
+        <div>{{ form.clock_out.label }}: {{ form.clock_out }}</div>
+      </div>
+      <div style="margin-top:15px;">{{ form.notes.label }}: {{ form.notes }}</div>
+      <button type="submit" style="margin-top:15px;padding:10px 20px;background:#2563eb;color:#fff;border:0;border-radius:6px;">Simpan Absensi</button>
+    </form>
+  </div>
+
+  <!-- List Absensi -->
+  <div style="background:#fff;border:1px solid #eee;border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+    <h4>Riwayat Absensi</h4>
+    {% if attendances %}
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="background:#f8f9fa;">
+            <th style="border:1px solid #ddd;padding:8px;">Tanggal</th>
+            <th style="border:1px solid #ddd;padding:8px;">Karyawan</th>
+            <th style="border:1px solid #ddd;padding:8px;">Clock In</th>
+            <th style="border:1px solid #ddd;padding:8px;">Clock Out</th>
+            <th style="border:1px solid #ddd;padding:8px;">Status</th>
+            <th style="border:1px solid #ddd;padding:8px;">Catatan</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in attendances %}
+          <tr>
+            <td style="border:1px solid #ddd;padding:8px;">{{ a.date }}</td>
+            <td style="border:1px solid #ddd;padding:8px;">{{ a.employee }}</td>
+            <td style="border:1px solid #ddd;padding:8px;">{{ a.clock_in|default:'-' }}</td>
+            <td style="border:1px solid #ddd;padding:8px;">{{ a.clock_out|default:'-' }}</td>
+            <td style="border:1px solid #ddd;padding:8px;">{{ a.get_status_display }}</td>
+            <td style="border:1px solid #ddd;padding:8px;">{{ a.notes|default:'-' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>Belum ada data absensi.</p>
+    {% endif %}
+  </div>
+
+  <div style="text-align:center;margin-top:30px;">
+    <a href="{% url 'compensation6:komponen_gaji' %}" style="display:inline-block;background:#6c757d;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;">
+      ← Kembali ke Komponen Gaji
+    </a>
+  </div>
+</div>
+{% endblock %}

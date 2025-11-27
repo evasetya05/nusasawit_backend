@@ -1,0 +1,26 @@
+<tr>
+  <td>{{ evaluation.period_label }}</td>
+  <td>
+    <input type="number"
+           name="target_{{ evaluation.period_label }}"
+           value="{{ evaluation.target_value|default:'' }}"
+           class="form-control form-control-sm"
+           step="any" />
+  </td>
+  <td>{{ evaluation.score|default:'-' }}</td>
+  <td>{{ evaluation.variance|default:'-' }}</td>
+  <td>{{ evaluation.notes|default:'-' }}</td>
+  <td>
+    <input type="text"
+           name="notes_supervisor_{{ evaluation.period_label }}"
+           value="{{ evaluation.notes_supervisor|default:'' }}"
+           class="form-control form-control-sm" />
+  </td>
+  <td>
+    <span class="badge {% if evaluation.status == 'APPROVED' %}bg-success {% elif evaluation.status == 'REJECTED' %}bg-danger {% else %}bg-warning{% endif %}">
+      {{ evaluation.status|default:'-' }}
+    </span>
+  </td>
+  <td>-</td>
+</tr>
+{% include "dashboard/partials/messages.html" %}

@@ -1,12 +1,13 @@
 {% extends 'dashboard/base.html' %}
 
 {% block title_block %}
-    Team Lead Dashboard
+    Team Dashboard
 {% endblock title_block %}
 
 {% block content %}
     <div class="main-content">
-      <h2>Team Lead Dashboard</h2>
+      <h3>Halo {{ user.username }} di {{ user.company.name }}.</h3>
+      <p>Silahkan pilih menu di samping untuk memulai</p>
     </div>
 
 {% endblock content %}

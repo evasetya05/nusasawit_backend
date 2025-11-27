@@ -1,0 +1,52 @@
+{% extends 'dashboard/base.html' %}
+{% block content %}
+
+<div class="container" style="max-width:900px;margin:auto;padding:20px;">
+  <h2 style="text-align:center;margin-bottom:20px;">Approval Pengajuan Cuti</h2>
+  <p style="text-align:center;color:#666;margin-bottom:20px;">Sebagai {{ role }}, Anda dapat menyetujui atau menolak pengajuan cuti berikut.</p>
+
+  {% if leaves %}
+    <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+      <thead>
+        <tr style="background:#f8f9fa;">
+          <th style="border:1px solid #ddd;padding:8px;">Karyawan</th>
+          <th style="border:1px solid #ddd;padding:8px;">Tanggal Mulai</th>
+          <th style="border:1px solid #ddd;padding:8px;">Tanggal Akhir</th>
+          <th style="border:1px solid #ddd;padding:8px;">Jenis Cuti</th>
+          <th style="border:1px solid #ddd;padding:8px;">Alasan</th>
+          <th style="border:1px solid #ddd;padding:8px;">Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for l in leaves %}
+        <tr>
+          <td style="border:1px solid #ddd;padding:8px;">{{ l.employee }}</td>
+          <td style="border:1px solid #ddd;padding:8px;">{{ l.start_date }}</td>
+          <td style="border:1px solid #ddd;padding:8px;">{{ l.end_date }}</td>
+          <td style="border:1px solid #ddd;padding:8px;">{{ l.get_leave_type_display }}</td>
+          <td style="border:1px solid #ddd;padding:8px;">{{ l.reason }}</td>
+          <td style="border:1px solid #ddd;padding:8px;">
+            <form method="post" action="{% url 'compensation6:approve_leave' l.id 'approve' %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" style="padding:6px 12px;background:#4CAF50;color:white;border:none;border-radius:4px;margin-right:5px;cursor:pointer;">Setujui</button>
+            </form>
+            <form method="post" action="{% url 'compensation6:approve_leave' l.id 'reject' %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" style="padding:6px 12px;background:#f44336;color:white;border:none;border-radius:4px;cursor:pointer;">Tolak</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p style="text-align:center;">Tidak ada pengajuan cuti yang perlu diapprove.</p>
+  {% endif %}
+
+  <div style="text-align:center;margin-top:30px;">
+    <a href="{% url 'compensation6:pengajuan_cuti' %}" style="display:inline-block;background:#6c757d;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;">
+      ← Kembali ke Daftar Cuti
+    </a>
+  </div>
+</div>
+{% endblock %}

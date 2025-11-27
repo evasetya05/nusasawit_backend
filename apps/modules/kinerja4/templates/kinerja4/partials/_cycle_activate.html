@@ -1,0 +1,18 @@
+<form hx-patch="{% url 'kinerja4:cycle_detail' cycle.id %}"
+      hx-swap="outerHTML">
+  {% if cycle.active %}
+    <button type="submit"
+            name="action"
+            value="deactivate"
+            class="badge bg-success border-0">
+      <i class="fas fa-toggle-on"></i> Aktif
+    </button>
+  {% else %}
+    <button type="submit"
+            name="action"
+            value="activate"
+            class="badge bg-secondary border-0">
+      <i class="fas fa-toggle-off"></i> Tidak Aktif
+    </button>
+  {% endif %}
+</form>

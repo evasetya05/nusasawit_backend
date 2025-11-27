@@ -1,0 +1,147 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+{% load lcr_tags %}
+{% block content %}
+  <div class="row">
+    <div class="col-12">
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="card-title mb-0">{% trans "Welcome to Planning" %}</h5>
+        </div>
+        <div class="card-body">
+          <p class="card-text">
+            {% blocktrans %}
+                    The Planning module helps you manage and analyze your labor cost ratio (LCR)
+                    to make informed decisions about your workforce planning.
+                    {% endblocktrans %}
+          </p>
+          {% if perms.m1planning.add_lcrrecord %}
+            <a href="{% url 'm1planning:create' %}" class="btn btn-primary">
+              <i class="fas fa-plus me-2"></i>
+              {% trans "Add New LCR Record" %}
+            </a>
+          {% endif %}
+          {% if perms.m1planning.view_lcrrecord %}
+            <a href="{% url 'm1planning:list' %}"
+               class="btn btn-outline-secondary ms-2">
+              <i class="fas fa-list me-2"></i>
+              {% trans "View All Records" %}
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <!-- Quick Stats -->
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body text-center">
+          <h5 class="card-title text-muted mb-3">{% trans "Total Records" %}</h5>
+          <h2 class="display-4">{{ total_records|default:0 }}</h2>
+          <p class="text-muted">{% trans "LCR records in the system" %}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body text-center">
+          <h5 class="card-title text-muted mb-3">{% trans "Average LCR" %}</h5>
+          <h2 class="display-4">
+            {% if avg_lcr %}
+              {{ avg_lcr|floatformat:2 }}%
+            {% else %}
+              N/A
+            {% endif %}
+          </h2>
+          <p class="text-muted">{% trans "Average Labor Cost Ratio" %}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body text-center">
+          <h5 class="card-title text-muted mb-3">{% trans "Latest Record" %}</h5>
+          <h4 class="mb-1">
+            {% if latest_record %}
+              {{ latest_record.period|date:"F Y" }}
+            {% else %}
+              {% trans "No records yet" %}
+            {% endif %}
+          </h4>
+          <p class="text-muted">
+            {% if latest_record %}
+              {{ latest_record.formatted_lcr }}
+            {% else %}
+              {% trans "Add your first record to begin" %}
+            {% endif %}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Recent Activity -->
+  <div class="row mt-2">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h5 class="card-title mb-0">{% trans "Recent LCR Records" %}</h5>
+        </div>
+        <div class="card-body p-0">
+          {% if recent_records %}
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>{% trans "Period" %}</th>
+                    <th class="text-end">{% trans "Income" %}</th>
+                    <th class="text-end">{% trans "Labor Cost" %}</th>
+                    <th class="text-end">{% trans "LCR" %}</th>
+                    <th class="text-end">{% trans "Actions" %}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for record in recent_records %}
+                    <tr>
+                      <td>{{ record.period|date:"F Y" }}</td>
+                      <td class="text-end">{{ record.formatted_income }}</td>
+                      <td class="text-end">{{ record.formatted_labor_cost }}</td>
+                      <td class="text-end">
+                        <span class="badge {{ record.lcr_percentage|lcr_badge_class }}">{{ record.formatted_lcr }}</span>
+                      </td>
+                      <td class="text-end">
+                        <a href="{% url 'm1planning:update' record.pk %}"
+                           class="btn btn-sm btn-outline-primary">
+                          <i class="fas fa-edit"></i>
+                        </a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="text-center p-4">
+              <p class="text-muted">{% trans "No LCR records found. Add your first record to get started." %}</p>
+              {% if perms.m1planning.add_lcrrecord %}
+                <a href="{% url 'm1planning:create' %}" class="btn btn-primary">
+                  <i class="fas fa-plus me-2"></i>
+                  {% trans "Add First Record" %}
+                </a>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+        {% if recent_records %}
+          <div class="card-footer text-end">
+            <a href="{% url 'm1planning:list' %}"
+               class="btn btn-sm btn-outline-secondary">
+              {% trans "View All Records" %}
+              <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

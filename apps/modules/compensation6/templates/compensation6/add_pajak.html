@@ -1,0 +1,35 @@
+{% extends 'dashboard/base.html' %}
+{% extends "base.html" %}
+
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container" style="max-width:600px;margin:auto;padding:20px;">
+  <h2 style="text-align:center;margin-bottom:20px;">📋 Tambah Pajak Penghasilan</h2>
+  
+  <form method="post" style="display:flex;flex-direction:column;gap:15px;">
+    {% csrf_token %}
+    
+    <div>
+      <label for="{{ form.employee.id_for_label }}"><b>Karyawan:</b></label>
+      {{ form.employee|add_class:"form-control" }}
+    </div>
+    
+    <div>
+      <label for="{{ form.period.id_for_label }}"><b>Periode:</b></label>
+      {{ form.period|add_class:"form-control" }}
+    </div>
+    
+    <div>
+      <label for="{{ form.amount.id_for_label }}"><b>Pajak Penghasilan:</b></label>
+      {{ form.amount|add_class:"form-control" }}
+      <small class="text-muted">Masukkan jumlah pajak penghasilan</small>
+    </div>
+    
+    <div style="display:flex;gap:10px;">
+      <button type="submit" class="btn btn-primary">💾 Simpan</button>
+      <a href="{% url 'compensation6:komponen_gaji' %}" class="btn btn-secondary">❌ Batal</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

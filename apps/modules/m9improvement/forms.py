@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 from .models import OcaiQuestion
 from collections import defaultdict
 
@@ -6,6 +7,20 @@ from collections import defaultdict
 class OcaiForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # Period selection (every 6 months)
+        current_year = timezone.now().year
+        current_half = 1 if timezone.now().month <= 6 else 2
+        self.fields['period_year'] = forms.IntegerField(
+            initial=current_year,
+            widget=forms.NumberInput(attrs={'class': 'form-control', 'min': 2000, 'max': 2100})
+        )
+        self.fields['period_half'] = forms.ChoiceField(
+            choices=((1, 'H1 (Jan–Jun)'), (2, 'H2 (Jul–Dec)')),
+            initial=current_half,
+            widget=forms.Select(attrs={'class': 'form-select'})
+        )
+
         questions = OcaiQuestion.objects.all().order_by('dimension')
         for question in questions:
             self.fields[f'current_score_{question.id}'] = forms.IntegerField(

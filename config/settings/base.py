@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'apps.modules.ir8',
     'apps.modules.m9improvement',
 
-    'tips', 
+    'api.tips', 
 ]
 
 # Middleware
@@ -99,6 +99,7 @@ USE_TZ = True
 
 # Static and media files
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

@@ -118,7 +118,7 @@
           </div>
           <div class="card shadow mb-4">
             <div class="card-header py-3">
-              <h6 class="m-0 font-weight-bold text-primary">Contact Information</h6>
+              <h6 class="m-0 font-weight-bold text-primary">Informasi Pribadi</h6>
             </div>
             <div class="card-body">
               <div class="row">
@@ -137,10 +137,67 @@
                     {{ form.phone|add_class:"form-control" }}
                   </div>
                 </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Emergency Contact</label>
+                    {{ form.emergency_contact|add_class:"form-control" }}
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Tanggal Lahir</label>
+                    {{ form.birth_date|add_class:"form-control" }}
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Umur Saat Ini</label>
+                    <p class="form-control-plaintext mb-0">
+                      {% if employee_age is not None %}
+                        {{ employee_age }} tahun
+                      {% else %}
+                        -
+                      {% endif %}
+                    </p>
+                  </div>
+                </div>
               </div>
               <div class="form-group mb-3">
                 <label class="form-label">Address</label>
                 {{ form.address|add_class:"form-control" }}
+              </div>
+            </div>
+          </div>
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">Compensation</h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Gaji Pokok</label>
+                    {{ form.basic_salary|add_class:"form-control" }}
+                    {% if form.basic_salary.errors %}<div class="invalid-feedback d-block">{{ form.basic_salary.errors|join:", " }}</div>{% endif %}
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Default Allowance</label>
+                    {{ form.default_allowance|add_class:"form-control" }}
+                    {% if form.default_allowance.errors %}<div class="invalid-feedback d-block">{{ form.default_allowance.errors|join:", " }}</div>{% endif %}
+                    <small class="form-text text-muted">Tunjangan Tetap bulanan</small>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Status Pajak PPh 21</label>
+                    {{ form.pph21_status|add_class:"form-select" }}
+                    {% if form.pph21_status.errors %}<div class="invalid-feedback d-block">{{ form.pph21_status.errors|join:", " }}</div>{% endif %}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -175,6 +232,72 @@
           </div>
         </div>
       </div>
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+          <h6 class="m-0 font-weight-bold text-primary">Wawancara</h6>
+          {% if recruitment_tests.has_data %}
+            <span class="badge bg-info text-dark">Data Rekrutmen</span>
+          {% else %}
+            <span class="badge bg-secondary">Belum Ada Data</span>
+          {% endif %}
+        </div>
+        <div class="card-body">
+          {% if recruitment_tests.has_data %}
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <div class="border rounded p-3 h-100">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <h6 class="text-primary mb-3">Big 5 Personality Test</h6>
+                    <a class="btn btn-sm btn-outline-primary" href="{{ recruitment_tests.big5_detail_url }}" target="_blank" rel="noopener">Detail</a>
+                  </div>
+                  {% if recruitment_tests.big5 %}
+                    <ul class="list-unstyled mb-0 small">
+                      {% for trait, score in recruitment_tests.big5.scores.items %}
+                        <li><strong>{{ trait }}:</strong> {{ score }}</li>
+                      {% endfor %}
+                    </ul>
+                  {% else %}
+                    <p class="text-muted mb-0">Tidak ada data.</p>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <div class="border rounded p-3 h-100">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <h6 class="text-primary mb-3">DOPE Test</h6>
+                    <a class="btn btn-sm btn-outline-primary" href="{{ recruitment_tests.dope_detail_url }}" target="_blank" rel="noopener">Detail</a>
+                  </div>
+                  {% if recruitment_tests.dope %}
+                    <p class="mb-1"><strong>Kepribadian:</strong> {{ recruitment_tests.dope.personality|default:"-" }}</p>
+                    <ul class="list-unstyled mb-0 small">
+                      {% for trait, score in recruitment_tests.dope.scores.items %}
+                        <li><strong>{{ trait }}:</strong> {{ score }}</li>
+                      {% endfor %}
+                    </ul>
+                  {% else %}
+                    <p class="text-muted mb-0">Tidak ada data.</p>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <div class="border rounded p-3 h-100">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <h6 class="text-primary mb-3">Matrix Interview</h6>
+                    <a class="btn btn-sm btn-outline-primary" href="{{ recruitment_tests.interview_detail_url }}" target="_blank" rel="noopener">Detail</a>
+                  </div>
+                  {% if recruitment_tests.interview %}
+                    <p class="mb-1"><strong>Total Rating:</strong> {{ recruitment_tests.interview.total_rating|default:"-" }}</p>
+                  {% else %}
+                    <p class="text-muted mb-0">Tidak ada data.</p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% else %}
+            <p class="text-muted mb-0">Belum ada data hasil wawancara dari modul rekrutmen.</p>
+          {% endif %}
+        </div>
+      </div>
     </form>
   </div>
 {% endblock %}
@@ -192,6 +315,47 @@ document.addEventListener('DOMContentLoaded', function() {
             form.classList.add('was-validated');
         }, false);
     }
+
+    // Thousand separator formatting for salary fields
+    function formatNumberWithSeparator(value) {
+        // Remove non-digit characters
+        const number = value.replace(/\D/g, '');
+        // Add thousand separators
+        return number.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    function parseFormattedNumber(formattedValue) {
+        // Remove dots and convert to number
+        return parseInt(formattedValue.replace(/\./g, '')) || 0;
+    }
+
+    // Apply formatting to basic_salary and default_allowance fields
+    const salaryFields = ['basic_salary', 'default_allowance'];
+    salaryFields.forEach(fieldName => {
+        const field = document.querySelector(`input[name="${fieldName}"]`);
+        if (field) {
+            // Only format on input, not on load - preserve Django's initial value
+            field.addEventListener('input', function(e) {
+                const cursorPos = e.target.selectionStart;
+                const originalLength = e.target.value.length;
+                e.target.value = formatNumberWithSeparator(e.target.value);
+                // Adjust cursor position
+                const newLength = e.target.value.length;
+                e.target.setSelectionRange(cursorPos + (newLength - originalLength), cursorPos + (newLength - originalLength));
+            });
+
+            // Parse to number before form submission
+            if (form) {
+                form.addEventListener('submit', function() {
+                    if (field.value && field.value !== '0') {
+                        field.value = parseFormattedNumber(field.value);
+                    } else {
+                        field.value = 0;
+                    }
+                });
+            }
+        }
+    });
 
     // Photo upload functionality
     const fileInput = document.querySelector('input[type="file"][name="photo"]');

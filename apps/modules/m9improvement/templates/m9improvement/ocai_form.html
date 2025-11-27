@@ -27,6 +27,18 @@
           {% endfor %}
         </div>
       {% endif %}
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-3">
+          <label class="form-label">Tahun Periode</label>
+          {{ form.period_year }}
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Periode</label>
+          {{ form.period_half }}
+        </div>
+      </div>
+
       {% for dimensi, pertanyaan_list in grouped_pertanyaan.items %}
         <div class="mb-4">
           <h4>{{ dimensi }}</h4>
@@ -86,6 +98,31 @@
       const form = document.querySelector('form');
       const submitButton = form.querySelector('.submit-btn');
 
+      // Clamp the current input so that per-dimensi total never exceeds 100
+      function clampInputValue(input) {
+        const dimensi = input.dataset.dimensi;
+        const isCurrent = input.classList.contains('current_score');
+        const selector = isCurrent ? `.current_score[data-dimensi='${dimensi}']` : `.expected_score[data-dimensi='${dimensi}']`;
+
+        // sanitize value
+        let val = parseInt(input.value, 10);
+        if (isNaN(val) || val < 0) val = 0;
+
+        // sum of other inputs in the same column and dimensi
+        let sumOthers = 0;
+        document.querySelectorAll(selector).forEach(el => {
+          if (el !== input) {
+            sumOthers += parseInt(el.value, 10) || 0;
+          }
+        });
+        const maxAllowed = Math.max(0, 100 - sumOthers);
+        if (val > maxAllowed) {
+          val = maxAllowed;
+        }
+        if (val > 100) val = 100; // extra guard
+        input.value = val;
+      }
+
       function validateTotals() {
         let allValid = true;
         const dimensions = new Set([
@@ -96,12 +133,12 @@
         dimensions.forEach(dimensi => {
           let currentTotal = 0;
           document.querySelectorAll(`.current_score[data-dimensi='${dimensi}']`).forEach(input => {
-            currentTotal += parseInt(input.value) || 0;
+            currentTotal += parseInt(input.value, 10) || 0;
           });
 
           let expectedTotal = 0;
           document.querySelectorAll(`.expected_score[data-dimensi='${dimensi}']`).forEach(input => {
-            expectedTotal += parseInt(input.value) || 0;
+            expectedTotal += parseInt(input.value, 10) || 0;
           });
 
           const currentTotalCell = document.querySelector(`.dimensiTotal[data-dimensi='${dimensi}'] strong`);
@@ -134,8 +171,16 @@
         submitButton.disabled = !allValid;
       }
 
+      // Attach listeners
       document.querySelectorAll('.current_score, .expected_score').forEach(input => {
-        input.addEventListener('input', validateTotals);
+        // Suggest HTML constraints if supported
+        input.setAttribute('min', '0');
+        input.setAttribute('max', '100');
+        input.setAttribute('step', '1');
+        input.addEventListener('input', function () {
+          clampInputValue(this);
+          validateTotals();
+        });
       });
 
       // Initial validation check

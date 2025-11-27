@@ -1,0 +1,168 @@
+{% extends 'dashboard/base.html' %}
+{% load humanize %}
+
+
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Slip Gaji</title>
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 12px; color: #111; margin: 0; }
+    .sheet { width: 800px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 12px; background: #f9fafb; }
+    .summary-card {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 360px;
+    }
+    .summary-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+    .summary-header h1 { margin: 0; font-size: 24px; font-weight: 700; }
+    .summary-header .muted { color: rgba(255,255,255,0.8); font-size: 13px; }
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip { background: rgba(255,255,255,0.15); padding: 6px 10px; border-radius: 999px; font-size: 11px; letter-spacing: 0.4px; }
+    .salary-highlight { display: flex; gap: 16px; flex-wrap: wrap; }
+    .salary-box {
+      flex: 1;
+      min-width: 180px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .salary-box .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; opacity: 0.8; }
+    .salary-box .value { font-size: 20px; font-weight: 700; }
+    .cards-row { display: flex; gap: 16px; margin-top: 20px; flex-wrap: wrap; }
+    .card {
+      flex: 1;
+      min-width: 320px;
+      background: #fff;
+      border-radius: 10px;
+      padding: 18px;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .card h3 { margin: 0; font-size: 16px; color: #111827; }
+    .list { list-style: none; margin: 0; padding: 0; }
+    .list li { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #e5e7eb; font-size: 12px; }
+    .list li:last-child { border-bottom: none; }
+    .empty { color: #9ca3af; font-style: italic; font-size: 12px; }
+    .total-row { display: flex; justify-content: space-between; font-weight: 600; font-size: 13px; margin-top: 4px; }
+    .net-summary { margin-top: 24px; background: #fff; border-radius: 10px; padding: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 6px 16px rgba(15, 23, 42, 0.1); }
+    .net-summary h2 { margin: 0; font-size: 18px; color: #111827; }
+    .net-summary .amount { font-size: 22px; font-weight: 700; color: #16a34a; }
+    .contrib-card { margin-top: 18px; background: #fff; border-radius: 10px; padding: 18px; box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08); }
+    .contrib-card h3 { margin-top: 0; }
+    .footer { margin-top: 18px; display: flex; justify-content: space-between; font-size: 11px; color: #666; }
+    .btn { padding: 8px 12px; border-radius: 6px; text-decoration: none; background: #2563eb; color: #fff; }
+    .btn-secondary { background: #6c757d; }
+    .right { text-align: right; }
+  </style>
+</head>
+<body>
+<div class="sheet">
+  <div class="summary-card">
+    <div class="summary-header">
+      <div>
+        <h1>Slip Gaji</h1>
+        <div class="muted">Periode: {{ period.month|floatformat:0 }}/{{ period.year }}</div>
+        <div class="chips">
+          <span class="chip">ID Karyawan: {{ employee.id }}</span>
+          <span class="chip">Tanggal Cetak: {{ period.year }}-{{ period.month|floatformat:0 }}</span>
+        </div>
+      </div>
+      <div class="right" style="min-width: 220px;">
+        <div class="muted">Nama Karyawan</div>
+        <div style="font-size: 18px; font-weight: 600;">{{ employee }}</div>
+        {% if employee.position %}
+          <div class="muted">{{ employee.position }}</div>
+        {% endif %}
+        {% if employee.department %}
+          <div class="muted">Departemen: {{ employee.department }}</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="salary-highlight">
+      <div class="salary-box">
+        <span class="label">Gaji Pokok</span>
+        <span class="value">Rp {{ payroll.basic_salary|floatformat:0|intcomma }}</span>
+        <span class="muted">Jumlah dasar sebelum tunjangan &amp; potongan.</span>
+      </div>
+      <div class="salary-box" style="background: rgba(16,185,129,0.25);">
+        <span class="label">Gaji Bersih</span>
+        <span class="value">Rp {{ payroll.net_salary|floatformat:0|intcomma }}</span>
+        <span class="muted">Dibayarkan setelah tunjangan dan potongan.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="cards-row">
+    <div class="card">
+      <h3>Tunjangan &amp; Lembur</h3>
+      {% if allowances %}
+        <ul class="list">
+          {% for a in allowances %}
+            <li><span>{{ a.name }}</span><span>Rp {{ a.amount|floatformat:0|intcomma }}</span></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="empty">Tidak ada tunjangan atau lembur.</div>
+      {% endif %}
+      <div class="total-row"><span>Total Tunjangan</span><span>Rp {{ payroll.total_allowance|floatformat:0|intcomma }}</span></div>
+    </div>
+
+    <div class="card">
+      <h3>Potongan &amp; Pajak</h3>
+      {% if deductions %}
+        <ul class="list">
+          {% for d in deductions %}
+            <li><span>{{ d.name }}</span><span>Rp {{ d.amount|floatformat:0|intcomma }}</span></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="empty">Tidak ada potongan untuk periode ini.</div>
+      {% endif %}
+      <div class="total-row"><span>Total Potongan</span><span>Rp {{ payroll.total_deduction|floatformat:0|intcomma }}</span></div>
+    </div>
+  </div>
+
+  <div class="net-summary">
+    <div>
+      <h2>Ringkasan Pembayaran</h2>
+      <div class="muted">Total bersih yang diterima karyawan untuk periode ini.</div>
+    </div>
+    <div class="amount">Rp {{ payroll.net_salary|floatformat:0|intcomma }}</div>
+  </div>
+
+  <div class="contrib-card">
+    <h3>Kontribusi Perusahaan (Tidak Mengurangi Gaji Bersih)</h3>
+    <ul class="list">
+      <li><span>BPJS TK - JKK</span><span>Rp {{ tk_jkk_company|floatformat:0|intcomma }}</span></li>
+      <li><span>BPJS TK - JKM</span><span>Rp {{ tk_jkm_company|floatformat:0|intcomma }}</span></li>
+      <li><span>BPJS TK - JHT</span><span>Rp {{ tk_jht_company|floatformat:0|intcomma }}</span></li>
+      <li><span>BPJS TK - JP</span><span>Rp {{ tk_jp_company|floatformat:0|intcomma }}</span></li>
+      <li><span>BPJS Kesehatan</span><span>Rp {{ jkn_company|floatformat:0|intcomma }}</span></li>
+    </ul>
+    <div class="total-row"><span>Total Kontribusi Perusahaan</span><span>Rp {{ total_employer_contrib|floatformat:0|intcomma }}</span></div>
+  </div>
+
+  {% if preview %}
+  <div class="footer">
+    <a href="{% url 'compensation6:payslip_select' %}" class="btn btn-secondary">Kembali</a>
+    <a href="{% url 'compensation6:payslip_pdf' employee.id period.month period.year %}" class="btn">Download PDF</a>
+  </div>
+  {% endif %}
+</div>
+</body>
+</html>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'dashboard/base.html' %}
+{% block sidebar %}{% endblock %}
+{% block main %}
+<main class="overflow-auto" style="background-color: #E0E8F3;">
+  <div class="container py-5">
+    <div class="card shadow-sm border-0">
+      <div class="card-body text-center">
+        <h3 class="mb-3">Terima kasih! Bukti pembayaran Anda telah diterima</h3>
+        <p class="text-muted">Tim kami akan memverifikasi pembayaran Anda dalam waktu dekat. Kami akan menghubungi Anda setelah pembayaran dikonfirmasi.</p>
+        {% if order %}
+          <div class="row justify-content-center mt-3">
+            <div class="col-md-6">
+              <ul class="list-group list-group-flush text-start">
+                <li class="list-group-item d-flex justify-content-between"><span>Siklus Penagihan</span><span>{{ order.billing_cycle|default:"monthly"|title }}</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span>Total</span><span>Rp{{ order.total_price|floatformat:0 }}</span></li>
+              </ul>
+            </div>
+          </div>
+        {% endif %}
+        <div class="mt-4">
+          <a href="{% url 'dashboard' %}" class="btn btn-primary">Ke Dashboard</a>
+          <a href="{% url 'pricing' %}" class="btn btn-outline-secondary">Kembali ke Harga</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

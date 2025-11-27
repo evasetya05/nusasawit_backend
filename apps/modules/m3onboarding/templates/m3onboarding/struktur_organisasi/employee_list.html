@@ -96,7 +96,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="addEmployeeModalLabel">Add New Employee</h5>
+          <h5 class="modal-title" id="addEmployeeModalLabel">Tambah Karyawan Baru</h5>
           <button type="button"
                   class="btn-close"
                   data-bs-dismiss="modal"
@@ -107,6 +107,24 @@
               data-url="{% url 'm3onboarding:struktur_organisasi' %}">
           {% csrf_token %}
           <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Ambil dari Kandidat Lulus</label>
+              <div class="input-group">
+                <select id="candidateLookup"
+                        class="form-select"
+                        data-name-target="#{{ form.name.id_for_label }}"
+                        data-email-target="#{{ form.email.id_for_label }}">
+                  <option value="" data-email="">-- Pilih Kandidat --</option>
+                  {% for candidate in candidate_options %}
+                    <option value="{{ candidate.name }}" data-email="{{ candidate.email }}">
+                      {{ candidate.name }} ({{ candidate.email }})
+                    </option>
+                  {% endfor %}
+                </select>
+                <button type="button" class="btn btn-outline-secondary" id="clearCandidateSelection">Kosongkan</button>
+              </div>
+              <small class="form-text text-muted">Pilih kandidat lulus untuk mengisi otomatis nama dan email.</small>
+            </div>
             {% for field in form.visible_fields %}
               {% if forloop.counter0|divisibleby:2 %}<div class="row mb-3">{% endif %}
                 <div class="col-md-6">
@@ -115,6 +133,8 @@
                     {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
                   </label>
                   {% if field.name == 'manager' %}
+                    {% render_field field class="form-select" %}
+                  {% elif field.name == 'pph21_status' %}
                     {% render_field field class="form-select" %}
                   {% elif field.name == 'hire_date' %}
                     {% render_field field class="form-control" type="date" %}
@@ -132,7 +152,7 @@
               <i class="fas fa-times me-1"></i> Cancel
             </button>
             <button type="submit" class="btn btn-primary">
-              <i class="fas fa-save me-1"></i> Save Employee
+              <i class="fas fa-save me-1"></i> Simpan Data Karyawan
             </button>
           </div>
         </form>
@@ -187,9 +207,37 @@
       "responsive": true,
       "language": {
           "search": "_INPUT_",
-          "searchPlaceholder": "Search employees..."
+          "searchPlaceholder": "Cari Karyawan..."
       }
     });
+
+    const candidateSelect = document.getElementById('candidateLookup');
+    const clearCandidateButton = document.getElementById('clearCandidateSelection');
+
+    if (candidateSelect) {
+      candidateSelect.addEventListener('change', function () {
+        const selectedName = this.value || '';
+        const selectedEmail = this.options[this.selectedIndex]?.dataset.email || '';
+        const nameInput = document.querySelector(this.dataset.nameTarget);
+        const emailInput = document.querySelector(this.dataset.emailTarget);
+
+        if (nameInput) {
+          nameInput.value = selectedName;
+        }
+        if (emailInput) {
+          emailInput.value = selectedEmail;
+        }
+      });
+    }
+
+    if (clearCandidateButton) {
+      clearCandidateButton.addEventListener('click', function () {
+        if (candidateSelect) {
+          candidateSelect.value = '';
+          candidateSelect.dispatchEvent(new Event('change'));
+        }
+      });
+    }
 
     document.getElementById('employeeForm').addEventListener('submit', async function(e) {
       e.preventDefault();

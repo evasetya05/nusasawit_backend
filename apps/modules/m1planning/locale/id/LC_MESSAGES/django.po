@@ -1,0 +1,389 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-11-17 13:39+0700\n"
+"PO-Revision-Date: 2025-11-17 12:08+0700\n"
+"Last-Translator: Translator <email@example.com>\n"
+"Language-Team: Indonesian\n"
+"Language: id\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: admin.py:38
+msgid "Company Information"
+msgstr "Informasi Perusahaan"
+
+#: admin.py:41
+msgid "Financial Information"
+msgstr "Informasi Keuangan"
+
+#: admin.py:44
+msgid "Metadata"
+msgstr "Metadata"
+
+#: admin.py:54 templates/m1planning/dashboard.html:100
+#: templates/m1planning/lcr_confirm_delete.html:29
+#: templates/m1planning/lcr_list.html:26
+msgid "Income"
+msgstr "Pendapatan"
+
+#: admin.py:59 templates/m1planning/dashboard.html:101
+#: templates/m1planning/lcr_confirm_delete.html:32
+#: templates/m1planning/lcr_list.html:27
+msgid "Labor Cost"
+msgstr "Biaya Tenaga Kerja"
+
+#: admin.py:64
+msgid "LCR %"
+msgstr "% LCR"
+
+#: apps.py:10
+msgid "M1 Planning"
+msgstr "Perencanaan M1"
+
+#: forms.py:40
+msgid "Select a month and year (YYYY-MM)"
+msgstr "Pilih bulan dan tahun (YYYY-MM)"
+
+#: forms.py:41
+msgid "Enter total income in IDR (without decimals)"
+msgstr "Masukkan total pendapatan dalam Rupiah (tanpa desimal)"
+
+#: forms.py:42
+msgid "Enter total labor cost in IDR (without decimals)"
+msgstr "Masukkan total biaya tenaga kerja dalam Rupiah (tanpa desimal)"
+
+#: forms.py:63
+msgid "Period is required (select Month-Year)"
+msgstr "Periode wajib diisi (pilih Bulan-Tahun)"
+
+#: forms.py:88 models.py:68
+msgid "Labor cost cannot be greater than total income"
+msgstr "Biaya tenaga kerja tidak boleh lebih besar dari total pendapatan"
+
+#: forms.py:105
+msgid "An LCR record already exists for this period"
+msgstr "Catatan LCR untuk periode ini sudah ada"
+
+#: models.py:14
+msgid "LCR Record"
+msgstr "Catatan LCR"
+
+#: models.py:15 templates/m1planning/base.html:23
+#: templates/m1planning/lcr_list.html:4
+msgid "LCR Records"
+msgstr "Catatan-catatan LCR"
+
+#: models.py:22
+msgid "Company"
+msgstr "Perusahaan"
+
+#: models.py:27 templates/m1planning/dashboard.html:99
+#: templates/m1planning/lcr_confirm_delete.html:26
+#: templates/m1planning/lcr_list.html:25
+msgid "Period"
+msgstr "Periode"
+
+#: models.py:28
+msgid "Format: YYYY-MM (e.g., 2025-10)"
+msgstr "Format: YYYY-MM (contoh: 2025-10)"
+
+#: models.py:32
+msgid "Total Income"
+msgstr "Total Pendapatan"
+
+#: models.py:34
+msgid "Total income (in IDR, without decimals)"
+msgstr "Total pendapatan (dalam Rupiah, tanpa desimal)"
+
+#: models.py:38
+msgid "Total Labor Cost"
+msgstr "Total Biaya Tenaga Kerja"
+
+#: models.py:40
+msgid "Total labor cost (in IDR, without decimals)"
+msgstr "Total biaya tenaga kerja (dalam Rupiah, tanpa desimal)"
+
+#: models.py:44
+msgid "Created At"
+msgstr "Dibuat Pada"
+
+#: models.py:49
+msgid "Updated At"
+msgstr "Diperbarui Pada"
+
+#: models.py:54
+#, python-brace-format
+msgid "LCR {id} - {company} ({period})"
+msgstr "LCR {id} - {company} ({period})"
+
+#: templates/m1planning/base.html:16
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: templates/m1planning/base.html:45
+msgid "Close"
+msgstr "Tutup"
+
+#: templates/m1planning/dashboard.html:4
+msgid "Planning Dashboard"
+msgstr "Dashboard Perencanaan"
+
+#: templates/m1planning/dashboard.html:11
+msgid "Welcome to Planning"
+msgstr "Selamat Datang di Perencanaan"
+
+#: templates/m1planning/dashboard.html:15
+msgid ""
+"\n"
+"                    The Planning module helps you manage and analyze your "
+"labor cost ratio (LCR)\n"
+"                    to make informed decisions about your workforce "
+"planning.\n"
+"                    "
+msgstr ""
+"\n"
+"                    Modul Perencanaan membantu Anda mengelola dan "
+"menganalisis rasio biaya tenaga kerja (LCR) Anda\n"
+"                    untuk membuat keputusan yang tepat tentang perencanaan "
+"tenaga kerja Anda.\n"
+"                    "
+
+#: templates/m1planning/dashboard.html:24 views.py:93
+msgid "Add New LCR Record"
+msgstr "Tambah Catatan LCR Baru"
+
+#: templates/m1planning/dashboard.html:31
+#: templates/m1planning/dashboard.html:142
+msgid "View All Records"
+msgstr "Lihat Semua Catatan"
+
+#: templates/m1planning/dashboard.html:44
+msgid "Total Records"
+msgstr "Total Catatan"
+
+#: templates/m1planning/dashboard.html:46
+msgid "LCR records in the system"
+msgstr "Catatan LCR dalam sistem"
+
+#: templates/m1planning/dashboard.html:54
+msgid "Average LCR"
+msgstr "LCR Rata-rata"
+
+#: templates/m1planning/dashboard.html:58
+msgid "Average Labor Cost Ratio"
+msgstr "Rasio Biaya Tenaga Kerja Rata-rata"
+
+#: templates/m1planning/dashboard.html:66
+msgid "Latest Record"
+msgstr "Catatan Terbaru"
+
+#: templates/m1planning/dashboard.html:71
+msgid "No records yet"
+msgstr "Belum ada catatan"
+
+#: templates/m1planning/dashboard.html:78
+msgid "Add your first record to begin"
+msgstr "Tambah catatan pertama Anda untuk memulai"
+
+#: templates/m1planning/dashboard.html:91
+msgid "Recent LCR Records"
+msgstr "Catatan LCR Terkini"
+
+#: templates/m1planning/dashboard.html:102
+#: templates/m1planning/lcr_confirm_delete.html:35
+#: templates/m1planning/lcr_list.html:28
+msgid "LCR"
+msgstr "LCR"
+
+#: templates/m1planning/dashboard.html:103
+#: templates/m1planning/lcr_list.html:30
+msgid "Actions"
+msgstr "Aksi"
+
+#: templates/m1planning/dashboard.html:129
+msgid "No LCR records found. Add your first record to get started."
+msgstr "Tidak ada catatan LCR ditemukan. Tambah catatan pertama Anda untuk memulai."
+
+#: templates/m1planning/dashboard.html:133
+#: templates/m1planning/lcr_list.html:125
+msgid "Add First Record"
+msgstr "Tambah Catatan Pertama"
+
+#: templates/m1planning/lcr_confirm_delete.html:4
+msgid "Delete LCR Record"
+msgstr "Hapus Catatan LCR"
+
+#: templates/m1planning/lcr_confirm_delete.html:13
+msgid "Confirm Deletion"
+msgstr "Konfirmasi Penghapusan"
+
+#: templates/m1planning/lcr_confirm_delete.html:18
+#, python-format
+msgid ""
+"\n"
+"                    Are you sure you want to delete the LCR record for "
+"<strong>%(period)s</strong>?\n"
+"                    "
+msgstr ""
+"\n"
+"                    Apakah Anda yakin ingin menghapus catatan LCR untuk "
+"<strong>%(period)s</strong>?\n"
+"                    "
+
+#: templates/m1planning/lcr_confirm_delete.html:42
+#: templates/m1planning/lcr_list.html:29
+msgid "Created"
+msgstr "Dibuat"
+
+#: templates/m1planning/lcr_confirm_delete.html:50
+msgid "This action cannot be undone."
+msgstr "Tindakan ini tidak dapat dibatalkan."
+
+#: templates/m1planning/lcr_confirm_delete.html:58
+#: templates/m1planning/lcr_form.html:56
+msgid "Cancel"
+msgstr "Batal"
+
+#: templates/m1planning/lcr_confirm_delete.html:62
+msgid "Yes, delete this record"
+msgstr "Ya, hapus catatan ini"
+
+#: templates/m1planning/lcr_form.html:5 views.py:144
+msgid "Update LCR Record"
+msgstr "Perbarui Catatan LCR"
+
+#: templates/m1planning/lcr_form.html:7
+msgid "Create New LCR Record"
+msgstr "Buat Catatan LCR Baru"
+
+#: templates/m1planning/lcr_form.html:19
+msgid "Record Information"
+msgstr "Informasi Catatan"
+
+#: templates/m1planning/lcr_form.html:26
+msgid "LCR Preview"
+msgstr "Pratinjau LCR"
+
+#: templates/m1planning/lcr_form.html:29
+msgid "Labor Cost Ratio"
+msgstr "Rasio Biaya Tenaga Kerja"
+
+#: templates/m1planning/lcr_form.html:62 views.py:145
+msgid "Update Record"
+msgstr "Perbarui Catatan"
+
+#: templates/m1planning/lcr_form.html:64 views.py:94
+msgid "Create Record"
+msgstr "Buat Catatan"
+
+#: templates/m1planning/lcr_form.html:71 templates/m1planning/lcr_list.html:51
+msgid "Delete"
+msgstr "Hapus"
+
+#: templates/m1planning/lcr_list.html:10
+msgid "New Record"
+msgstr "Catatan Baru"
+
+#: templates/m1planning/lcr_list.html:47
+msgid "Edit"
+msgstr "Edit"
+
+#: templates/m1planning/lcr_list.html:106
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "                Page %(page)s of %(num_pages)s\n"
+#| "                "
+msgid ""
+"\n"
+"                        Page %(page)s of %(num_pages)s\n"
+"                        "
+msgstr ""
+"\n"
+"                Halaman %(page)s dari %(num_pages)s\n"
+"                "
+
+#: templates/m1planning/lcr_list.html:118
+msgid "No LCR records found"
+msgstr "Tidak ada catatan LCR ditemukan"
+
+#: templates/m1planning/lcr_list.html:120
+msgid "Get started by adding your first LCR record."
+msgstr "Mulai dengan menambahkan catatan LCR pertama Anda."
+
+#: templates/m1planning/lcr_list.html:136
+msgid "LCR Interpretation Guide"
+msgstr "Panduan Interpretasi LCR"
+
+#: templates/m1planning/lcr_list.html:142
+#, fuzzy, python-format
+#| msgid "LCR %"
+msgid "LCR (%%)"
+msgstr "% LCR"
+
+#: templates/m1planning/lcr_list.html:143
+msgid "Interpretation"
+msgstr "Interpretasi"
+
+#: templates/m1planning/lcr_list.html:149
+msgid "Very efficient (may be underpaid / understaffed)"
+msgstr "Sangat efisien (mungkin dibayar terlalu rendah / kekurangan tenaga kerja)"
+
+#: templates/m1planning/lcr_list.html:153
+msgid "Efficient and healthy (ideal for most sectors)"
+msgstr "Efisien dan sehat (ideal untuk sebagian besar sektor)"
+
+#: templates/m1planning/lcr_list.html:157
+msgid "Still reasonable, depends on business model"
+msgstr "Masih wajar, tergantung model bisnis"
+
+#: templates/m1planning/lcr_list.html:161
+msgid "Labor costs too high, profit margins squeezed"
+msgstr "Biaya tenaga kerja terlalu tinggi, margin keuntungan tertekan"
+
+#: templates/m1planning/lcr_list.html:165
+msgid ""
+"Needs serious evaluation: possibly low productivity or declining revenue"
+msgstr "Perlu evaluasi serius: mungkin produktivitas rendah atau pendapatan menurun"
+
+#: views.py:24
+msgid "You don't have permission to view LCR records."
+msgstr "Anda tidak memiliki izin untuk melihat catatan LCR."
+
+#: views.py:46
+msgid "Labor Cost Ratio Records"
+msgstr "Catatan Rasio Biaya Tenaga Kerja"
+
+#: views.py:56
+msgid "You don't have permission to add LCR records."
+msgstr "Anda tidak memiliki izin untuk menambah catatan LCR."
+
+#: views.py:82
+msgid "LCR record has been created successfully."
+msgstr "Catatan LCR berhasil dibuat."
+
+#: views.py:104
+msgid "You don't have permission to change LCR records."
+msgstr "Anda tidak memiliki izin untuk mengubah catatan LCR."
+
+#: views.py:133
+msgid "LCR record has been updated successfully."
+msgstr "Catatan LCR berhasil diperbarui."
+
+#: views.py:155
+msgid "You don't have permission to delete LCR records."
+msgstr "Anda tidak memiliki izin untuk menghapus catatan LCR."
+
+#: views.py:178
+msgid "LCR record has been deleted successfully."
+msgstr "Catatan LCR berhasil dihapus."

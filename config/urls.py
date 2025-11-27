@@ -48,7 +48,7 @@ urlpatterns = [
          name="psychometric"),
     path('blog/', include('apps.extras.blog.urls')),  # Tambahkan ini
 
-    path('api/tips/', include('tips.urls')),
+    path('api/tips/', include('api.tips.urls')),
     
 
     path('ckeditor/', include('ckeditor_uploader.urls')),

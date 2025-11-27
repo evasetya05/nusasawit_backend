@@ -1,23 +1,51 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView, UpdateView, DeleteView, DetailView
+from django.views.generic import ListView, UpdateView, DeleteView, DetailView, FormView
 from django.http import JsonResponse
 from django.contrib import messages
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from apps.core.models import Employee
-from .forms import EmployeeForm
-from .forms import EmployeeEditForm
+from apps.modules.m2recruit.models import TestResult
+from .forms import EmployeeForm, EmployeeEditForm, SOPSuggestionForm
+from .models import DocumentStandar
+
+from .services.test_services import get_recruitment_tests
 
 
-def dashboard(request):
-    return redirect('m3onboarding:sop')
+class DocumentView(LoginRequiredMixin, FormView):
+    """
+    View for handling document uploads and display.
+    Only owners can upload documents.
+    """
+    template_name = 'm3onboarding/document.html'
+    form_class = SOPSuggestionForm
+    success_url = reverse_lazy('m3onboarding:sop')
 
+    def get_context_data(self, **kwargs):
+        """Add documents to the context."""
+        context = super().get_context_data(**kwargs)
+        context['docs'] = DocumentStandar.objects.all()
+        return context
 
-def sopView(request):
-    return render(request, 'm3onboarding/sop.html')
+    def form_valid(self, form):
+        """If the form is valid, save the associated model."""
+        if not self.request.user.is_owner:
+            messages.error(self.request, 'Hanya owner yang dapat mengunggah dokumen.')
+            return redirect('m3onboarding:sop')
+
+        obj = form.save(commit=False)
+        obj.owner = self.request.user
+        obj.save()
+        messages.success(self.request, 'Dokumen berhasil diunggah.')
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        """If the form is invalid, show an error message."""
+        messages.error(self.request, 'Periksa kembali input Anda.')
+        return super().form_invalid(form)
 
 
 class EmployeeListView(LoginRequiredMixin, ListView):
@@ -28,17 +56,30 @@ class EmployeeListView(LoginRequiredMixin, ListView):
         return Employee.objects.filter(company=self.request.user.company)
 
     def get_template_names(self):
-        if self.request.user.is_owner():
+        if self.request.user.is_owner:
             return ['m3onboarding/struktur_organisasi/employee_list.html']
         return ['m3onboarding/struktur_organisasi/index.html']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = EmployeeForm()
+        candidates = TestResult.objects.filter(
+            company=self.request.user.company,
+            result=TestResult.ResultOptions.LULUS,
+        ).select_related("user").order_by("user__name")
+        context['candidate_options'] = [
+            {
+                "id": candidate.id,
+                "name": candidate.user.name if candidate.user else "",
+                "email": candidate.user.email if candidate.user else "",
+            }
+            for candidate in candidates
+            if candidate.user
+        ]
         return context
 
     def post(self, request, *args, **kwargs):
-        if not self.request.user.is_owner():
+        if not self.request.user.is_owner:
             return JsonResponse({
                 'success': False,
                 'errors': 'You are not allowed to add employee.'
@@ -77,6 +118,12 @@ class EmployeeDetailView(LoginRequiredMixin, DetailView):
     def get_queryset(self):
         return Employee.objects.filter(company=self.request.user.company)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['recruitment_tests'] = get_recruitment_tests(self.object)
+        context['employee_age'] = self.object.age
+        return context
+
 
 class EmployeeUpdateView(LoginRequiredMixin, UpdateView):
     model = Employee
@@ -94,7 +141,7 @@ class EmployeeUpdateView(LoginRequiredMixin, UpdateView):
         self.object = self.get_object()
 
         # Allow access if user is the owner (checking company) or updating their own data
-        if not (request.user.is_owner() or request.user == self.object.user):
+        if not (request.user.is_owner or request.user == self.object.user):
             messages.error(request, self.permission_denied_message)
             return redirect('m3onboarding:struktur_organisasi')
 
@@ -120,6 +167,8 @@ class EmployeeUpdateView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = self.get_form()
+        context['recruitment_tests'] = get_recruitment_tests(self.object)
+        context['employee_age'] = self.object.age
         return context
 
 
@@ -145,11 +194,3 @@ class EmployeeDeleteView(LoginRequiredMixin, DeleteView):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
-
-
-def saranPerusahaanView(request):
-    return render(request, 'm3onboarding/saran_perusahaan.html')
-
-
-def rencanaTrainingView(request):
-    return render(request, 'm3onboarding/rencana_training.html')

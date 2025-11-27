@@ -1,0 +1,98 @@
+{% extends 'dashboard/base.html' %}
+{% load sidebar_menu %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <!-- Header Card -->
+      <div class="card shadow mb-4">
+        <div class="card-header py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h1 class="h4 mb-0 text-gray-800">{{ object.title }}</h1>
+            <span class="badge
+              {% if object.status == 'submitted' %}bg-warning
+              {% elif object.status == 'in_review' %}bg-info
+              {% elif object.status == 'resolved' %}bg-success
+              {% else %}bg-secondary{% endif %} fs-6">
+              {{ object.get_status_display }}
+            </span>
+          </div>
+        </div>
+        <div class="card-body">
+          <!-- Meta Information -->
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <p class="mb-1">
+                <strong><i class="fas fa-user"></i> Pelapor:</strong>
+                {% if object.is_anonymous %}Anonymous{% else %}{{ object.reporter }}{% endif %}
+              </p>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-1">
+                <strong><i class="fas fa-calendar-alt"></i> Dibuat:</strong>
+                {{ object.created_at|date:"d M Y, H:i" }}
+              </p>
+            </div>
+          </div>
+
+          {% if object.resolved_at %}
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <p class="mb-1">
+                  <strong><i class="fas fa-check-circle"></i> Diselesaikan:</strong>
+                  {{ object.resolved_at|date:"d M Y, H:i" }}
+                </p>
+              </div>
+            </div>
+          {% endif %}
+
+          <hr>
+
+          <!-- Description -->
+          <div class="mb-3">
+            <h5 class="text-gray-800"><i class="fas fa-file-alt"></i> Deskripsi Keluhan</h5>
+            <div class="bg-light p-3 rounded">
+              {{ object.description|linebreaks }}
+            </div>
+          </div>
+
+          <!-- Attachments -->
+          {% if object.attachments %}
+            <div class="mb-3">
+              <h5 class="text-gray-800"><i class="fas fa-paperclip"></i> Lampiran</h5>
+              <a href="{{ object.attachments.url }}" class="btn btn-outline-primary" target="_blank">
+                <i class="fas fa-download"></i> {{ object.attachments.name }}
+              </a>
+            </div>
+          {% endif %}
+
+          <!-- Review Notes -->
+          {% if object.review_notes %}
+            <div class="mb-3">
+              <h5 class="text-gray-800"><i class="fas fa-comments"></i> Catatan Review</h5>
+              <div class="bg-light p-3 rounded">
+                {{ object.review_notes|linebreaks }}
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="card shadow">
+        <div class="card-body text-center">
+          {% if user.is_staff %}
+            <a href="{% url 'ir8:complaint_review' object.pk %}" class="btn btn-warning me-2">
+              <i class="fas fa-edit"></i> Review / Update Status
+            </a>
+          {% endif %}
+          <a href="{% url 'ir8:complaint_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Kembali ke Daftar
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

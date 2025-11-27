@@ -1,57 +1,132 @@
 {% extends 'dashboard/base.html' %}
+{% load static %}
 {% block content %}
-  <h1>Key Result Area / Key Performance Index</h1>
-  <!-- Floating Feedback Button -->
-  <div class="floating-button feedback-button" onclick="openGoogleForm()">💬 Berikan Saran</div>
-  <!-- Floating WhatsApp Button -->
-  <div class="floating-button whatsapp-button" onclick="openWhatsAppChat()">📲 Konsultasikan Hasil</div>
-  <script>
-        // Function to open Google Form
-        function openGoogleForm() {
-            const googleFormLink = "https://forms.gle/YOUR_GOOGLE_FORM_LINK"; // Replace with your actual form link
-            window.open(googleFormLink, '_blank');
-        }
 
-        // Function to open WhatsApp chat
-        function openWhatsAppChat() {
-            const phoneNumber = "+6285348178999";
-            const message = encodeURIComponent("Halo, saya ingin konsultasi mengenai hasil tes.");
-            const whatsappURL = `https://wa.me/${phoneNumber}?text=${message}`;
-            window.open(whatsappURL, '_blank');
-        }
-  </script>
-  <style>
-        /* General Floating Button Styles */
-        .floating-button {
-            position: fixed;
-            bottom: 15px;
-            right: 15px;
-            background-color: #ff9800; /* Orange */
-            color: white;
-            padding: 12px 20px;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 20px;
-            cursor: pointer;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease, background-color 0.3s ease;
-            text-align: center;
-            white-space: nowrap;
-        }
+<div class="container">
 
-        .floating-button:hover {
-            transform: scale(1.05);
-            background-color: #e68900; /* Darker orange */
-        }
+  <!-- 🌟 HERO HEADER -->
+  <div class="bg-primary bg-opacity-10 rounded-3 p-4 mb-4 shadow-sm">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+      <div>
+        <h1 class="h3 fw-bold text-dark mb-2">
+          {{ title|default:'Dashboard Kinerja' }}
+        </h1>
+        <p class="text-muted small mb-0">
+          Pantau performa KPI, status penilaian, dan tren pencapaian kinerja tim Anda.
+        </p>
+      </div>
+    </div>
+  </div>
 
-        /* Adjust positions for multiple buttons */
-        .whatsapp-button {
-            bottom: 70px; /* Position above feedback button */
-            background-color: #25D366; /* WhatsApp green */
-        }
+  <!-- 📈 CHART: Target vs Actual -->
+  <div class="card p-4 mb-4 shadow-sm">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h2 class="h5 fw-semibold text-dark d-flex align-items-center gap-2 mb-0">
+        <i class="fas fa-chart-line text-primary"></i> Target vs Actual (12 Bulan Terakhir)
+      </h2>
+      <div class="d-flex gap-2">
+        <button id="btnLast6" type="button" class="btn btn-sm btn-outline-primary">6 Bulan</button>
+        <button id="btnLast12" type="button" class="btn btn-sm btn-primary">12 Bulan</button>
+      </div>
+    </div>
+    <div class="w-100">
+      <canvas id="monthlyTrendChart" height="80"></canvas>
+    </div>
+  </div>
 
-        .whatsapp-button:hover {
-            background-color: #1ebe57;
-        }
-  </style>
+  <!-- 👥 KPI Supervisi -->
+  <div class="card p-4 mb-4 shadow-sm">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h2 class="h5 fw-semibold text-dark d-flex align-items-center gap-2 mb-0">
+        <i class="fas fa-users text-primary me-2"></i> KPI Anggota
+      </h2>
+      <a class="text-decoration-none small text-primary" href="{% url 'kinerja4:kpi_list' %}">Lihat Semua</a>
+    </div>
+    <div class="d-grid gap-3">
+      {% for employee, kpis in grouped_supervised.items %}
+      <div class="border rounded p-3 bg-light">
+        <h4 class="h6 fw-medium text-dark mb-2">{{ employee }}</h4>
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead class="table-light text-muted small text-uppercase">
+              <tr>
+                <th class="px-2 py-2">Judul</th>
+                <th class="px-2 py-2">Siklus</th>
+                <th class="px-2 py-2">Deskripsi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for k in kpis %}
+              <tr class="border-t hover:bg-white transition">
+                <td class="px-2 py-2"><a class="text-blue-600 hover:underline" href="{% url 'kinerja4:kpi_detail' kpi_id=k.id %}">{{ k.title }}</a></td>
+                <td class="px-2 py-2">{{ k.cycle }}</td>
+                <td class="px-2 py-2">{{ k.description|truncatechars:50 }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% empty %}
+      <div class="text-center text-gray-500 py-4">
+        Tidak ada KPI anggota saat ini.
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- 📊 CHART.JS -->
+<script src="{% static 'vendor/chart.js' %}"></script>
+<script>
+  const recentLabels = JSON.parse('{{ recent_labels_json|default:"[]"|escapejs }}');
+  const sumActuals = JSON.parse('{{ sum_actuals_json|default:"[]"|escapejs }}');
+  const sumTargets = JSON.parse('{{ sum_targets_json|default:"[]"|escapejs }}');
+
+  // Monthly chart (Target vs Actual)
+  const mtx = document.getElementById('monthlyTrendChart');
+  let monthlyChart = null;
+  function renderMonthly(n) {
+    if (!mtx) return;
+    const L = recentLabels.slice(-n);
+    const A = sumActuals.slice(-n);
+    const T = sumTargets.slice(-n);
+    if (monthlyChart) monthlyChart.destroy();
+    monthlyChart = new Chart(mtx, {
+      type: 'line',
+      data: {
+        labels: L,
+        datasets: [
+          {
+            label: 'Actual',
+            data: A,
+            borderColor: 'rgb(59, 130, 246)',
+            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+            tension: 0.3,
+            fill: true,
+          },
+          {
+            label: 'Target',
+            data: T,
+            borderColor: 'rgb(16, 185, 129)',
+            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+            tension: 0.3,
+            fill: true,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'top' } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+  }
+
+  if (mtx && recentLabels && recentLabels.length) {
+    renderMonthly(12);
+    document.getElementById('btnLast6').addEventListener('click', () => renderMonthly(6));
+    document.getElementById('btnLast12').addEventListener('click', () => renderMonthly(12));
+  }
+</script>
 {% endblock content %}

@@ -1,0 +1,119 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Buat Siklus KPI Baru</h1>
+
+    <!-- Create New Cycle Form -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Form Siklus Baru</h6>
+        </div>
+        <div class="card-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.name.id_for_label }}">Nama Siklus</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.name.errors|join:", " }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.period.id_for_label }}">Periode</label>
+                            {{ form.period }}
+                            {% if form.period.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.period.errors|join:", " }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.start_date.id_for_label }}">Tanggal Mulai</label>
+                            {{ form.start_date }}
+                            {% if form.start_date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.start_date.errors|join:", " }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.end_date.id_for_label }}">Tanggal Selesai</label>
+                            {{ form.end_date }}
+                            {% if form.end_date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.end_date.errors|join:", " }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i> Simpan
+                    </button>
+                    <a href="{% url 'kinerja4:dashboard' %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i> Batal
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- List of Existing Cycles -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Daftar Siklus KPI</h6>
+        </div>
+        <div class="card-body">
+            {% if cycles %}
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Nama Siklus</th>
+                                <th>Periode</th>
+                                <th>Tanggal Mulai</th>
+                                <th>Tanggal Selesai</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cycle in cycles %}
+                            <tr>
+                                <td>{{ cycle.name }}</td>
+                                <td>{{ cycle.get_period_display }}</td>
+                                <td>{{ cycle.start_date|date:"d M Y" }}</td>
+                                <td>{{ cycle.end_date|date:"d M Y" }}</td>
+                                <td>
+                                  {% include "./partials/_cycle_activate.html" with cycle=cycle %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    Belum ada siklus KPI yang dibuat.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

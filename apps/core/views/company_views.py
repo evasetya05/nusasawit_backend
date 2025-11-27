@@ -14,7 +14,7 @@ class UpdateCompanyView(LoginRequiredMixin, UpdateView):
 
     def get_object(self):
         user = self.request.user
-        if user.is_owner():
+        if user.is_owner:
             return user.company
         raise Http404()
 
@@ -30,7 +30,7 @@ class DepartmentListView(LoginRequiredMixin, ListView):
     context_object_name = 'departments'
 
     def get_queryset(self):
-        if self.request.user.is_owner():
+        if self.request.user.is_owner:
             return Department.objects.filter(company=self.request.user.company)
         raise Http404()
 
@@ -41,7 +41,7 @@ class DepartmentCreateView(LoginRequiredMixin, CreateView):
     template_name = 'company/department_form.html'
 
     def form_valid(self, form):
-        if not self.request.user.is_owner():
+        if not self.request.user.is_owner:
             raise Http404()
         form.instance.company = self.request.user.company
         messages.success(self.request, 'Department created successfully.')
@@ -58,7 +58,7 @@ class DepartmentUpdateView(LoginRequiredMixin, UpdateView):
     context_object_name = 'department'
 
     def get_queryset(self):
-        if self.request.user.is_owner():
+        if self.request.user.is_owner:
             return Department.objects.filter(company=self.request.user.company)
         raise Http404()
 
@@ -76,7 +76,7 @@ class DepartmentDeleteView(LoginRequiredMixin, DeleteView):
     context_object_name = 'department'
 
     def get_queryset(self):
-        if self.request.user.is_owner():
+        if self.request.user.is_owner:
             return Department.objects.filter(company=self.request.user.company)
         raise Http404()
 
@@ -94,7 +94,7 @@ class PositionListView(LoginRequiredMixin, ListView):
     context_object_name = 'positions'
 
     def get_queryset(self):
-        if self.request.user.is_owner():
+        if self.request.user.is_owner:
             return Position.objects.filter(department__company=self.request.user.company)
         raise Http404()
 
@@ -105,7 +105,7 @@ class PositionCreateView(LoginRequiredMixin, CreateView):
     template_name = 'company/position_form.html'
 
     def form_valid(self, form):
-        if not self.request.user.is_owner():
+        if not self.request.user.is_owner:
             raise Http404()
         form.instance.company = self.request.user.company
         messages.success(self.request, 'Position created successfully.')
@@ -122,7 +122,7 @@ class PositionUpdateView(LoginRequiredMixin, UpdateView):
     context_object_name = 'position'
 
     def get_queryset(self):
-        if self.request.user.is_owner():
+        if self.request.user.is_owner:
             return Position.objects.filter(department__company=self.request.user.company)
         raise Http404()
 
@@ -140,7 +140,7 @@ class PositionDeleteView(LoginRequiredMixin, DeleteView):
     context_object_name = 'position'
 
     def get_queryset(self):
-        if self.request.user.is_owner():
+        if self.request.user.is_owner:
             return Position.objects.filter(department__company=self.request.user.company)
         raise Http404()
 

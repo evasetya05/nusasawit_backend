@@ -1,0 +1,24 @@
+<span id="kpi-status"
+      hx-swap-oob="true"
+      class="badge {% if kpi.status == 'SUBMITTED' %} bg-warning {% elif kpi.status == 'APPROVED' %} bg-success {% elif kpi.status == 'REJECTED' %} bg-danger {% else %} bg-secondary {% endif %}">
+  {{ kpi.get_status_display }}
+</span>
+<div class="d-flex align-items-center gap-2" id="kpi-actions">
+  <a href="{% url 'kinerja4:kpi_list' %}" class="btn btn-light border">
+    <i class="fas fa-arrow-left"></i>
+  </a>
+</div>
+<div id="kpi-period-action" hx-swap-oob="true">
+  {% if kpi.status == 'APPROVED' %}
+    <a href="{% url 'kinerja4:kpi_period_input' kpi.id %}"
+       class="btn btn-primary btn-sm">
+      <i class="fas fa-calendar-plus"></i>
+      {% if is_manager %}
+        Review
+      {% else %}
+        Input
+      {% endif %}
+    </a>
+  {% endif %}
+</div>
+{% include "dashboard/partials/messages.html" %}

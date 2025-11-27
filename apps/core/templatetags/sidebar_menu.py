@@ -6,32 +6,55 @@ register = template.Library()
 @register.simple_tag
 def create_menu(user):
     menu_items = [
-        {'label': '1. Perencanaan Tenaga Kerja', 'url': 'planing1_dashboard'},
-        {'label': '2. Rekrutmen dan Seleksi', 'url': 'recruit_dashboard', 'sub': [
-            {'label': '2.A Link untuk Kandidat', 'url': 'generate_link'},
-            {'label': '2.B Matrix Interview', 'url': 'pertanyaan_interviews'},
-            {'label': '2.C Hasil Test Big 5 Personality', 'url': 'personality_test_result'},
-            {'label': '2.D Hasil DOPE Tes', 'url': 'dope_test_result'},
-            {'label': '2.E Hasil Interview', 'url': 'interviews'},
+        {'label': '1. Perencanaan Tenaga Kerja', 'id': 'modul1', 'sub': [
+            {'label':'Dashboard LCR', 'url': 'm1planning:dashboard', 'perm': 'm1planning.view_lcrrecord'},
+            {'label':'Rasio Biaya Karyawan', 'url': 'm1planning:list', 'perm': 'm1planning.view_lcrrecord'},
         ]},
-        {'label': '3. Onboarding', 'url': 'm3onboarding:dashboard', 'sub': [
-            {'label': '3.A Standar SOP', 'url': 'm3onboarding:sop'},
-            {'label': '3.B Struktur Organisasi', 'url': 'm3onboarding:struktur_organisasi'},
-            {'label': '3.C Saran untuk Perusahaan', 'url': 'm3onboarding:saran_perusahaan'},
-            {'label': '3.D Rencana Training', 'url': 'm3onboarding:rencana_training'},
+        {'label': '2. Rekrutmen dan Seleksi', 'id': 'modul2', 'sub': [
+            {'label': 'Dashboard', 'url': 'recruit_dashboard'},
+            {'label': 'Link Kandidat', 'url': 'generate_link'},
+            {'label': 'Matrix Interview', 'url': 'pertanyaan_interviews'},
         ]},
-        {'label': '4. Manajemen Kinerja', 'url': 'kinerja4_dashboard'},
-        {'label': '5. Pengembangan Karyawan', 'url': 'learning5_dashboard'},
-        {'label': '6. Kesejahteraan dan Retensi', 'url': 'compensation6_dashboard'},
-        {'label': '7. Administrasi dan Kepatuhan', 'url': 'compliance_dashboard'},
-        {'label': '8. Industrial Relation', 'url': 'industrial_relation_dashboard'},
-        {'label': '9. Continues Improvement', 'url': 'm9improvement:dashboard', 'sub': [
-            {'label':'9.A Link Test OCAI', 'url': 'm9improvement:ocai_form'},
-            {'label':'9.B Hasil Test OCAI', 'url': 'm9improvement:result_ocai'},
+        {'label': '3. Onboarding', 'id': 'modul3', 'sub': [
+            {'label': 'Struktur Organisasi', 'url': 'm3onboarding:struktur_organisasi'},
+            {'label': 'Dokumen Standar', 'url': 'm3onboarding:document'},
+        ]},
+        {'label': '4. Manajemen Kinerja', 'id': 'modul4', 'sub': [
+            {'label': 'Dashboard KPI', 'url': 'kinerja4:dashboard'},
+            {'label': 'Daftar KPI', 'url': 'kinerja4:kpi_list'},
+            {'label': 'Buat Siklus KPI', 'url': 'kinerja4:cycle_create', 'perm': 'kinerja4.add_kpiperiodtarget'},
+        ]},
+        {'label': '5. Pengembangan Karyawan', 'id': 'modul5', 'sub': [
+            {"label": "Analisis Kebutuhan Pelatihan", "url": "learning5:trainingneed_list"},
+            {"label": "Kompetensi", "url": "learning5:competency_add"},
+        ]},
+        {'label': '6. Kompensasi', 'id': 'modul6', 'sub': [
+            {"label": "Payroll Period", "url": "compensation6:payroll_period_list"},
+            {"label": "Komponen Gaji", "url": "compensation6:komponen_gaji"},
+            {"label": "Absensi Harian", "url": "compensation6:absensi_harian"},
+            {"label": "Pengajuan Cuti", "url": "compensation6:pengajuan_cuti"},
+            {"label": "Slip Gaji", "url": "compensation6:payslip_select"},
+        ]},
+        {'label': '7. Industrial Relation', 'id': 'modul8', 'sub': [
+            {'label':'Complaint', 'url': 'ir8:complaint_list'},
+        ]},
+        {'label': '8. Continues Improvement', 'id': 'modul9', 'sub': [
+            {'label':'OCAI', 'url': 'm9improvement:dashboard'},
+            {'label':'Link Test OCAI', 'url': 'm9improvement:ocai_form'},
+            {'label':'Hasil Test OCAI', 'url': 'm9improvement:result_ocai'},
         ]},
     ]
 
-    return menu_items
+    result = []
+    for item in menu_items:
+        if 'sub' in item:
+            item['sub'] = [sub for sub in item['sub'] if 'perm' not in sub or user.has_perm(sub['perm'])]
+            if item['sub']:
+                result.append(item)
+        else:
+            result.append(item)
+
+    return result
 
 
 @register.simple_tag
@@ -54,12 +77,12 @@ def create_owner_menu():
 
 @register.filter
 def is_owner(user):
-    return user.is_owner()
+    return user.is_owner
 
 
 @register.filter
 def is_employee(user):
-    return user.is_employee()
+    return user.is_employee
 
 
 @register.filter

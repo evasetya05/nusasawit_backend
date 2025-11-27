@@ -1,0 +1,11 @@
+<form hx-post="{% url 'kinerja4:kpi_approval' kpi.id %}"
+      hx-target="#kpi-actions"
+      class="d-inline-flex gap-2"
+      hx-swap="outerHTML">
+  <button type="submit" name="action" value="approve" class="btn btn-success">
+    <i class="fas fa-check"></i> Setujui
+  </button>
+  <button type="submit" name="action" value="reject" class="btn btn-danger">
+    <i class="fas fa-times"></i> Tolak
+  </button>
+</form>

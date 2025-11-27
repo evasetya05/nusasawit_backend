@@ -99,7 +99,7 @@
         </div>
         <div class="card shadow mb-4">
           <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary">Contact Information</h6>
+            <h6 class="m-0 font-weight-bold text-primary">Informasi Pribadi</h6>
           </div>
           <div class="card-body">
             <div class="row">
@@ -111,9 +111,50 @@
                 <h6 class="text-primary">Phone</h6>
                 <p>{{ employee.phone|default:"-" }}</p>
               </div>
+              <div class="col-md-6 mb-3">
+                <h6 class="text-primary">Emergency Contact</h6>
+                <p>{{ employee.emergency_contact|default:"-" }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <h6 class="text-primary">Tanggal Lahir</h6>
+                <p>{{ employee.birth_date|date:"d F Y"|default:"-" }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <h6 class="text-primary">Umur Saat Ini</h6>
+                <p>
+                  {% if employee_age is not None %}
+                    {{ employee_age }} tahun
+                  {% else %}
+                    -
+                  {% endif %}
+                </p>
+              </div>
               <div class="col-12 mb-3">
                 <h6 class="text-primary">Address</h6>
                 <p>{{ employee.address|linebreaksbr|default:"-" }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card shadow mb-4">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Compensation</h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <h6 class="text-primary">Gaji Pokok</h6>
+                <p class="salary-field" data-value="{{ employee.basic_salary|default:'0' }}">{{ employee.basic_salary|default:"-" }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <h6 class="text-primary">Tunjangan Tetap</h6>
+                <p class="salary-field" data-value="{{ employee.default_allowance|default:'0' }}">{{ employee.default_allowance|default:"-" }}</p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <h6 class="text-primary">Status Pajak PPh 21</h6>
+                <p>{{ employee.get_pph21_status_display|default:"-" }}</p>
               </div>
             </div>
           </div>
@@ -172,7 +213,93 @@
             </div>
           </div>
         </div>
+        <div class="card shadow mb-4">
+          <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Wawancara</h6>
+            {% if recruitment_tests.has_data %}
+              <span class="badge bg-info text-dark">Data Rekrutmen</span>
+            {% else %}
+              <span class="badge bg-secondary">Belum Ada Data</span>
+            {% endif %}
+          </div>
+          <div class="card-body">
+            {% if recruitment_tests.has_data %}
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <div class="border rounded p-3 h-100">
+                    <div class="d-flex justify-content-between align-items-start">
+                      <h6 class="text-primary mb-3">Big 5 Personality Test</h6>
+                      <a class="btn btn-sm btn-outline-primary" href="{{ recruitment_tests.big5_detail_url }}" target="_blank" rel="noopener">Detail</a>
+                    </div>
+                    {% if recruitment_tests.big5 %}
+                      <ul class="list-unstyled mb-0 small">
+                        {% for trait, score in recruitment_tests.big5.scores.items %}
+                          <li><strong>{{ trait }}:</strong> {{ score }}</li>
+                        {% endfor %}
+                      </ul>
+                    {% else %}
+                      <p class="text-muted mb-0">Tidak ada data.</p>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <div class="border rounded p-3 h-100">
+                    <div class="d-flex justify-content_between align-items-start">
+                      <h6 class="text-primary mb-3">DOPE Test</h6>
+                      <a class="btn btn-sm btn-outline-primary" href="{{ recruitment_tests.dope_detail_url }}" target="_blank" rel="noopener">Detail</a>
+                    </div>
+                    {% if recruitment_tests.dope %}
+                      <p class="mb-1"><strong>Kepribadian:</strong> {{ recruitment_tests.dope.personality|default:"-" }}</p>
+                      <ul class="list-unstyled mb-0 small">
+                        {% for trait, score in recruitment_tests.dope.scores.items %}
+                          <li><strong>{{ trait }}:</strong> {{ score }}</li>
+                        {% endfor %}
+                      </ul>
+                    {% else %}
+                      <p class="text-muted mb-0">Tidak ada data.</p>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <div class="border rounded p-3 h-100">
+                    <div class="d-flex justify-content_between align-items-start">
+                      <h6 class="text-primary mb-3">Matrix Interview</h6>
+                      <a class="btn btn-sm btn-outline-primary" href="{{ recruitment_tests.interview_detail_url }}" target="_blank" rel="noopener">Detail</a>
+                    </div>
+                    {% if recruitment_tests.interview %}
+                      <p class="mb-1"><strong>Total Rating:</strong> {{ recruitment_tests.interview.total_rating|default:"-" }}</p>
+                    {% else %}
+                      <p class="text-muted mb-0">Tidak ada data.</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            {% else %}
+              <p class="text-muted mb-0">Belum ada data hasil wawancara dari modul rekrutmen.</p>
+            {% endif %}
+          </div>
+        </div>
       </div>
     </div>
   </div>
+{% endblock %}
+{% block extrascript %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Format salary fields with thousand separators
+    function formatNumberWithSeparator(value) {
+        const number = parseInt(value) || 0;
+        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    // Apply formatting to salary fields
+    const salaryFields = document.querySelectorAll('.salary-field');
+    salaryFields.forEach(field => {
+        const value = field.getAttribute('data-value');
+        if (value && value !== '0') {
+            field.textContent = formatNumberWithSeparator(value);
+        }
+    });
+});
+</script>
 {% endblock %}

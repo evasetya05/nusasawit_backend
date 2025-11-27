@@ -1,52 +1,138 @@
 {% extends 'dashboard/base.html' %}
 {% block content %}
   <div class="container mt-5">
-    <h1 class="text-center mb-4">Interview Questions</h1>
+    <h1 class="text-center mb-4">Pertanyaan Wawancara</h1>
     <form method="post" class="mb-4">
       {% csrf_token %}
-      <div class="mb-3">
-        <label for="pelamar" class="form-label">Select Candidate:</label>
-        <select name="pelamar" id="pelamar" class="form-select" required>
-          <option value="" disabled selected>Choose a candidate...</option>
-          {% for candidate in applicants %}<option value="{{ candidate.id }}">{{ candidate.user.name }}</option>{% endfor %}
-        </select>
-      </div>
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+          {% for error in form.non_field_errors %}
+            <div>{{ error }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      {% if selected_applicant %}
+        <div class="mb-3">
+          <label class="form-label">Nama Kandidat:</label>
+          <div class="form-control-plaintext fw-semibold">{{ selected_applicant.user.name }}</div>
+          <input type="hidden" name="test_result" value="{{ selected_applicant.id }}">
+        </div>
+      {% else %}
+        <div class="alert alert-info">Tidak ada kandidat yang tersedia untuk wawancara.</div>
+      {% endif %}
+
       <!-- Questions and rating/comment fields -->
       <div class="table-responsive">
         <table class="table table-bordered">
           <thead class="table-primary">
             <tr>
               <th>Kategori</th>
-              <th>Skill / Attribute</th>
-              <th>Example Interview Question</th>
-              <th>Rating (1-5)</th>
-              <th>Comment</th>
+              <th>Keterampilan / Atribut</th>
+              <th>Contoh Pertanyaan Wawancara</th>
+              <th>Penilaian (1-5)</th>
+              <th>Komentar</th>
             </tr>
           </thead>
           <tbody>
-            {% for question in questions %}
+            {% for question, rating_field, comment_field in question_entries %}
               <tr>
                 <td>{{ question.trait.name }}</td>
                 <td>{{ question.trait.description }}</td>
                 <td>{{ question.text }}</td>
                 <td>
                   <input type="number"
-                         name="rating_{{ question.id }}"
-                         class="form-control"
+                         name="{{ rating_field.name }}"
+                         class="form-control rating-input"
                          min="1"
-                         max="5">
+                         max="5"
+                         data-question="{{ question.id }}"
+                         value="{{ rating_field.value|default_if_none:'' }}">
+                  <div class="text-danger small mt-1 d-none rating-error"
+                       data-question="{{ question.id }}">
+                    Penilaian wajib diisi.
+                  </div>
                 </td>
                 <td>
-                  <textarea name="comment_{{ question.id }}" class="form-control" rows="2"></textarea>
+                  <textarea name="{{ comment_field.name }}" class="form-control" rows="2">{{ comment_field.value|default_if_none:'' }}</textarea>
                 </td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
+
+      <div class="text-end fw-semibold">Total Penilaian: <span id="totalRating">0</span></div>
+      <div id="commentWarning" class="text-danger small mt-2 d-none">
+        Minimal satu komentar harus diisi.
+      </div>
+
       <div class="text-center mt-3">
-        <button type="submit" class="btn btn-primary">Save Responses</button>
+        <button type="submit" class="btn btn-primary" {% if not selected_applicant %}disabled{% endif %}>Simpan Jawaban</button>
       </div>
     </form>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const ratingInputs = document.querySelectorAll('.rating-input');
+      const commentInputs = document.querySelectorAll('textarea[name^="comment_"]');
+      const totalRatingEl = document.getElementById('totalRating');
+      const form = document.querySelector('form');
+      const ratingErrors = document.querySelectorAll('.rating-error');
+      const commentWarning = document.getElementById('commentWarning');
+
+      function updateTotal() {
+        let total = 0;
+        ratingInputs.forEach((input) => {
+          const value = parseInt(input.value, 10);
+          if (!Number.isNaN(value)) {
+            total += value;
+          }
+        });
+        totalRatingEl.textContent = total;
+      }
+
+      ratingInputs.forEach((input) => {
+        input.addEventListener('input', updateTotal);
+        input.addEventListener('change', updateTotal);
+      });
+
+      form.addEventListener('submit', function (event) {
+        const ratingsArray = Array.from(ratingInputs);
+        const commentsArray = Array.from(commentInputs);
+        const missingRatings = ratingsArray.filter((input) => input.value.trim() === '');
+        const hasComment = commentsArray.some((textarea) => textarea.value.trim() !== '');
+
+        ratingsArray.forEach((input) => input.classList.remove('is-invalid'));
+        ratingErrors.forEach((errorEl) => errorEl.classList.add('d-none'));
+        commentWarning.classList.add('d-none');
+
+        if (missingRatings.length > 0 || !hasComment) {
+          event.preventDefault();
+          missingRatings.forEach((input) => {
+            input.classList.add('is-invalid');
+            const questionId = input.dataset.question;
+            const errorEl = document.querySelector(`.rating-error[data-question="${questionId}"]`);
+            if (errorEl) {
+              errorEl.classList.remove('d-none');
+            }
+          });
+
+          if (!hasComment) {
+            commentWarning.classList.remove('d-none');
+          }
+
+          const focusTarget = missingRatings.length > 0
+            ? missingRatings[0]
+            : commentsArray.find((textarea) => textarea.value.trim() === '');
+
+          if (focusTarget) {
+            focusTarget.focus();
+          }
+        }
+      });
+
+      updateTotal();
+    });
+  </script>
 {% endblock content %}

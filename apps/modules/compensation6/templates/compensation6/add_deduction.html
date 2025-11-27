@@ -1,0 +1,22 @@
+{% extends 'dashboard/base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+  <h3>Tambah Deduction</h3>
+  <form method="post" class="col col-lg-8 col-xl-6">
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="mb-3 row">
+        {{ field|add_label_class:"col-form-label col-sm-4" }}
+        <div class="col-sm-8">
+          {% if field.field.widget.input_type == 'select' %}
+            {{ field|add_class:"form-select" }}
+          {% else %}
+            {{ field|add_class:"form-control" }}
+          {% endif %}
+          {% for error in field.errors %}<div class="text-danger fs-6">{{ error }}</div>{% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Simpan</button>
+  </form>
+{% endblock %}

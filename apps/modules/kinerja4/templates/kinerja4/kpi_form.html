@@ -1,0 +1,89 @@
+{% extends 'dashboard/base.html' %}
+{% load static widget_tweaks %}
+{% block content %}
+<h1>{{ title|default:"Edit KPI" }}</h1>
+<form method="post" novalidate>
+  {% csrf_token %}
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card mb-3">
+        <div class="card-body">
+          <div class="row mb-2">
+            <div class="col-sm-3">
+              <label class="form-label">{{ form.title.label_tag }}</label>
+            </div>
+            <div class="col-sm-9">
+              {{ form.title|add_class:"form-control" }}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-3">
+              <label class="form-label">{{ form.description.label_tag }}</label>
+            </div>
+            <div class="col-sm-9">
+              {{ form.description|add_class:"form-control" }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-sm-6">
+              <label class="form-label">{{ form.unit.label_tag }}</label>
+              {{ form.unit|add_class:"form-control" }}
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">{{ form.weight.label_tag }}</label>
+              {{ form.weight|add_class:"form-control" }}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-6">
+              <label class="form-label">{{ form.cycle.label_tag }}</label>
+              {% url 'kinerja4:cycle_period_grid' as link %}
+              {% render_field form.cycle hx-get=link hx-target="#period-grid" hx-include="#kpi_id" hx-trigger="change" hx-swap="outerHTML" %}
+              <small class="text-muted d-block mt-1">Pilih siklus KPI yang telah dibuat oleh Owner.</small>
+              <input type="hidden" id="kpi_id" name="kpi_id" value="{% if kpi %}{{ kpi.id }}{% endif %}">
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Supervisor</label>
+              <input class="form-control"
+                     type="text"
+                     readonly
+                     value="{{ supervisor_display }}">
+              <small class="text-muted d-block mt-1">Supervisor yang akan menyetujui KPI.</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <button type="submit" class="btn btn-primary">Simpan</button>
+        <a href="{% url 'kinerja4:kpi_list' %}" class="btn btn-secondary">Batal</a>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card mb-3">
+        <div class="card-body">
+          <h6 class="mb-3">Target Per Periode</h6>
+          {% if kpi %}
+            {% include './partials/period_grid.html' %}
+          {% else %}
+          <div id="period-grid" class="htmx-indicator">
+            <div class="text-center py-3">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+{% endblock %}

@@ -1,0 +1,174 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+{% load lcr_tags %}
+{% block content %}
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">{% trans "LCR Records" %}</h1>
+    {% if perms.m1planning.add_lcrrecord %}
+      <a href="{% url 'm1planning:create' %}"
+         class="btn btn-sm btn-outline-primary">
+        <i class="fas fa-plus me-1"></i>
+        {% trans "New Record" %}
+      </a>
+    {% endif %}
+  </div>
+  <div class="row">
+    <div class="col-lg-8 mb-4">
+      <div class="card shadow">
+        <div class="card-body">
+          {% if object_list %}
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th>{% trans "Period" %}</th>
+                    <th class="text-end">{% trans "Income" %}</th>
+                    <th class="text-end">{% trans "Labor Cost" %}</th>
+                    <th class="text-end">{% trans "LCR" %}</th>
+                    <th class="text-end">{% trans "Created" %}</th>
+                    <th class="text-end">{% trans "Actions" %}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for record in object_list %}
+                    <tr>
+                      <td>{{ record.period|date:"F Y" }}</td>
+                      <td class="text-end">{{ record.formatted_income }}</td>
+                      <td class="text-end">{{ record.formatted_labor_cost }}</td>
+                      <td class="text-end">
+                        <span class="badge {{ record.lcr_percentage|lcr_badge_class }}">{{ record.formatted_lcr }}</span>
+                      </td>
+                      <td class="text-end">{{ record.created_at|date:"M d, Y" }}</td>
+                      <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                          <a href="{% url 'm1planning:update' record.pk %}"
+                             class="btn btn-outline-primary"
+                             title="{% trans 'Edit' %}">
+                            <i class="fas fa-edit"></i>
+                          </a>
+                          {% if perms.m1planning.delete_lcrrecord %}
+                            <a href="{% url 'm1planning:delete' record.pk %}"
+                               class="btn btn-outline-danger"
+                               title="{% trans 'Delete' %}">
+                              <i class="fas fa-trash"></i>
+                            </a>
+                          {% endif %}
+                        </div>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <!-- Pagination -->
+            {% if is_paginated %}
+              <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                  {% if page_obj.has_previous %}
+                    <li class="page-item">
+                      <a class="page-link" href="?page=1" aria-label="First">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                      </a>
+                    </li>
+                    <li class="page-item">
+                      <a class="page-link"
+                         href="?page={{ page_obj.previous_page_number }}"
+                         aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                      </a>
+                    </li>
+                  {% endif %}
+                  {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                      <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                      </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                      <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                      </li>
+                    {% endif %}
+                  {% endfor %}
+                  {% if page_obj.has_next %}
+                    <li class="page-item">
+                      <a class="page-link"
+                         href="?page={{ page_obj.next_page_number }}"
+                         aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                      </a>
+                    </li>
+                    <li class="page-item">
+                      <a class="page-link"
+                         href="?page={{ page_obj.paginator.num_pages }}"
+                         aria-label="Last">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                      </a>
+                    </li>
+                  {% endif %}
+                </ul>
+                <p class="text-muted text-center">
+                  {% blocktrans with page=page_obj.number num_pages=page_obj.paginator.num_pages %}
+                        Page {{ page }} of {{ num_pages }}
+                        {% endblocktrans %}
+                </p>
+              </nav>
+            {% endif %}
+          {% else %}
+            <div class="text-center py-5">
+              <div class="mb-4">
+                <i class="fas fa-calculator fa-4x text-muted"></i>
+              </div>
+              <h5 class="text-muted">{% trans "No LCR records found" %}</h5>
+              <p class="text-muted">{% trans "Get started by adding your first LCR record." %}</p>
+              {% if perms.m1planning.add_lcrrecord %}
+                <a href="{% url 'm1planning:create' %}" class="btn btn-primary mt-3">
+                  <i class="fas fa-plus me-2"></i>
+                  {% trans "Add First Record" %}
+                </a>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-header py-3">
+          <h3 class="h3 mb-0 text-gray-800">{% trans "LCR Interpretation Guide" %}</h3>
+        </div>
+        <div class="card-body">
+          <table class="table table-bordered mb-0">
+            <thead>
+              <tr>
+                <th>{% trans "LCR (%)" %}</th>
+                <th>{% trans "Interpretation" %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="table-warning">
+                <td>&lt; 20%</td>
+                <td>{% trans "Very efficient (may be underpaid / understaffed)" %}</td>
+              </tr>
+              <tr class="table-success">
+                <td>20–40%</td>
+                <td>{% trans "Efficient and healthy (ideal for most sectors)" %}</td>
+              </tr>
+              <tr class="table-success">
+                <td>40–60%</td>
+                <td>{% trans "Still reasonable, depends on business model" %}</td>
+              </tr>
+              <tr class="table-warning">
+                <td>&gt; 60%</td>
+                <td>{% trans "Labor costs too high, profit margins squeezed" %}</td>
+              </tr>
+              <tr class="table-danger">
+                <td>&gt; 80%</td>
+                <td>{% trans "Needs serious evaluation: possibly low productivity or declining revenue" %}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

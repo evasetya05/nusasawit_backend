@@ -2,19 +2,27 @@ from django.db.models import Avg
 from .models import OcaiAnswer, OcaiQuestion
 
 
-def get_continues_improvement_data(company):
+def get_continues_improvement_data(company, period_year=None, period_half=None):
     """
     Process and return data for the continues improvement dashboard.
 
     Args:
         company: The company to get data for
+        period_year (int|None): filter by year if provided
+        period_half (int|None): filter by half (1=H1, 2=H2) if provided
 
     Returns:
         tuple: (grouped_data, overall_averages)
             - grouped_data: Data grouped by department
             - overall_averages: Aggregated data across all departments
     """
-    avg_data = OcaiAnswer.objects.filter(employee__company=company).values(
+    qs = OcaiAnswer.objects.filter(employee__company=company)
+    if period_year is not None:
+        qs = qs.filter(period_year=period_year)
+    if period_half is not None:
+        qs = qs.filter(period_half=period_half)
+
+    avg_data = qs.values(
         'employee__department', 'question__category'
     ).annotate(
         avg_current=Avg('current'),
@@ -77,16 +85,21 @@ def get_continues_improvement_data(company):
     return grouped_data, overall_averages
 
 
-def save_ocai_answers(form_data, employee):
+def save_ocai_answers(form_data, employee, period_year, period_half):
     questions = OcaiQuestion.objects.all()
     for question in questions:
         current_score = form_data.get(f'current_score_{question.id}')
         expected_score = form_data.get(f'expected_score_{question.id}')
 
         if current_score is not None and expected_score is not None:
-            OcaiAnswer.objects.create(
+            # ensure one record per period per question
+            OcaiAnswer.objects.update_or_create(
                 employee=employee,
                 question=question,
-                current=current_score,
-                expected=expected_score,
+                period_year=period_year,
+                period_half=period_half,
+                defaults={
+                    'current': current_score,
+                    'expected': expected_score,
+                }
             )

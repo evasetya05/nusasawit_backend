@@ -6,65 +6,101 @@
   <div class="dashboard-container">
     <div class="main-content">
       <h1>Rekrutmen dan Seleksi</h1>
-      <table class="table table-bordered">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Big 5 Personality Test</th>
-            <th>DOPE Test</th>
-            <th>Matrix Interview</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for applicant in applicants %}
-            <tr>
-              <td>{{ applicant.applicant.user }}</td>
-              <td>
-                <strong>Openness:</strong> {{ applicant.Big_5.Openness|default:"N/A" }}
-                <br>
-                <strong>Conscientiousness:</strong> {{ applicant.Big_5.Conscientiousness|default:"N/A" }}
-                <br>
-                <strong>Extraversion:</strong> {{ applicant.Big_5.Extraversion|default:"N/A" }}
-                <br>
-                <strong>Agreeableness:</strong> {{ applicant.Big_5.Agreeableness|default:"N/A" }}
-                <br>
-                <strong>Neuroticism:</strong> {{ applicant.Big_5.Neuroticism|default:"N/A" }}
-              </td>
-              <td>
-                <strong>{{ applicant.dope_personality|default:"N/A" }}</strong>
-              </td>
-              <td>
-                <strong>Total Rating:</strong>
-                {% if applicant.Interview is not None %}
-                  {{ applicant.Interview }}
-                {% else %}
-                  Not Available
-                {% endif %}
-              </td>
-              <!-- Status Selection Form -->
-              <td>
-                <form method="post">
-                  {% csrf_token %}
-                  <input type="hidden"
-                         name="applicant_id"
-                         value="{{ applicant.applicant.id }}" />
-                  <div class="input-group mb-3">
-                    <select name="status" class="form-select">
-                      <option value="dipertimbangkan"
-                              {% if applicant.applicant.result == "dipertimbangkan" %}selected{% endif %}>Dipertimbangkan</option>
-                      <option value="lulus" {% if applicant.applicant.result == "lulus" %}selected{% endif %}>Lulus</option>
-                      <option value="tidak_lulus"
-                              {% if applicant.applicant.result == "tidak_lulus" %}selected{% endif %}>Tidak Lulus</option>
-                    </select>
-                    <button type="submit" class="btn btn-primary">Save</button>
-                  </div>
-                </form>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+      {% for status, applicants in applicants_grouped.items %}
+        {% if applicants %}
+          <div class="card mb-4">
+            <div class="card-header bg-light fw-semibold text-uppercase">
+              {% if status == "dipertimbangkan" %}
+                Dipertimbangkan
+              {% elif status == "lulus" %}
+                Lulus
+              {% elif status == "tidak_lulus" %}
+                Tidak Lulus
+              {% else %}
+                Lainnya
+              {% endif %}
+            </div>
+            <div class="card-body p-0">
+              <table class="table mb-0">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Big 5 Personality Test</th>
+                    <th>DOPE Test</th>
+                    <th>Matrix Interview</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for applicant in applicants %}
+                    <tr>
+                      <td>
+                        {% if applicant.Interview is not None %}
+                          <a href="{% url 'interviews' %}?applicant={{ applicant.applicant.id }}" class="text-decoration-none">
+                            {{ applicant.applicant.user }}
+                          </a>
+                        {% else %}
+                          <a href="{% url 'pertanyaan_interviews' %}" class="text-decoration-none">
+                            {{ applicant.applicant.user }}
+                          </a>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <a href="{% url 'personality_test_result' %}?applicant={{ applicant.applicant.id }}"
+                           class="text-decoration-none fw-semibold d-inline-block mb-2">
+                          Lihat Hasil Big 5
+                        </a>
+                        <div class="small text-muted">
+                          <div><strong>Openness:</strong> {{ applicant.Big_5.Openness|default:"N/A" }}</div>
+                          <div><strong>Conscientiousness:</strong> {{ applicant.Big_5.Conscientiousness|default:"N/A" }}</div>
+                          <div><strong>Extraversion:</strong> {{ applicant.Big_5.Extraversion|default:"N/A" }}</div>
+                          <div><strong>Agreeableness:</strong> {{ applicant.Big_5.Agreeableness|default:"N/A" }}</div>
+                          <div><strong>Neuroticism:</strong> {{ applicant.Big_5.Neuroticism|default:"N/A" }}</div>
+                        </div>
+                      </td>
+                      <td>
+                        <a href="{% url 'dope_test_result' %}?applicant={{ applicant.applicant.id }}"
+                           class="text-decoration-none fw-semibold d-inline-block mb-2">
+                          Lihat Hasil DOPE
+                        </a>
+                        <div class="small text-muted">
+                          <strong>{{ applicant.dope_personality|default:"N/A" }}</strong>
+                        </div>
+                      </td>
+                      <td>
+                        <strong>Total Rating:</strong>
+                        {% if applicant.Interview is not None %}
+                          {{ applicant.Interview }}
+                        {% else %}
+                          Not Available
+                        {% endif %}
+                      </td>
+                      <!-- Status Selection Form -->
+                      <td>
+                        <form method="post">
+                          {% csrf_token %}
+                          <input type="hidden"
+                                 name="applicant_id"
+                                 value="{{ applicant.applicant.id }}" />
+                          <div class="input-group mb-3">
+                            <select name="status" class="form-select" onchange="this.form.submit()">
+                              <option value="dipertimbangkan"
+                                      {% if applicant.applicant.result == "dipertimbangkan" %}selected{% endif %}>Dipertimbangkan</option>
+                              <option value="lulus" {% if applicant.applicant.result == "lulus" %}selected{% endif %}>Lulus</option>
+                              <option value="tidak_lulus"
+                                      {% if applicant.applicant.result == "tidak_lulus" %}selected{% endif %}>Tidak Lulus</option>
+                            </select>
+                          </div>
+                        </form>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
     </div>
   </div>
 {% include "dashboard/partials/fab.html" %}

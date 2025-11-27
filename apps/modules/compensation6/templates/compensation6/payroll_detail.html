@@ -1,0 +1,185 @@
+{% extends 'dashboard/base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div>
+      <h1 class="h3 text-gray-800 mb-1">Detail Payroll</h1>
+      <p class="text-muted mb-0">Ringkasan perhitungan gaji dan kontribusi untuk karyawan.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'compensation6:payroll_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Kembali ke Daftar Payroll
+      </a>
+      <a href="{% url 'compensation6:payroll_period_list' %}" class="btn btn-outline-primary">
+        <i class="fas fa-calendar me-1"></i> Periode Gaji
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white">
+          <h2 class="h5 mb-0">Identitas Karyawan</h2>
+        </div>
+        <div class="card-body">
+          <dl class="row mb-0">
+            <dt class="col-sm-5 text-muted">Karyawan</dt>
+            <dd class="col-sm-7 fw-semibold">{{ payroll.employee }}</dd>
+            <dt class="col-sm-5 text-muted">Periode</dt>
+            <dd class="col-sm-7 fw-semibold">{{ payroll.period }}</dd>
+            <dt class="col-sm-5 text-muted">Gaji Pokok</dt>
+            <dd class="col-sm-7 fw-semibold">Rp {{ payroll.basic_salary|floatformat:0|intcomma }}</dd>
+            <dt class="col-sm-5 text-muted">Gaji Bersih</dt>
+            <dd class="col-sm-7 fw-bold text-success">Rp {{ payroll.net_salary|floatformat:0|intcomma }}</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <h2 class="h5 mb-0">Ringkasan Kehadiran</h2>
+        </div>
+        <div class="card-body">
+          <div class="row text-center mb-3">
+            <div class="col">
+              <div class="fw-semibold text-muted">Hadir</div>
+              <div class="fs-5 fw-bold">{{ present_days }}</div>
+            </div>
+            <div class="col">
+              <div class="fw-semibold text-muted">Terlambat</div>
+              <div class="fs-5 fw-bold text-warning">{{ late_days }}</div>
+            </div>
+            <div class="col">
+              <div class="fw-semibold text-muted">Tidak Hadir</div>
+              <div class="fs-5 fw-bold text-danger">{{ absent_days }}</div>
+            </div>
+            <div class="col">
+              <div class="fw-semibold text-muted">Setengah Hari</div>
+              <div class="fs-5 fw-bold text-info">{{ half_days }}</div>
+            </div>
+          </div>
+          <div class="alert alert-info mb-0" role="alert">
+            Total jam lembur: <strong>{{ total_overtime_hours|floatformat:1 }}</strong> jam
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mt-1">
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <h2 class="h5 mb-0">Rincian Tunjangan</h2>
+          <span class="badge bg-success-subtle text-success border border-success-subtle">Total: Rp {{ payroll.total_allowance|floatformat:0|intcomma }}</span>
+        </div>
+        <div class="card-body">
+          {% if allowances %}
+            <ul class="list-group list-group-flush">
+              {% for allowance in allowances %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <span>{{ allowance.name }}</span>
+                  <span class="fw-semibold">Rp {{ allowance.amount|floatformat:0|intcomma }}</span>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <div class="alert alert-light text-muted mb-0" role="alert">
+              Tidak ada tunjangan untuk periode ini.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <h2 class="h5 mb-0">Rincian Potongan</h2>
+          <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Total: Rp {{ payroll.total_deduction|floatformat:0|intcomma }}</span>
+        </div>
+        <div class="card-body">
+          {% if deductions %}
+            <ul class="list-group list-group-flush">
+              {% for deduction in deductions %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <span>{{ deduction.name }}</span>
+                  <span class="fw-semibold">Rp {{ deduction.amount|floatformat:0|intcomma }}</span>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <div class="alert alert-light text-muted mb-0" role="alert">
+              Tidak ada potongan untuk periode ini.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mt-1">
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white">
+          <h2 class="h5 mb-0">Ringkasan Cuti</h2>
+        </div>
+        <div class="card-body">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>Cuti Tahunan Diambil</span>
+              <span class="fw-semibold">{{ annual_leave_taken }} hari</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>Cuti Sakit Diambil</span>
+              <span class="fw-semibold">{{ sick_leave_taken }} hari</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white">
+          <h2 class="h5 mb-0">Kontribusi Perusahaan</h2>
+          <small class="text-muted">Tidak mengurangi gaji bersih</small>
+        </div>
+        <div class="card-body">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>BPJS TK - JKK (Perusahaan)</span>
+              <span class="fw-semibold">Rp {{ tk_jkk_company|floatformat:0|intcomma }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>BPJS TK - JKM (Perusahaan)</span>
+              <span class="fw-semibold">Rp {{ tk_jkm_company|floatformat:0|intcomma }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>BPJS TK - JHT (Perusahaan)</span>
+              <span class="fw-semibold">Rp {{ tk_jht_company|floatformat:0|intcomma }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>BPJS TK - JP (Perusahaan)</span>
+              <span class="fw-semibold">Rp {{ tk_jp_company|floatformat:0|intcomma }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>BPJS Kesehatan (Perusahaan)</span>
+              <span class="fw-semibold">Rp {{ jkn_company|floatformat:0|intcomma }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span class="fw-semibold">Total Kontribusi</span>
+              <span class="fw-bold text-primary">Rp {{ total_employer_contrib|floatformat:0|intcomma }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

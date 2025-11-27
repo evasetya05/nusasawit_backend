@@ -1,0 +1,37 @@
+<div id="period-grid">
+  {% if periods %}
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th>Periode</th>
+          <th>Target</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for period in periods %}
+          <tr>
+            <td>
+              {{ period.label }}
+              <input type="hidden" name="pt_label[]" value="{{ period.label }}">
+              <input type="hidden"
+                     name="pt_start[]"
+                     value="{{ period.start_date|date:'Y-m-d' }}">
+            </td>
+            <td>
+              <div class="input-group input-group-sm">
+                <input type="number"
+                       class="form-control form-control-sm"
+                       name="pt_target[]"
+                       value="{{ period.target_value|default:'' }}"
+                       step="0.01"
+                       {% if not is_editable %}disabled{% endif %}>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="alert alert-info">Pilih siklus untuk menampilkan periode target.</div>
+  {% endif %}
+</div>

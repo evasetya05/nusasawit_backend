@@ -1,0 +1,10 @@
+<div hx-target="closest tr" hx-swap="outerHTML" hx-params="action">
+  <button hx-patch="{% url 'kinerja4:evaluation_approval' evaluation.eval_id %}"
+          name="action"
+          value="approve"
+          class="btn btn-sm btn-success">Setujui</button>
+  <button hx-patch="{% url 'kinerja4:evaluation_approval' evaluation.eval_id %}"
+          name="action"
+          value="reject"
+          class="btn btn-sm btn-danger">Tolak</button>
+</div>

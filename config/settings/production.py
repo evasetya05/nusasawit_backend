@@ -8,8 +8,8 @@ ALLOWED_HOSTS = ['nusasawit.sdmportabel.com', 'www.nusasawit.sdmportabel.com']
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'sdmporta_sdmport_nusasawit',
-        'USER': 'sdmporta_sdmport_nusasawit_user',
+        'NAME': 'sdmporta_nusasawit',
+        'USER': 'sdmporta_nusasawit_user',
         'PASSWORD': '@Pontianak123',
         'HOST': 'localhost',
         'PORT': '5432',

@@ -77,15 +77,18 @@ class WorkCalendarView(TemplateView):
 
         initial = {}
         employee_param = self.request.GET.get('employee')
-        work_date_param = self.request.GET.get('work_date')
+        start_date_param = self.request.GET.get('start_date')
+        end_date_param = self.request.GET.get('end_date')
         due_date_param = self.request.GET.get('due_date')
 
         if employee_param:
             initial['employee'] = employee_param
-        if work_date_param:
-            initial['work_date'] = work_date_param
-            if not due_date_param:
-                initial['due_date'] = work_date_param
+        if start_date_param:
+            initial['start_date'] = start_date_param
+            if not end_date_param:
+                initial['end_date'] = start_date_param
+        if end_date_param:
+            initial['end_date'] = end_date_param
         if due_date_param:
             initial['due_date'] = due_date_param
 
@@ -112,16 +115,18 @@ class WorkCalendarView(TemplateView):
         work_requests = (
             WorkRequest.objects.filter(
                 employee__in=employees,
-                work_date__range=(active_period.start_date, active_period.end_date)
+                start_date__lte=active_period.end_date,
+                end_date__gte=active_period.start_date
             )
             .select_related('employee')
-            .order_by('employee__name', 'work_date')
+            .order_by('employee__name', 'start_date')
         )
 
-        request_map = {
-            (wr.employee_id, wr.work_date): wr
-            for wr in work_requests
-        }
+        request_map = {}
+        for wr in work_requests:
+            for date in date_range:
+                if wr.covers_date(date):
+                    request_map[(wr.employee_id, date)] = wr
 
         calendar_data = []
         for employee in employees:

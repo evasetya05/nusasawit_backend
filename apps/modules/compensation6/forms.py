@@ -241,9 +241,10 @@ class AttendanceForm(forms.ModelForm):
 class WorkRequestForm(forms.ModelForm):
     class Meta:
         model = WorkRequest
-        fields = ['employee', 'work_date', 'due_date', 'title', 'description']
+        fields = ['employee', 'start_date', 'end_date', 'due_date', 'title', 'description']
         widgets = {
-            'work_date': forms.DateInput(attrs={'type': 'date'}),
+            'start_date': forms.DateInput(attrs={'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'type': 'date'}),
             'due_date': forms.DateInput(attrs={'type': 'date'}),
             'description': forms.Textarea(attrs={'rows': 3}),
         }
@@ -268,25 +269,34 @@ class WorkRequestForm(forms.ModelForm):
         elif employee_field:
             employee_field.queryset = Employee.objects.filter(is_active=True).order_by('name')
 
-        for field in ['work_date', 'due_date', 'title']:
+        for field in ['start_date', 'end_date', 'due_date', 'title']:
             if field in self.fields:
                 self.fields[field].required = True
 
     def clean(self):
         cleaned_data = super().clean()
         employee = cleaned_data.get('employee')
-        work_date = cleaned_data.get('work_date')
+        start_date = cleaned_data.get('start_date')
+        end_date = cleaned_data.get('end_date')
         due_date = cleaned_data.get('due_date')
 
-        if work_date and due_date and due_date < work_date:
-            self.add_error('due_date', 'Due date tidak boleh sebelum tanggal kerja.')
+        if start_date and end_date and start_date > end_date:
+            self.add_error('end_date', 'Tanggal akhir tidak boleh sebelum tanggal mulai.')
 
-        if employee and work_date:
-            qs = WorkRequest.objects.filter(employee=employee, work_date=work_date)
+        if start_date and due_date and due_date < start_date:
+            self.add_error('due_date', 'Due date tidak boleh sebelum tanggal mulai kerja.')
+
+        if employee and start_date and end_date:
+            # Check for overlapping work requests
+            qs = WorkRequest.objects.filter(
+                employee=employee,
+                start_date__lte=end_date,
+                end_date__gte=start_date
+            )
             if self.instance.pk:
                 qs = qs.exclude(pk=self.instance.pk)
             if qs.exists():
-                self.add_error('work_date', 'Sudah ada work request untuk karyawan ini pada tanggal tersebut.')
+                self.add_error('start_date', 'Ada work request yang tumpang tindih dengan tanggal yang dipilih.')
 
         if self.instance.pk and not self.instance.is_editable:
             raise forms.ValidationError('Work request sudah melewati due date dan tidak dapat diedit.')

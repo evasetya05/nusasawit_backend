@@ -15,7 +15,7 @@
           <strong>Buat Work Request Baru</strong>
         </div>
         <div class="card-body" style="padding:16px;">
-          <form method="post" novalidate>
+          <form method="post" novalidate id="work-request-form">
             {% csrf_token %}
             <input type="hidden" name="action" value="create">
             {% for field in form %}
@@ -135,4 +135,62 @@
     <p>Tidak ada periode penggajian aktif yang bisa ditampilkan.</p>
   {% endif %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startDateField = document.getElementById('id_start_date');
+    const endDateField = document.getElementById('id_end_date');
+    const dueDateField = document.getElementById('id_due_date');
+    
+    if (startDateField && endDateField) {
+        startDateField.addEventListener('change', function() {
+            if (this.value && !endDateField.value) {
+                // Auto-set end date to start date if not already set
+                endDateField.value = this.value;
+            }
+            if (this.value && !dueDateField.value) {
+                // Auto-set due date to start date if not already set
+                dueDateField.value = this.value;
+            }
+        });
+        
+        endDateField.addEventListener('change', function() {
+            if (this.value && !dueDateField.value) {
+                // Auto-set due date to end date if not already set
+                dueDateField.value = this.value;
+            }
+        });
+    }
+    
+    // Add date range validation
+    const form = document.getElementById('work-request-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            if (startDateField.value && endDateField.value) {
+                const startDate = new Date(startDateField.value);
+                const endDate = new Date(endDateField.value);
+                
+                if (startDate > endDate) {
+                    e.preventDefault();
+                    alert('Tanggal akhir tidak boleh sebelum tanggal mulai.');
+                    endDateField.focus();
+                    return false;
+                }
+            }
+            
+            if (startDateField.value && dueDateField.value) {
+                const startDate = new Date(startDateField.value);
+                const dueDate = new Date(dueDateField.value);
+                
+                if (dueDate < startDate) {
+                    e.preventDefault();
+                    alert('Due date tidak boleh sebelum tanggal mulai kerja.');
+                    dueDateField.focus();
+                    return false;
+                }
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

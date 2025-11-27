@@ -171,8 +171,9 @@ class WorkRequest(models.Model):
         on_delete=models.CASCADE,
         related_name="work_requests",
     )
-    work_date = models.DateField(help_text="Tanggal penugasan kerja")
-    due_date = models.DateField(help_text="Tanggal batas pengerjaan")
+    start_date = models.DateField(help_text="Tanggal mulai penugasan kerja", null=True, blank=True)
+    end_date = models.DateField(help_text="Tanggal akhir penugasan kerja", null=True, blank=True)
+    due_date = models.DateField(help_text="Tanggal batas pengerjaan", null=True, blank=True)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
 
@@ -180,21 +181,29 @@ class WorkRequest(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ("employee", "work_date")
-        ordering = ["-work_date", "employee__name"]
+        ordering = ["-start_date", "employee__name"]
 
     def __str__(self):
-        return f"{self.employee} - {self.work_date:%d %b %Y}" if self.employee else f"WorkRequest {self.work_date}"  # pragma: no cover
+        if self.start_date == self.end_date:
+            return f"{self.employee} - {self.start_date:%d %b %Y}" if self.employee else f"WorkRequest {self.start_date}"
+        else:
+            return f"{self.employee} - {self.start_date:%d %b %Y} to {self.end_date:%d %b %Y}" if self.employee else f"WorkRequest {self.start_date} to {self.end_date}"
 
     def clean(self):
         super().clean()
-        if self.due_date and self.work_date and self.due_date < self.work_date:
-            raise ValidationError({"due_date": "Due date tidak boleh sebelum tanggal kerja."})
+        if self.start_date and self.end_date and self.start_date > self.end_date:
+            raise ValidationError({"end_date": "Tanggal akhir tidak boleh sebelum tanggal mulai."})
+        if self.due_date and self.start_date and self.due_date < self.start_date:
+            raise ValidationError({"due_date": "Due date tidak boleh sebelum tanggal mulai kerja."})
 
     @property
     def is_editable(self):
         today = timezone.now().date()
         return self.due_date >= today
+
+    def covers_date(self, date):
+        """Check if this work request covers the given date."""
+        return self.start_date <= date <= self.end_date
 
 
 class LeaveRequest(models.Model):

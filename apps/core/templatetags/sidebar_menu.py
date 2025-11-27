@@ -34,6 +34,7 @@ def create_menu(user):
             {"label": "Absensi Harian", "url": "compensation6:absensi_harian"},
             {"label": "Pengajuan Cuti", "url": "compensation6:pengajuan_cuti"},
             {"label": "Slip Gaji", "url": "compensation6:payslip_select"},
+            {"label": "Kalender", "url": "compensation6:work_calendar"}
         ]},
         {'label': '7. Industrial Relation', 'id': 'modul8', 'sub': [
             {'label':'Complaint', 'url': 'ir8:complaint_list'},

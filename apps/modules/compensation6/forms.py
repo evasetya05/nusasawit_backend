@@ -1,6 +1,6 @@
 from django import forms
 import calendar
-from .models import PayrollPeriod, Allowance, Deduction, BPJSConfig, Attendance, LeaveRequest
+from .models import PayrollPeriod, Allowance, Deduction, BPJSConfig, Attendance, LeaveRequest, WorkRequest
 from apps.core.models import Employee
 
 class PayrollPeriodForm(forms.ModelForm):
@@ -236,6 +236,62 @@ class AttendanceForm(forms.ModelForm):
             'borongan': forms.Select(attrs={'class': 'form-control'}),
             'realisasi': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0', 'placeholder': '0'}),
         }
+
+
+class WorkRequestForm(forms.ModelForm):
+    class Meta:
+        model = WorkRequest
+        fields = ['employee', 'work_date', 'due_date', 'title', 'description']
+        widgets = {
+            'work_date': forms.DateInput(attrs={'type': 'date'}),
+            'due_date': forms.DateInput(attrs={'type': 'date'}),
+            'description': forms.Textarea(attrs={'rows': 3}),
+        }
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        employee_field = self.fields.get('employee')
+
+        if employee_field:
+            employee_field.label = 'Karyawan'
+
+        if user:
+            person = getattr(user, 'person', None)
+            is_owner = getattr(user, 'is_owner', False)
+
+            if person and not is_owner:
+                employee_field.queryset = Employee.objects.filter(pk=person.pk)
+                employee_field.initial = person
+                employee_field.widget = forms.HiddenInput()
+            else:
+                employee_field.queryset = Employee.objects.filter(is_active=True).order_by('name')
+        elif employee_field:
+            employee_field.queryset = Employee.objects.filter(is_active=True).order_by('name')
+
+        for field in ['work_date', 'due_date', 'title']:
+            if field in self.fields:
+                self.fields[field].required = True
+
+    def clean(self):
+        cleaned_data = super().clean()
+        employee = cleaned_data.get('employee')
+        work_date = cleaned_data.get('work_date')
+        due_date = cleaned_data.get('due_date')
+
+        if work_date and due_date and due_date < work_date:
+            self.add_error('due_date', 'Due date tidak boleh sebelum tanggal kerja.')
+
+        if employee and work_date:
+            qs = WorkRequest.objects.filter(employee=employee, work_date=work_date)
+            if self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                self.add_error('work_date', 'Sudah ada work request untuk karyawan ini pada tanggal tersebut.')
+
+        if self.instance.pk and not self.instance.is_editable:
+            raise forms.ValidationError('Work request sudah melewati due date dan tidak dapat diedit.')
+
+        return cleaned_data
 
 
 class LeaveRequestForm(forms.ModelForm):

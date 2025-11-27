@@ -1,0 +1,138 @@
+<!-- /home/eva/app/python/django/3.nusasawit_backend/nusasawit_backend/apps/modules/compensation6/templates/compensation6/work_calendar.html -->
+
+{% extends 'dashboard/base.html' %}
+
+{% load form_filters %}
+
+{% block content %}
+<div class="container" style="max-width:1200px;margin:auto;padding:20px;">
+  <h2 style="text-align:center;margin-bottom:20px;">Kalender Kerja</h2>
+
+  {% if active_period %}
+    <div class="row" style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:24px;">
+      <div class="card" style="flex:1 1 360px;border:1px solid #dee2e6;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.05);">
+        <div class="card-header" style="padding:16px;border-bottom:1px solid #dee2e6;background:#f8f9fa;">
+          <strong>Buat Work Request Baru</strong>
+        </div>
+        <div class="card-body" style="padding:16px;">
+          <form method="post" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="action" value="create">
+            {% for field in form %}
+              <div class="mb-3" style="margin-bottom:16px;">
+                {% if not field.is_hidden %}
+                  <label for="{{ field.id_for_label }}" class="form-label" style="display:block;font-weight:600;margin-bottom:6px;">{{ field.label }}{% if field.field.required %} <span style="color:#dc3545;">*</span>{% endif %}</label>
+                {% endif %}
+                {{ field }}
+                {% if field.errors %}
+                  <div class="text-danger" style="margin-top:4px;font-size:0.85em;">
+                    {{ field.errors|striptags }}
+                  </div>
+                {% endif %}
+                {% if field.help_text %}
+                  <small class="form-text text-muted" style="display:block;margin-top:4px;color:#6c757d;">{{ field.help_text }}</small>
+                {% endif %}
+              </div>
+            {% endfor %}
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger" style="padding:10px 12px;border-radius:4px;">{{ form.non_field_errors }}</div>
+            {% endif %}
+            <button type="submit" class="btn btn-primary" style="background:#0d6efd;border-color:#0d6efd;">Simpan</button>
+          </form>
+        </div>
+      </div>
+
+      {% if edit_instance %}
+        <div class="card" style="flex:1 1 360px;border:1px solid #ffc107;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.08);">
+          <div class="card-header" style="padding:16px;border-bottom:1px solid #ffc107;background:#fff3cd;">
+            <strong>Edit Work Request</strong>
+          </div>
+          <div class="card-body" style="padding:16px;">
+            {% if edit_allowed %}
+              <form method="post" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update">
+                <input type="hidden" name="work_request_id" value="{{ edit_instance.id }}">
+                {% for field in edit_form %}
+                  <div class="mb-3" style="margin-bottom:16px;">
+                    {% if not field.is_hidden %}
+                      <label for="{{ field.id_for_label }}" class="form-label" style="display:block;font-weight:600;margin-bottom:6px;">{{ field.label }}{% if field.field.required %} <span style="color:#dc3545;">*</span>{% endif %}</label>
+                    {% endif %}
+                    {{ field }}
+                    {% if field.errors %}
+                      <div class="text-danger" style="margin-top:4px;font-size:0.85em;">
+                        {{ field.errors|striptags }}
+                      </div>
+                    {% endif %}
+                    {% if field.help_text %}
+                      <small class="form-text text-muted" style="display:block;margin-top:4px;color:#6c757d;">{{ field.help_text }}</small>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+                {% if edit_form.non_field_errors %}
+                  <div class="alert alert-danger" style="padding:10px 12px;border-radius:4px;">{{ edit_form.non_field_errors }}</div>
+                {% endif %}
+                <button type="submit" class="btn btn-warning" style="background:#ffc107;border-color:#ffc107;color:#000;">Perbarui</button>
+              </form>
+            {% else %}
+              <div class="alert alert-warning" style="margin-bottom:0;">Work request ini sudah melewati due date sehingga tidak dapat diedit.</div>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <h4 style="margin-bottom:16px;">Periode Aktif: {{ active_period }}</h4>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.9em;">
+        <thead>
+          <tr style="background:#f8f9fa;">
+            <th style="border:1px solid #ddd;padding:8px;position:sticky;left:0;background:#f8f9fa;">Karyawan</th>
+            {% for date in date_range %}
+              <th style="border:1px solid #ddd;padding:8px;text-align:center;min-width:110px;">
+                {{ date|date:"d" }}<br>
+                <small>{{ date|date:"D" }}</small>
+              </th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in calendar_data %}
+            <tr>
+              <td style="border:1px solid #ddd;padding:8px;font-weight:bold;position:sticky;left:0;background:white;white-space:nowrap;">{{ item.employee.name|default:item.employee }}</td>
+              {% for date in date_range %}
+                {% with request=item.days|get_item:date %}
+                  <td style="border:1px solid #ddd;padding:8px;text-align:left;vertical-align:top;">
+                    {% if request %}
+                      <div style="display:flex;flex-direction:column;gap:4px;">
+                        <strong style="color:#0d6efd;">{{ request.title }}</strong>
+                        <small style="color:#6c757d;">Due: {{ request.due_date|date:"d M Y" }}</small>
+                        {% if request.description %}
+                          <div style="font-size:0.85em;color:#495057;">{{ request.description }}</div>
+                        {% endif %}
+                        {% if request.is_editable %}
+                          <a href="?edit={{ request.id }}" class="btn btn-sm btn-outline-primary" style="padding:4px 8px;font-size:0.8em;align-self:flex-start;">Edit</a>
+                        {% else %}
+                          <span class="badge bg-secondary" style="background:#6c757d;color:#fff;padding:4px 6px;font-size:0.75em;">Terkunci</span>
+                        {% endif %}
+                      </div>
+                    {% else %}
+                      <a href="?employee={{ item.employee.id }}&work_date={{ date|date:'Y-m-d' }}" class="btn btn-sm btn-success" style="padding:4px 8px;font-size:0.8em;">Buat Request</a>
+                    {% endif %}
+                  </td>
+                {% endwith %}
+              {% endfor %}
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="{{ date_range|length|add:1 }}" style="padding:20px;text-align:center;color:#6c757d;">Tidak ada karyawan aktif.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p>Tidak ada periode penggajian aktif yang bisa ditampilkan.</p>
+  {% endif %}
+</div>
+{% endblock %}

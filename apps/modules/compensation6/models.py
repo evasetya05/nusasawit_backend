@@ -163,6 +163,40 @@ class Attendance(models.Model):
         return f"{self.employee} - {self.date} ({self.status})"
 
 
+class WorkRequest(models.Model):
+    """Permintaan penugasan kerja per karyawan."""
+
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        related_name="work_requests",
+    )
+    work_date = models.DateField(help_text="Tanggal penugasan kerja")
+    due_date = models.DateField(help_text="Tanggal batas pengerjaan")
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("employee", "work_date")
+        ordering = ["-work_date", "employee__name"]
+
+    def __str__(self):
+        return f"{self.employee} - {self.work_date:%d %b %Y}" if self.employee else f"WorkRequest {self.work_date}"  # pragma: no cover
+
+    def clean(self):
+        super().clean()
+        if self.due_date and self.work_date and self.due_date < self.work_date:
+            raise ValidationError({"due_date": "Due date tidak boleh sebelum tanggal kerja."})
+
+    @property
+    def is_editable(self):
+        today = timezone.now().date()
+        return self.due_date >= today
+
+
 class LeaveRequest(models.Model):
     """Model untuk pengajuan cuti secara hirarki."""
     class Status(models.TextChoices):

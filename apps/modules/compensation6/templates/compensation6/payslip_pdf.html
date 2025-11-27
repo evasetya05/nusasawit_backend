@@ -112,7 +112,15 @@
       {% if allowances %}
         <ul class="list">
           {% for a in allowances %}
-            <li><span>{{ a.name }}</span><span>Rp {{ a.amount|floatformat:0|intcomma }}</span></li>
+            <li>
+              <div style="flex: 1;">
+                <span>{{ a.name }}</span>
+                {% if a.borongan_dates %}
+                  <div style="font-size: 0.85em; color: #999; margin-top: 3px;">Hari: {{ a.borongan_dates|join:", " }}</div>
+                {% endif %}
+              </div>
+              <span>Rp {{ a.amount|floatformat:0|intcomma }}</span>
+            </li>
           {% endfor %}
         </ul>
       {% else %}

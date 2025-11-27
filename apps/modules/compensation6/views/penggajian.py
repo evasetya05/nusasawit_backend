@@ -83,12 +83,47 @@ def generate_payroll(request, period_id):
                     amount=default_allowance
                 )
 
+        # Create borongan allowances from attendance records (not from employee.borongan)
+        attendances = Attendance.objects.filter(employee=emp, date__year=period.year, date__month=period.month)
+        
+        # Group borongan by borongan record to consolidate same borongan
+        borongan_dict = {}
+        for att in attendances:
+            if att.borongan:
+                borongan = att.borongan
+                key = borongan.id
+                if key not in borongan_dict:
+                    borongan_dict[key] = {
+                        'borongan': borongan,
+                        'total_harga': Decimal('0'),
+                        'dates': []
+                    }
+                borongan_dict[key]['total_harga'] += Decimal(borongan.harga_borongan)
+                borongan_dict[key]['dates'].append(str(att.date))
+        
+        # Create allowances for each borongan
+        for borongan_id, borongan_data in borongan_dict.items():
+            borongan = borongan_data['borongan']
+            allowance_name = f"Borongan: {borongan.pekerjaan} ({borongan.satuan})"
+            if not Allowance.objects.filter(
+                employee=emp,
+                period=period,
+                name=allowance_name
+            ).exists():
+                # Create allowance with dates info stored
+                allowance = Allowance.objects.create(
+                    employee=emp,
+                    period=period,
+                    name=allowance_name,
+                    amount=borongan_data['total_harga'],
+                    borongan_dates=borongan_data['dates']
+                )
+
         # Calculate daily salary
         daily_salary = Decimal(payroll.basic_salary or 0) / Decimal(cfg.working_days_per_month if cfg else 30)
         hourly_rate = daily_salary / 8  # Assume 8 hours per day
 
         # Attendance calculations
-        attendances = Attendance.objects.filter(employee=emp, date__year=period.year, date__month=period.month)
         total_alfa_days = sum(1 for a in attendances if a.status in ['absent'])
         half_day_alfa = sum(0.5 for a in attendances if a.status == 'half_day')
         total_alfa_days += half_day_alfa

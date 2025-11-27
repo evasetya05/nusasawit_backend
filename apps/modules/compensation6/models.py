@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-from apps.core.models import Employee  # pastikan app core sudah punya model Employee
+from apps.core.models import Employee, Borongan  # pastikan app core sudah punya model Employee
 
 
 class PayrollPeriod(models.Model):
@@ -44,6 +44,9 @@ class Allowance(models.Model):
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True, blank=True)
     period = models.ForeignKey(PayrollPeriod, on_delete=models.CASCADE, null=True, blank=True)
+    
+    # Store borongan dates info as JSON for display purposes
+    borongan_dates = models.JSONField(default=list, blank=True, help_text="List of dates when borongan was recorded")
 
     def __str__(self):
         return f"{self.name} - {self.employee}"
@@ -138,8 +141,19 @@ class Attendance(models.Model):
     clock_out = models.TimeField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PRESENT)
     notes = models.TextField(blank=True)
+    
+    # Borongan reference (optional) - dari employee.borongan
+    borongan = models.ForeignKey(Borongan, on_delete=models.SET_NULL, null=True, blank=True, help_text="Pilih pekerjaan borongan (opsional)")
+    realisasi = models.DecimalField(max_digits=10, decimal_places=2, default=0, validators=[MinValueValidator(0)], help_text="Jumlah realisasi borongan (dalam satuan)")
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    def get_hasil_akhir(self):
+        """Hitung hasil akhir = realisasi × harga_borongan"""
+        if self.borongan and self.realisasi:
+            return Decimal(self.realisasi) * Decimal(self.borongan.harga_borongan)
+        return Decimal('0')
 
     class Meta:
         unique_together = ('employee', 'date')

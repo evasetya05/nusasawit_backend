@@ -228,11 +228,13 @@ class PayslipSelectionForm(forms.Form):
 class AttendanceForm(forms.ModelForm):
     class Meta:
         model = Attendance
-        fields = ['employee', 'date', 'clock_in', 'clock_out', 'status', 'notes']
+        fields = ['employee', 'date', 'clock_in', 'clock_out', 'status', 'borongan', 'realisasi', 'notes']
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
             'clock_in': forms.TimeInput(attrs={'type': 'time'}),
             'clock_out': forms.TimeInput(attrs={'type': 'time'}),
+            'borongan': forms.Select(attrs={'class': 'form-control'}),
+            'realisasi': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0', 'placeholder': '0'}),
         }
 
 

@@ -9,4 +9,10 @@ urlpatterns = [
     path('struktur-organisasi/<int:id>/', views.EmployeeDetailView.as_view(), name='employee-detail'),
     path('struktur-organisasi/<int:id>/edit/', views.EmployeeUpdateView.as_view(), name='employee-update'),
     path('struktur-organisasi/<int:id>/delete/', views.EmployeeDeleteView.as_view(), name='employee-delete'),
+    
+    # Borongan URLs
+    path('borongan/create/', views.BoronganCreateView.as_view(), name='borongan-create'),
+    path('borongan/<int:id>/', views.get_borongan, name='borongan-get'),
+    path('borongan/<int:id>/update/', views.BoronganUpdateView.as_view(), name='borongan-update'),
+    path('borongan/<int:id>/delete/', views.BoronganDeleteView.as_view(), name='borongan-delete'),
 ]

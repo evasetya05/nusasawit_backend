@@ -161,6 +161,37 @@
         </div>
         <div class="card shadow mb-4">
           <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Borongan</h6>
+          </div>
+          <div class="card-body">
+            {% if employee.borongan.all %}
+              <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                  <thead>
+                    <tr class="table-light">
+                      <th>Pekerjaan</th>
+                      <th>Satuan</th>
+                      <th>Harga Borongan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for borongan in employee.borongan.all %}
+                      <tr>
+                        <td>{{ borongan.pekerjaan }}</td>
+                        <td>{{ borongan.satuan }}</td>
+                        <td class="salary-field" data-value="{{ borongan.harga_borongan }}">{{ borongan.harga_borongan }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <p class="text-muted mb-0">Belum ada data borongan</p>
+            {% endif %}
+          </div>
+        </div>
+        <div class="card shadow mb-4">
+          <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">Documents</h6>
           </div>
           <div class="card-body">

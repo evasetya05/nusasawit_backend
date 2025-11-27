@@ -7,9 +7,9 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.urls import reverse, reverse_lazy
-from apps.core.models import Employee
+from apps.core.models import Employee, Borongan
 from apps.modules.m2recruit.models import TestResult
-from .forms import EmployeeForm, EmployeeEditForm, SOPSuggestionForm
+from .forms import EmployeeForm, EmployeeEditForm, SOPSuggestionForm, BoronganForm
 from .models import DocumentStandar
 
 from .services.test_services import get_recruitment_tests
@@ -194,3 +194,87 @@ class EmployeeDeleteView(LoginRequiredMixin, DeleteView):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
+
+
+class BoronganCreateView(LoginRequiredMixin, FormView):
+    """Create a new borongan for an employee"""
+    form_class = BoronganForm
+    
+    def post(self, request, *args, **kwargs):
+        employee_id = request.POST.get('employee_id')
+        
+        # Validasi employee_id ada
+        if not employee_id:
+            messages.error(request, 'Employee ID tidak ditemukan')
+            return redirect('m3onboarding:struktur_organisasi')
+        
+        try:
+            employee = Employee.objects.get(id=employee_id, company=request.user.company)
+        except Employee.DoesNotExist:
+            messages.error(request, 'Employee tidak ditemukan atau Anda tidak memiliki akses')
+            return redirect('m3onboarding:struktur_organisasi')
+        
+        form = BoronganForm(request.POST)
+        if form.is_valid():
+            borongan = form.save(commit=False)
+            borongan.employee = employee  # Set employee explicitly
+            borongan.save()
+            messages.success(request, 'Borongan berhasil ditambahkan')
+            return redirect('m3onboarding:employee-update', id=employee_id)
+        else:
+            # Redirect back dengan error messages
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+            messages.error(request, 'Gagal menambahkan borongan. Periksa kembali input Anda.')
+            return redirect('m3onboarding:employee-update', id=employee_id)
+
+
+class BoronganUpdateView(LoginRequiredMixin, UpdateView):
+    """Update an existing borongan"""
+    model = Borongan
+    form_class = BoronganForm
+    template_name = 'm3onboarding/struktur_organisasi/borongan_form.html'
+    pk_url_kwarg = 'id'
+    context_object_name = 'borongan'
+    
+    def get_queryset(self):
+        return Borongan.objects.filter(employee__company=self.request.user.company)
+    
+    def get_success_url(self):
+        messages.success(self.request, 'Borongan berhasil diperbarui')
+        return reverse_lazy('m3onboarding:employee-update', kwargs={'id': self.object.employee.id})
+
+
+class BoronganDeleteView(LoginRequiredMixin, DeleteView):
+    """Delete a borongan"""
+    model = Borongan
+    pk_url_kwarg = 'id'
+    
+    def get_queryset(self):
+        return Borongan.objects.filter(employee__company=self.request.user.company)
+    
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        employee_id = self.object.employee.id
+        self.object.delete()
+        messages.success(request, 'Borongan berhasil dihapus')
+        return redirect('m3onboarding:employee-update', id=employee_id)
+
+
+@login_required
+def get_borongan(request, id):
+    """Get borongan details for editing"""
+    try:
+        borongan = Borongan.objects.get(id=id, employee__company=request.user.company)
+        return JsonResponse({
+            'success': True,
+            'borongan': {
+                'id': borongan.id,
+                'pekerjaan': borongan.pekerjaan,
+                'satuan': borongan.satuan,
+                'harga_borongan': str(borongan.harga_borongan),
+            }
+        })
+    except Borongan.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Borongan not found'}, status=404)

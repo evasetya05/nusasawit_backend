@@ -1,5 +1,5 @@
 from django import forms
-from apps.core.models import Employee
+from apps.core.models import Employee, Borongan
 from .models import DocumentStandar
 
 
@@ -57,6 +57,28 @@ class EmployeeEditForm(forms.ModelForm):
             if field.required:
                 field.widget.attrs['required'] = ''
                 field.label = f"{field.label} *"
+
+
+class BoronganForm(forms.ModelForm):
+    class Meta:
+        model = Borongan
+        fields = ['pekerjaan', 'satuan', 'harga_borongan']
+        widgets = {
+            'pekerjaan': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nama pekerjaan'
+            }),
+            'satuan': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Satuan (pcs, meter, hari, dll)'
+            }),
+            'harga_borongan': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': '0',
+                'step': '0.01',
+                'min': '0'
+            }),
+        }
 
 
 class SOPSuggestionForm(forms.ModelForm):

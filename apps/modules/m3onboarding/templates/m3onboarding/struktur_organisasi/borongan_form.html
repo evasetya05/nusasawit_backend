@@ -1,0 +1,69 @@
+{% extends 'dashboard/base.html' %}
+{% load static widget_tweaks %}
+{% block title %}Edit Borongan{% endblock %}
+{% block content %}
+  <div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+      <h1 class="h3 mb-0 text-gray-800">Edit Borongan</h1>
+      <a href="{% url 'm3onboarding:employee-update' borongan.employee.id %}"
+         class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Kembali
+      </a>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="card shadow">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Edit Borongan: {{ borongan.pekerjaan }}</h6>
+          </div>
+          <div class="card-body">
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+              </div>
+            {% endif %}
+
+            <form method="post">
+              {% csrf_token %}
+              
+              <div class="form-group mb-3">
+                <label class="form-label">Pekerjaan <span class="text-danger">*</span></label>
+                {{ form.pekerjaan|add_class:"form-control" }}
+                {% if form.pekerjaan.errors %}
+                  <div class="invalid-feedback d-block">{{ form.pekerjaan.errors|join:", " }}</div>
+                {% endif %}
+              </div>
+
+              <div class="form-group mb-3">
+                <label class="form-label">Satuan <span class="text-danger">*</span></label>
+                {{ form.satuan|add_class:"form-control" }}
+                {% if form.satuan.errors %}
+                  <div class="invalid-feedback d-block">{{ form.satuan.errors|join:", " }}</div>
+                {% endif %}
+              </div>
+
+              <div class="form-group mb-3">
+                <label class="form-label">Harga Borongan <span class="text-danger">*</span></label>
+                {{ form.harga_borongan|add_class:"form-control" }}
+                {% if form.harga_borongan.errors %}
+                  <div class="invalid-feedback d-block">{{ form.harga_borongan.errors|join:", " }}</div>
+                {% endif %}
+              </div>
+
+              <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-save me-1"></i> Simpan Perubahan
+                </button>
+                <a href="{% url 'm3onboarding:employee-update' borongan.employee.id %}"
+                   class="btn btn-secondary">
+                  <i class="fas fa-times me-1"></i> Batal
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

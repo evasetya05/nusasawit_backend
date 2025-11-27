@@ -6,6 +6,29 @@ from django.core.validators import MinValueValidator
 from .person import Person
 
 
+class Borongan(models.Model):
+    """
+    Model untuk pekerjaan borongan/piece rate employee
+    """
+    employee = models.ForeignKey(
+        'Employee', on_delete=models.CASCADE, related_name='borongan'
+    )
+    pekerjaan = models.CharField(max_length=255)
+    satuan = models.CharField(max_length=100)
+    harga_borongan = models.DecimalField(
+        max_digits=12, decimal_places=2, validators=[MinValueValidator(0)]
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = 'Borongan'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.pekerjaan} - {self.employee.name}"
+
+
 class Employee(Person):
     PPH21_STATUS_CHOICES = [
         ('TK/0', 'TK/0 - Tidak Kawin, tanpa tanggungan'),

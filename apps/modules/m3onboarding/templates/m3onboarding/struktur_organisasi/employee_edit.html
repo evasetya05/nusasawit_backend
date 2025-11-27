@@ -231,17 +231,90 @@
             </div>
           </div>
         </div>
-      </div>
-      <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-          <h6 class="m-0 font-weight-bold text-primary">Wawancara</h6>
-          {% if recruitment_tests.has_data %}
-            <span class="badge bg-info text-dark">Data Rekrutmen</span>
-          {% else %}
-            <span class="badge bg-secondary">Belum Ada Data</span>
-          {% endif %}
+        <div class="card shadow mb-4">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Borongan</h6>
+          </div>
+          <div class="card-body">
+            {% if employee.borongan.all %}
+              <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                  <thead>
+                    <tr class="table-light">
+                      <th>Pekerjaan</th>
+                      <th>Satuan</th>
+                      <th>Harga Borongan</th>
+                      <th class="text-center" style="width: 100px;">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for borongan in employee.borongan.all %}
+                      <tr>
+                        <td>{{ borongan.pekerjaan }}</td>
+                        <td>{{ borongan.satuan }}</td>
+                        <td>{{ borongan.harga_borongan }}</td>
+                        <td class="text-center">
+                          <div class="btn-group btn-group-sm" role="group">
+                            <a href="{% url 'm3onboarding:borongan-update' borongan.id %}" class="btn btn-outline-primary" title="Edit">
+                              <i class="fas fa-edit"></i>
+                            </a>
+                            <form method="post" action="{% url 'm3onboarding:borongan-delete' borongan.id %}" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus?');">
+                              {% csrf_token %}
+                              <button type="submit" class="btn btn-outline-danger" title="Delete">
+                                <i class="fas fa-trash"></i>
+                              </button>
+                            </form>
+                          </div>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <p class="text-muted mb-0">Belum ada data borongan</p>
+            {% endif %}
+            
+            <hr class="my-3">
+            <h6 class="text-primary mb-3">Tambah Borongan Baru</h6>
+            <form method="post" action="{% url 'm3onboarding:borongan-create' %}">
+              {% csrf_token %}
+              <input type="hidden" name="employee_id" value="{{ employee.id }}">
+              
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group mb-2">
+                    <label class="form-label small">Pekerjaan</label>
+                    <input type="text" class="form-control form-control-sm" name="pekerjaan" placeholder="Nama pekerjaan" required>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group mb-2">
+                    <label class="form-label small">Satuan</label>
+                    <input type="text" class="form-control form-control-sm" name="satuan" placeholder="Satuan" required>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group mb-2">
+                    <label class="form-label small">Harga Borongan</label>
+                    <input type="number" class="form-control form-control-sm" name="harga_borongan" placeholder="0" step="0.01" min="0" required>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="form-group mb-2">
+                    <label class="form-label small">&nbsp;</label>
+                    <button type="submit" class="btn btn-sm btn-success w-100">
+                      <i class="fas fa-plus me-1"></i> Tambah
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
         </div>
-        <div class="card-body">
+        <div class="card shadow mb-4">
+          <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Wawancara</h6>
           {% if recruitment_tests.has_data %}
             <div class="row">
               <div class="col-md-4 mb-3">

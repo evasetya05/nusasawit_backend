@@ -299,7 +299,7 @@ class WorkRequestForm(forms.ModelForm):
                 self.add_error('start_date', 'Ada work request yang tumpang tindih dengan tanggal yang dipilih.')
 
         if self.instance.pk and not self.instance.is_editable:
-            raise forms.ValidationError('Work request sudah melewati due date dan tidak dapat diedit.')
+            raise forms.ValidationError('Work request sudah melewati tanggal akhir dan tidak dapat diedit.')
 
         return cleaned_data
 

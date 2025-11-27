@@ -172,7 +172,7 @@ class WorkCalendarView(TemplateView):
             work_request = get_object_or_404(WorkRequest, pk=work_request_id)
 
             if not work_request.is_editable:
-                messages.error(request, 'Work request sudah melewati due date dan tidak dapat diedit.')
+                messages.error(request, 'Work request sudah melewati tanggal akhir dan tidak dapat diedit.')
                 return redirect('compensation6:work_calendar')
 
             form = WorkRequestForm(request.POST, instance=work_request, user=request.user)

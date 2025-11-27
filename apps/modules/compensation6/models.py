@@ -199,7 +199,7 @@ class WorkRequest(models.Model):
     @property
     def is_editable(self):
         today = timezone.now().date()
-        return self.due_date >= today
+        return self.end_date >= today
 
     def covers_date(self, date):
         """Check if this work request covers the given date."""

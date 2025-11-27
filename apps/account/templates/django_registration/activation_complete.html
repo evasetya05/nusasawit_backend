@@ -1,0 +1,8 @@
+{% extends "account/base.html" %}
+{% block lr_form %}
+  <p>Akun anda berhasil diaktifkan.</p>
+  <p>Silahkan login dengan akun anda.</p>
+{% endblock %}
+{% block lr_help %}
+  <span><a href="{% url 'login' %}">Masuk</a></span>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'account/base.html' %}
+{% load i18n widget_tweaks %}
+{% block lr_title %}Aktivasi Akun:{% endblock %}
+{% block lr_form %}
+  <p>Klik tombol berikut untuk mengaktifkan akun anda.</p>
+  <form method="post" id="activation-form">
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="mb-3">
+        {{ field|append_attr:"type:hidden" }}
+        {% for error in field.errors %}<div class="text-danger fs-6">{{ error }}</div>{% endfor %}
+      </div>
+    {% endfor %}
+    <button type="submit" id="activate-button" class="btn btn-primary">
+      <span class="spinner-border spinner-border-sm d-none" id="spinner" role="status" aria-hidden="true"></span>
+      <span>{% trans "Aktifkan" %}</span>
+    </button>
+  </form>
+{% endblock %}
+
+{% block extrascript %}
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('activation-form');
+    const submitBtn = document.getElementById('activate-button');
+
+    form.addEventListener('submit', function() {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <span>{% trans "Memproses..." %}</span>
+      `;
+    });
+  });
+  </script>
+{% endblock %}

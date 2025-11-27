@@ -1,0 +1,61 @@
+{% extends 'dashboard/base.html' %}
+{% block content %}
+  <div class="container mt-4">
+    <h1 class="text-dark">Dope Test Results</h1>
+    {% for applicant in applicant_responses %}
+      <div class="card my-4 shadow-sm">
+        <div class="card-header">
+          <h5 class="mb-0">
+            Applicant: <strong>{{ applicant.result.user.name }}</strong>
+          </h5>
+        </div>
+        <div class="card-body">
+          <h5 class="card-title">
+            Personality: <span class="badge bg-primary">{{ applicant.dope_personality }}</span>
+          </h5>
+          <div class="row mt-3">
+            <div class="col-md-6">
+              <p>
+                <strong>Total (D) Count:</strong> <span class="badge bg-info">{{ applicant.score_summary.D }}</span>
+              </p>
+              <p>
+                <strong>Total (I) Count:</strong> <span class="badge bg-success">{{ applicant.score_summary.I }}</span>
+              </p>
+            </div>
+            <div class="col-md-6">
+              <p>
+                <strong>Total (C) Count:</strong> <span class="badge bg-warning">{{ applicant.score_summary.C }}</span>
+              </p>
+              <p>
+                <strong>Total (S) Count:</strong> <span class="badge bg-danger">{{ applicant.score_summary.S }}</span>
+              </p>
+            </div>
+          </div>
+          <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ applicant.id }}" aria-expanded="false">
+            Show Responses
+          </button>
+          <div class="table-responsive collapse pt-2" id="collapse{{ applicant.id }}">
+            <table class="table table-bordered">
+              <thead class="table-light">
+                <tr>
+                  <th>#</th>
+                  <th>Selected Option</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for response in applicant.user_answer.all %}
+                  <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ response.selected_answer }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="alert alert-warning mt-4" role="alert">No test results available.</div>
+    {% endfor %}
+  </div>
+{% endblock content %}

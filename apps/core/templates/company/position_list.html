@@ -1,0 +1,50 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Positions</h4>
+        <a href="{% url 'company:position_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Position
+        </a>
+    </div>
+    <div class="card-body">
+        {% if positions %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for position in positions %}
+                        <tr>
+                            <td>{{ position.name }}</td>
+                            <td>{{ position.department.name }}</td>
+                            <td class="text-end">
+                                <a href="{% url 'company:position_update' position.pk %}" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a href="{% url 'company:position_delete' position.pk %}" 
+                                   class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                No positions found. Click the 'Add Position' button to create one.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

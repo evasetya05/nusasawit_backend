@@ -1,0 +1,71 @@
+{% extends "dashboard/base.html" %}
+{% block title_block %}
+  Team Lead Dashboard
+{% endblock title_block %}
+{% block content %}
+  <div class="dashboard-container">
+    <div class="main-content">
+      <h1>Rekrutmen dan Seleksi</h1>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Big 5 Personality Test</th>
+            <th>DOPE Test</th>
+            <th>Matrix Interview</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for applicant in applicants %}
+            <tr>
+              <td>{{ applicant.applicant.user }}</td>
+              <td>
+                <strong>Openness:</strong> {{ applicant.Big_5.Openness|default:"N/A" }}
+                <br>
+                <strong>Conscientiousness:</strong> {{ applicant.Big_5.Conscientiousness|default:"N/A" }}
+                <br>
+                <strong>Extraversion:</strong> {{ applicant.Big_5.Extraversion|default:"N/A" }}
+                <br>
+                <strong>Agreeableness:</strong> {{ applicant.Big_5.Agreeableness|default:"N/A" }}
+                <br>
+                <strong>Neuroticism:</strong> {{ applicant.Big_5.Neuroticism|default:"N/A" }}
+              </td>
+              <td>
+                <strong>{{ applicant.dope_personality|default:"N/A" }}</strong>
+              </td>
+              <td>
+                <strong>Total Rating:</strong>
+                {% if applicant.Interview is not None %}
+                  {{ applicant.Interview }}
+                {% else %}
+                  Not Available
+                {% endif %}
+              </td>
+              <!-- Status Selection Form -->
+              <td>
+                <form method="post">
+                  {% csrf_token %}
+                  <input type="hidden"
+                         name="applicant_id"
+                         value="{{ applicant.applicant.id }}" />
+                  <div class="input-group mb-3">
+                    <select name="status" class="form-select">
+                      <option value="dipertimbangkan"
+                              {% if applicant.applicant.result == "dipertimbangkan" %}selected{% endif %}>Dipertimbangkan</option>
+                      <option value="lulus" {% if applicant.applicant.result == "lulus" %}selected{% endif %}>Lulus</option>
+                      <option value="tidak_lulus"
+                              {% if applicant.applicant.result == "tidak_lulus" %}selected{% endif %}>Tidak Lulus</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                  </div>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% include "dashboard/partials/fab.html" %}
+{% endblock content %}

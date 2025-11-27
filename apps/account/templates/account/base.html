@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block body %}
+  <div class="d-flex flex-column justify-content-center h-auto min-vh-100 p-2">
+    <div class="card align-self-center align-items-center p-2" style="width: 300px;">
+      <h4>
+        {% block lr_title %}{% endblock %}
+      </h4>
+
+      {% block lr_form %}{% endblock %}
+
+      <p class="card-text">
+        <small class="text-body-secondary">
+          {% block lr_help %}{% endblock %}
+        </small>
+      </p>
+
+    </div>
+  </div>
+{% endblock %}

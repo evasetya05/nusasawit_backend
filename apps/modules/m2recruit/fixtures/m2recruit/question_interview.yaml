@@ -1,0 +1,122 @@
+- model: m2recruit.Trait
+  pk: 6
+  fields:
+    test: 3
+    name: Technical Knowledge
+    description: Domain Knowledge
+- model: m2recruit.Trait
+  pk: 7
+  fields:
+    test: 3
+    name: Technical Knowledge
+    description: Problem Solving Skills
+- model: m2recruit.Trait
+  pk: 8
+  fields:
+    test: 3
+    name: Experience
+    description: Relevant Experience
+- model: m2recruit.Trait
+  pk: 9
+  fields:
+    test: 3
+    name: Experience
+    description: Team Collaboration
+- model: m2recruit.Trait
+  pk: 10
+  fields:
+    test: 3
+    name: Communication Skills
+    description: Clarity and Articularity
+- model: m2recruit.Trait
+  pk: 11
+  fields:
+    test: 3
+    name: Problem Solving
+    description: Analytical Thinking
+- model: m2recruit.Trait
+  pk: 12
+  fields:
+    test: 3
+    name: Cultural Fit
+    description: Company Alignment
+- model: m2recruit.Trait
+  pk: 13
+  fields:
+    test: 3
+    name: Leadership
+    description: Management/ Leadership Skills
+- model: m2recruit.Trait
+  pk: 14
+  fields:
+    test: 3
+    name: Other / Lainnya 1
+    description: Other / Lainnya 1
+- model: m2recruit.Trait
+  pk: 15
+  fields:
+    test: 3
+    name: Other / Lainnya 2
+    description: Other / Lainnya 2
+
+
+- model: m2recruit.Question
+  pk: 44
+  fields:
+    test: 3
+    trait: 6
+    text: "Bisakah Anda menjelaskan tantangan yang pernah Anda hadapi dan selesaikan di bidang ini?"
+- model: m2recruit.Question
+  pk: 45
+  fields:
+    test: 3
+    trait: 7
+    text: "Bagaimana Anda akan menangani proyek dengan persyaratan yang terus berubah?"
+- model: m2recruit.Question
+  pk: 46
+  fields:
+    test: 3
+    trait: 8
+    text: "Bisakah Anda ceritakan tentang proyek serupa yang pernah Anda kerjakan?"
+- model: m2recruit.Question
+  pk: 47
+  fields:
+    test: 3
+    trait: 9
+    text: "Bagaimana Anda mengelola kerja tim? Bisakah Anda memberikan contoh konkret?"
+- model: m2recruit.Question
+  pk: 48
+  fields:
+    test: 3
+    trait: 10
+    text: "Bisakah Anda menjelaskan topik yang kompleks kepada saya seolah-olah saya tidak memiliki pengetahuan tentang topik tersebut?"
+- model: m2recruit.Question
+  pk: 49
+  fields:
+    test: 3
+    trait: 11
+    text: "Ceritakan pengalaman Anda saat harus mengambil keputusan sulit dengan informasi yang terbatas."
+- model: m2recruit.Question
+  pk: 50
+  fields:
+    test: 3
+    trait: 12
+    text: "Apa yang menarik bagi Anda tentang perusahaan kami?"
+- model: m2recruit.Question
+  pk: 51
+  fields:
+    test: 3
+    trait: 13
+    text: "Bagaimana Anda memotivasi dan menginspirasi tim untuk mencapai tujuan?"
+- model: m2recruit.Question
+  pk: 52
+  fields:
+    test: 3
+    trait: 14
+    text: "Tentukan pertanyaan anda / masukkan dalam komentar sebagai dokumnetasi wawancara."
+- model: m2recruit.Question
+  pk: 53
+  fields:
+    test: 3
+    trait: 15
+    text: "Tentukan pertanyaan anda / masukkan dalam komentar sebagai dokumnetasi wawancara."

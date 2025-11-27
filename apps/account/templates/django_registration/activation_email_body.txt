@@ -1,0 +1,12 @@
+Aktivasi akun
+Email anda telah didaftarkan di {{ site.name }}.
+
+Silahkan klik link berikut untuk mengaktifkan akun anda:
+
+{{ scheme }}://{{ site.domain }}{% url 'django_registration_activate' %}?activation_key={{ activation_key }}
+
+Link ini valid selama {{ expiration_days }} hari.
+
+Terima kasih,
+
+Abaikan email ini jika anda tidak mendaftarkan diri anda di {{ site.name }}.

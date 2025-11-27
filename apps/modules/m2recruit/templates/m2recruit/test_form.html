@@ -1,0 +1,38 @@
+{% extends 'dashboard/base.html' %}
+{% load widget_tweaks %}
+{% block header %}
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{% url 'index' %}">SDM Portabel</a>
+      <button class="navbar-toggler"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#navbarNav"
+              aria-controls="navbarNav"
+              aria-expanded="false"
+              aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
+  </nav>
+{% endblock %}
+{% block sidebar %}{% endblock %}
+{% block content %}
+  <div class="container mt-3">
+    <h3 class="mb-4">Applicant Details</h3>
+    <h4>{{ company.name }}</h4>
+    {% if error_message %}<div class="text-danger mt-2">{{ error_message }}</div>{% endif %}
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="mb-3">
+          {{ field|add_label_class:"form-label" }}
+          {{ field|add_class:"form-control" }}
+          {% if field.help_text %}<small class="form-text text-muted">{{ field.help_text|safe }}</small>{% endif %}
+          {% for error in field.errors %}<div class="text-danger fs-6">{{ error }}</div>{% endfor %}
+        </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+{% endblock %}

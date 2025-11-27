@@ -1,0 +1,145 @@
+{% extends 'dashboard/base.html' %}
+{% load widget_tweaks %}
+{% load form_filters %}
+{% block content %}
+  <div class="container">
+    <h2 class="text-center my-4">Organization Culture Assesment Instrument Form</h2>
+    <h4 class="text-center">{{ company.name }}</h4>
+    <div class="mb-3">
+      <label for="remarkScale" class="form-label">
+        Silakan isi kolom <strong>"Sekarang"</strong> dan <strong>"Diharapkan"</strong> dengan nilai menurut pandangan Anda.
+        <br>
+        <br>
+        <strong>Contoh:</strong>
+        <br>
+        Perusahaan ini adalah perusahaan yang merupakan tempat pribadi, seperti keluarga besar dan orang-orang saling berbagi satu sama lain.  - Anda merasa nilai saat ini: <strong>15</strong> Anda mengharapkan: <strong>25</strong>
+        <br>
+        <br>
+        Total kolom <strong>"Sekarang"</strong> dan <strong>"Diharapkan"</strong> harus berjumlah <strong>100</strong> (tidak bisa kurang atau lebih). Jika sudah selesai, klik <strong>Kirim Jawaban</strong>.
+      </label>
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+          {% for error in form.non_field_errors %}
+            <p>{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+      {% for dimensi, pertanyaan_list in grouped_pertanyaan.items %}
+        <div class="mb-4">
+          <h4>{{ dimensi }}</h4>
+          <span class="warning text-danger"
+                id="warning-{{ dimensi }}"
+                style="display: none">Total untuk kolom "Sekarang" dan "Diharapkan" harus 100.</span>
+          <div class="table-responsive">
+            <table class="table table-bordered text-center">
+              <thead class="table-dark">
+                <tr>
+                  <th>Kategori</th>
+                  <th>Pertanyaan</th>
+                  <th>Sekarang</th>
+                  <th>Diharapkan</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for pertanyaan in pertanyaan_list %}
+                  <tr>
+                    <td>{{ pertanyaan.category }}</td>
+                    <td>{{ pertanyaan.text }}</td>
+                    <td>
+                      {% with key='current_score_'|concat:pertanyaan.id %}
+                        {{ form|get_item:key }}
+                      {% endwith %}
+                    </td>
+                    <td>
+                      {% with key='expected_score_'|concat:pertanyaan.id %}
+                        {{ form|get_item:key }}
+                      {% endwith %}
+                    </td>
+                  </tr>
+                {% endfor %}
+                <tr class="table-secondary">
+                  <td colspan="2">
+                    <strong>Total:</strong>
+                  </td>
+                  <td class="dimensiTotal" data-dimensi="{{ dimensi }}">
+                    <strong>100</strong>
+                  </td>
+                  <td class="expectedTotal" data-dimensi="{{ dimensi }}">
+                    <strong>100</strong>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-success submit-btn">Kirim Jawaban</button>
+    </form>
+  </div>
+{% endblock %}
+{% block extrascript %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const form = document.querySelector('form');
+      const submitButton = form.querySelector('.submit-btn');
+
+      function validateTotals() {
+        let allValid = true;
+        const dimensions = new Set([
+          ...Array.from(document.querySelectorAll('.current_score')).map(el => el.dataset.dimensi),
+          ...Array.from(document.querySelectorAll('.expected_score')).map(el => el.dataset.dimensi)
+        ]);
+
+        dimensions.forEach(dimensi => {
+          let currentTotal = 0;
+          document.querySelectorAll(`.current_score[data-dimensi='${dimensi}']`).forEach(input => {
+            currentTotal += parseInt(input.value) || 0;
+          });
+
+          let expectedTotal = 0;
+          document.querySelectorAll(`.expected_score[data-dimensi='${dimensi}']`).forEach(input => {
+            expectedTotal += parseInt(input.value) || 0;
+          });
+
+          const currentTotalCell = document.querySelector(`.dimensiTotal[data-dimensi='${dimensi}'] strong`);
+          const expectedTotalCell = document.querySelector(`.expectedTotal[data-dimensi='${dimensi}'] strong`);
+          const warningSpan = document.getElementById(`warning-${dimensi}`);
+
+          currentTotalCell.textContent = currentTotal;
+          expectedTotalCell.textContent = expectedTotal;
+
+          if (currentTotal !== 100 || expectedTotal !== 100) {
+            allValid = false;
+            warningSpan.style.display = 'block';
+            if (currentTotal !== 100) {
+              currentTotalCell.parentElement.classList.add('table-danger');
+            } else {
+              currentTotalCell.parentElement.classList.remove('table-danger');
+            }
+            if (expectedTotal !== 100) {
+              expectedTotalCell.parentElement.classList.add('table-danger');
+            } else {
+              expectedTotalCell.parentElement.classList.remove('table-danger');
+            }
+          } else {
+            warningSpan.style.display = 'none';
+            currentTotalCell.parentElement.classList.remove('table-danger');
+            expectedTotalCell.parentElement.classList.remove('table-danger');
+          }
+        });
+
+        submitButton.disabled = !allValid;
+      }
+
+      document.querySelectorAll('.current_score, .expected_score').forEach(input => {
+        input.addEventListener('input', validateTotals);
+      });
+
+      // Initial validation check
+      validateTotals();
+    });
+  </script>
+{% endblock %}

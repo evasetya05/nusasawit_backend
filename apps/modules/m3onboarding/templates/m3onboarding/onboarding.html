@@ -1,0 +1,57 @@
+{% extends 'dashboard/base.html' %}
+{% block content %}
+  <h1>Onboarding</h1>
+  <!-- Floating Feedback Button -->
+  <div class="floating-button feedback-button" onclick="openGoogleForm()">💬 Berikan Saran</div>
+  <!-- Floating WhatsApp Button -->
+  <div class="floating-button whatsapp-button" onclick="openWhatsAppChat()">📲 Konsultasikan Hasil</div>
+  <script>
+        // Function to open Google Form
+        function openGoogleForm() {
+            const googleFormLink = "https://forms.gle/YOUR_GOOGLE_FORM_LINK"; // Replace with your actual form link
+            window.open(googleFormLink, '_blank');
+        }
+
+        // Function to open WhatsApp chat
+        function openWhatsAppChat() {
+            const phoneNumber = "+6285348178999";
+            const message = encodeURIComponent("Halo, saya ingin konsultasi mengenai hasil tes.");
+            const whatsappURL = `https://wa.me/${phoneNumber}?text=${message}`;
+            window.open(whatsappURL, '_blank');
+        }
+  </script>
+  <style>
+        /* General Floating Button Styles */
+        .floating-button {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            background-color: #ff9800; /* Orange */
+            color: white;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .floating-button:hover {
+            transform: scale(1.05);
+            background-color: #e68900; /* Darker orange */
+        }
+
+        /* Adjust positions for multiple buttons */
+        .whatsapp-button {
+            bottom: 70px; /* Position above feedback button */
+            background-color: #25D366; /* WhatsApp green */
+        }
+
+        .whatsapp-button:hover {
+            background-color: #1ebe57;
+        }
+  </style>
+{% endblock content %}

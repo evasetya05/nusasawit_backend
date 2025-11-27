@@ -1,0 +1,53 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-07-01 21:02+0700\n"
+"PO-Revision-Date: 2025-07-01 21:06+0700\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: id\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.6\n"
+
+#: forms.py:51
+msgid "You must accept the terms of service"
+msgstr ""
+
+#: templates/django_registration/registration_form.html:3
+#: templates/django_registration/registration_form.html:28
+msgid "Register"
+msgstr "Daftar"
+
+#: templates/django_registration/registration_form.html:13
+msgid "I read and accept the"
+msgstr "Saya telah membaca dan menyetujui"
+
+#: templates/django_registration/registration_form.html:14
+msgid "Privacy Policy"
+msgstr "Kebijakan Privasi"
+
+#: templates/django_registration/registration_form.html:14
+msgid "and"
+msgstr "dan"
+
+#: templates/django_registration/registration_form.html:15
+msgid "Terms of Service"
+msgstr "Ketentuan Layanan"
+
+#: templates/django_registration/registration_form.html:32
+msgid "Already have an account?"
+msgstr "Sudah punya akun?"
+
+#: templates/django_registration/registration_form.html:32
+msgid "Login"
+msgstr ""

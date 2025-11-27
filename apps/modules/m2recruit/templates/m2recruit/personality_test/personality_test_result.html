@@ -1,0 +1,59 @@
+{% extends 'dashboard/base.html' %}
+{% block content %}
+  <div class="container mt-4">
+    <h1 class="text-dark">Personality Test Results</h1>
+    {% for result in applicant_results %}
+      <div class="card shadow-sm my-4">
+        <div class="card-header">
+          <h5 class="mb-0">
+            Applicant: <strong>{{ result.result.user.name }}</strong>
+          </h5>
+        </div>
+        <div class="card-body">
+        {% if result.score_summary %}
+          <p>
+            <span class="fw-bold text-muted">Openness Average:</span> {{ result.score_summary.Openness }}
+          </p>
+          <p>
+            <span class="fw-bold text-muted">Conscientiousness Average:</span> {{ result.score_summary.Conscientiousness }}
+          </p>
+          <p>
+            <span class="fw-bold text-muted">Extraversion Average:</span> {{ result.score_summary.Extraversion }}
+          </p>
+          <p>
+            <span class="fw-bold text-muted">Agreeableness Average:</span> {{ result.score_summary.Agreeableness }}
+          </p>
+          <p>
+            <span class="fw-bold text-muted">Neuroticism Average:</span> {{ result.score_summary.Neuroticism }}
+          </p>
+          <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ result.id }}" aria-expanded="false">
+            Show Responses
+          </button>
+          <div class="table-responsive collapse pt-2" id="collapse{{ result.id }}">
+            <table class="table table-bordered">
+              <thead class="table-light">
+                <tr>
+                  <th>Question</th>
+                  <th>Answer Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for response in result.user_answer.all %}
+                  <tr>
+                    <td>{{ response.question.text }}</td>
+                    <td>{{ response.answer_value }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="text-muted">No responses available.</p>
+        {% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <div class="alert alert-warning mt-4" role="alert">No test results available.</div>
+    {% endfor %}
+  </div>
+{% endblock content %}

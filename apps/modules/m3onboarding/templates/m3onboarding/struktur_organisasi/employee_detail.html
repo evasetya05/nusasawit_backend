@@ -1,0 +1,178 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block title %}{{ employee.name }} - Employee Details{% endblock %}
+{% block content %}
+  <div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+      <h1 class="h3 mb-0 text-gray-800">Employee Details</h1>
+      <div>
+        <a href="{% url 'm3onboarding:struktur_organisasi' %}" class="btn btn-secondary">
+          <i class="fas fa-arrow-left me-1"></i> Back to List
+        </a>
+        {% if not employee.user and request.user.is_owner %}
+          <a href="{% url 'send-invitation' employee.id %}" class="btn btn-info">
+            <i class="fas fa-paper-plane me-1"></i> Send Invitation
+          </a>
+        {% endif %}
+        {% if request.user.is_owner or request.user.person.id == employee.id %}
+          <a href="{% url 'm3onboarding:employee-update' employee.id %}"
+             class="btn btn-primary">
+            <i class="fas fa-edit me-1"></i> Edit
+          </a>
+        {% endif %}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-4">
+        <div class="card shadow mb-4">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Profile</h6>
+          </div>
+          <div class="card-body text-center">
+            {% if employee.photo %}
+              <img alt="Profile Image"
+                   class="img-profile rounded-circle mb-3"
+                   src="{{ employee.photo.url }}"
+                   width="150"
+                   height="150"
+                   style="object-fit: cover">
+            {% else %}
+              <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mb-3"
+                   style="width: 150px;
+                          height: 150px;
+                          margin: 0 auto">
+                <i class="fas fa-user fa-4x text-gray-400"></i>
+              </div>
+            {% endif %}
+            <h4>{{ employee.name }}</h4>
+            <div class="mt-4 text-start">
+              <p>
+                <strong>Employee ID:</strong> {{ employee.id|default:"-" }}
+              </p>
+              <p>
+                <strong>Status:</strong>
+                {% if employee.is_active %}
+                  <span class="badge bg-success">Active</span>
+                {% else %}
+                  <span class="badge bg-secondary">Inactive</span>
+                {% endif %}
+              </p>
+              <p>
+                <strong>Account Access:</strong>
+                {% if employee.user %}
+                  <span class="badge bg-success">Enabled</span>
+                {% else %}
+                  <span class="badge bg-secondary">Disabled</span>
+                {% endif %}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-8">
+        <div class="card shadow mb-4">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Work Information</h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <h6 class="text-primary">Department</h6>
+                <p>{{ employee.department|default:"-" }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <h6 class="text-primary">Position</h6>
+                <p>{{ employee.position|default:"-" }}</p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <h6 class="text-primary">Manager</h6>
+                <p>{{ employee.manager|default:"-" }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <h6 class="text-primary">Hire Date</h6>
+                <p>{{ employee.hire_date|date:"F d, Y"|default:"-" }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card shadow mb-4">
+          <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Contact Information</h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <h6 class="text-primary">Email</h6>
+                <p>{{ employee.email|default:"-" }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <h6 class="text-primary">Phone</h6>
+                <p>{{ employee.phone|default:"-" }}</p>
+              </div>
+              <div class="col-12 mb-3">
+                <h6 class="text-primary">Address</h6>
+                <p>{{ employee.address|linebreaksbr|default:"-" }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card shadow mb-4">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Documents</h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <h6 class="text-primary">KK</h6>
+                {% if employee.kk %}
+                  <div class="btn-group" role="group">
+                    <a href="{{ employee.kk.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                      <i class="fas fa-eye me-1"></i> View
+                    </a>
+                    <a href="{{ employee.kk.url }}" download class="btn btn-sm btn-outline-secondary">
+                      <i class="fas fa-download me-1"></i> Download
+                    </a>
+                  </div>
+                {% else %}
+                  <p class="text-muted">No file uploaded</p>
+                {% endif %}
+              </div>
+              <div class="col-md-6 mb-3">
+                <h6 class="text-primary">KTP</h6>
+                {% if employee.ktp %}
+                  <div class="btn-group" role="group">
+                    <a href="{{ employee.ktp.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                      <i class="fas fa-eye me-1"></i> View
+                    </a>
+                    <a href="{{ employee.ktp.url }}" download class="btn btn-sm btn-outline-secondary">
+                      <i class="fas fa-download me-1"></i> Download
+                    </a>
+                  </div>
+                {% else %}
+                  <p class="text-muted">No file uploaded</p>
+                {% endif %}
+              </div>
+              <div class="col-md-6 mb-3">
+                <h6 class="text-primary">NPWP</h6>
+                {% if employee.npwp %}
+                  <div class="btn-group" role="group">
+                    <a href="{{ employee.npwp.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                      <i class="fas fa-eye me-1"></i> View
+                    </a>
+                    <a href="{{ employee.npwp.url }}" download class="btn btn-sm btn-outline-secondary">
+                      <i class="fas fa-download me-1"></i> Download
+                    </a>
+                  </div>
+                {% else %}
+                  <p class="text-muted">No file uploaded</p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

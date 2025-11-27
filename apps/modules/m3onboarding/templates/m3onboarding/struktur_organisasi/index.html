@@ -1,0 +1,175 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block content %}
+  <div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h3 mb-0">Struktur Organisasi</h1>
+      <div class="d-flex align-items-center">
+        <div class="me-3 d-flex align-items-center">
+          <div class="current-user-marker me-2"
+               style="width: 15px;
+                      height: 15px;
+                      background-color: #4e73df;
+                      border-radius: 3px"></div>
+          <small>Anda</small>
+        </div>
+      </div>
+    </div>
+    <div class="org-chart">
+      {% if request.user.person %}
+        {% with employee=request.user.person %}
+          {% if employee.manager %}
+            <!-- Manager Level -->
+            <div class="level mb-4">
+              <div class="d-flex justify-content-center">
+                <div class="employee-card {% if employee.manager == request.user.person %}current-user{% endif %}">
+                  <div class="card shadow-sm h-100">
+                    <div class="card-body text-center p-2">
+                      <div class="position-relative">
+                        {% if employee.manager.photo %}
+                          <img src="{{ employee.manager.photo.url }}"
+                               class="rounded-circle mb-2"
+                               width="60"
+                               height="60"
+                               alt="{{ employee.manager.name }}">
+                        {% else %}
+                          <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mb-2 mx-auto"
+                               style="width: 60px;
+                                      height: 60px;
+                                      font-size: 24px">{{ employee.manager.name|first|upper }}</div>
+                        {% endif %}
+                      </div>
+                      <h6 class="mb-0">{{ employee.manager.name }}</h6>
+                      <small class="text-muted d-block">{{ employee.manager.position.name|default:"-" }}</small>
+                      <small class="text-muted">{{ employee.manager.department.name|default:"-" }}</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Connecting Line -->
+            <div class="d-flex justify-content-center mb-3">
+              <div style="width: 2px; height: 30px; background-color: #dee2e6;"></div>
+            </div>
+          {% endif %}
+          <!-- Current User Level -->
+          <div class="level mb-4">
+            <div class="d-flex justify-content-center">
+              <a href="{% url 'm3onboarding:employee-detail' employee.id %}"
+                 class="text-decoration-none">
+                <div class="employee-card current-user">
+                  <div class="card shadow border-primary h-100">
+                    <div class="card-body text-center p-2">
+                      <div class="position-relative">
+                        {% if employee.photo %}
+                          <img src="{{ employee.photo.url }}"
+                               class="rounded-circle mb-2"
+                               width="80"
+                               height="80"
+                               alt="{{ employee.name }}">
+                        {% else %}
+                          <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mb-2 mx-auto"
+                               style="width: 80px;
+                                      height: 80px;
+                                      font-size: 32px">{{ employee.name|first|upper }}</div>
+                        {% endif %}
+                        <span class="position-absolute top-0 start-100 translate-middle p-2 bg-primary border border-light rounded-circle">
+                          <span class="visually-hidden">Anda</span>
+                        </span>
+                      </div>
+                      <h5 class="mb-0 fw-bold text-dark">{{ employee.name }}</h5>
+                      <small class="text-muted d-block">{{ employee.position.name|default:"-" }}</small>
+                      <small class="text-muted">{{ employee.department.name|default:"-" }}</small>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </div>
+          </div>
+          <!-- Subordinates Level -->
+          {% if employee.subordinates.all %}
+            <!-- Connecting Line -->
+            <div class="d-flex justify-content-center mb-3">
+              <div style="width: 2px; height: 30px; background-color: #dee2e6;"></div>
+            </div>
+            <div class="level">
+              <div class="d-flex justify-content-center flex-wrap">
+                {% for subordinate in employee.subordinates.all %}
+                  <div class="employee-card mx-2 mb-4">
+                    <div class="card shadow-sm h-100">
+                      <div class="card-body text-center p-2">
+                        <div class="position-relative">
+                          {% if subordinate.photo %}
+                            <img src="{{ subordinate.photo.url }}"
+                                 class="rounded-circle mb-2"
+                                 width="60"
+                                 height="60"
+                                 alt="{{ subordinate.name }}">
+                          {% else %}
+                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mb-2 mx-auto"
+                                 style="width: 60px;
+                                        height: 60px;
+                                        font-size: 24px">{{ subordinate.name|first|upper }}</div>
+                          {% endif %}
+                        </div>
+                        <h6 class="mb-0">{{ subordinate.name }}</h6>
+                        <small class="text-muted d-block">{{ subordinate.position.name|default:"-" }}</small>
+                        <small class="text-muted">{{ subordinate.department.name|default:"-" }}</small>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+        {% endwith %}
+      {% else %}
+        <div class="alert alert-info" role="alert">Data karyawan tidak ditemukan untuk akun Anda.</div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+{% block extrastyle %}
+  <style>
+    .org-chart {
+        background-color: #f8f9fc;
+        border-radius: 0.5rem;
+        padding: 2rem;
+        position: relative;
+    }
+
+    .employee-card {
+        min-width: 180px;
+        transition: transform 0.2s;
+    }
+
+    .employee-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .current-user .card {
+        border: 2px solid #4e73df !important;
+    }
+
+    .level {
+        position: relative;
+    }
+
+    .level:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        bottom: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 2px;
+        height: 30px;
+        background-color: #dee2e6;
+    }
+
+    @media (max-width: 768px) {
+        .employee-card {
+            min-width: 140px;
+        }
+    }
+  </style>
+{% endblock %}

@@ -1,0 +1,385 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block sidebar %} {% endblock %}
+
+{% block main %}
+<main class="overflow-auto">
+<!-- Box Section -->
+<div class="container">
+    <div class="box"><a href="#">1. Perencanaan Tenaga Kerja</a></div>
+    <div class="container">
+        <div class="box rekrutmen"><a href="{% url 'recruit_dashboard' %}">2. Rekrutmen dan Seleksi</a></div>
+    <div class="box"><a href="#">3. Onboarding dan Pelatihan</a></div>
+    <div class="box"><a href="#">4. Manajemen Kinerja</a></div>
+    <div class="box"><a href="#">5. Pengembangan Karyawan</a></div>
+    <div class="box"><a href="#">6. Kesejahteraan dan Retensi</a></div>
+    <div class="box"><a href="#">7. Administrasi dan Kepatuhan</a></div>
+    <div class="box"><a href="#">8. Industrial Relation</a></div>
+    <div class="box rekrutmen"><a href="#">9. Continues Improvement</a></div>
+
+</div>
+
+
+<!-- Hero Section -->
+<div class="hero-section">
+    <h1>SDM Portabel</h1>
+    <p>Platform andalan untuk solusi Sumber Daya Manusia / Human Resource.</p>
+    <p>SDM Portabel menggunakan pendekatan modular, memungkinkan bisnis untuk menggunakan hanya modul yang diperlukan dari 9 modul yang tersedia, sehingga lebih efisien dan hemat biaya.</p>
+    <p>Dirancang untuk:</p>
+    <p>• Perusahaan yang ingin mengoptimalkan manajemen SDM dengan efisien.</p>
+    <p>• UMKM dan startup yang membutuhkan solusi HR yang fleksibel dan terjangkau.</p>
+    <p>• Bisnis yang ingin mengurangi biaya operasional dalam pengelolaan SDM / HR.</p>
+</div>
+
+
+
+
+    <!-- Image Slider Wrapper -->
+    <div class="slider-container">
+        <div class="image-slider">
+            <img src="{% static 'images/rekrut1.png' %}" class="slider-image active" alt="SDM Portabel">
+            <img src="{% static 'images/ocai1.png' %}" class="slider-image active" alt="SDM Portabel">
+            <img src="{% static 'images/rekrut2.png' %}" class="slider-image active" alt="SDM Portabel">
+            <img src="{% static 'images/rekrut3.png' %}" class="slider-image active" alt="SDM Portabel">
+            <img src="{% static 'images/rekrut4.png' %}" class="slider-image active" alt="SDM Portabel">
+            <img src="{% static 'images/rekrut5.png' %}" class="slider-image active" alt="SDM Portabel">
+            <img src="{% static 'images/ocai2.png' %}" class="slider-image active" alt="SDM Portabel">
+        </div>
+    </div>
+</div>
+
+<!-- New Section Above Available Jobs -->
+<div class="container">
+    <h2>Available Jobs</h2>
+</div>
+
+<!-- Available Jobs and Applied Jobs Section -->
+<div class="container mt-5">
+    <div class="row">
+        <!-- Applied Jobs Section -->
+        <div class="col-md-6">
+            {% if user.is_authenticated %}
+                <h3 class="mb-4">Welcome, {{ user.username }}</h3>
+                <h4>Your Applied Jobs</h4>
+                {% if applied_jobs %}
+                    <div class="row">
+                        {% for application in applied_jobs %}
+                            <div class="col-md-4 mb-4">
+                                <div class="card shadow-sm">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <i class="fas fa-briefcase"></i> {{ application.job.title }}
+                                            <small class="text-muted">({{ application.job.required_position }})</small>
+                                        </h5>
+                                        <p class="card-text">{{ application.job.description|slice:":100" }}...</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            {% if not application.exam_attended %}
+                                                {% if application.selected_for_exam %}
+                                                    <p class="badge bg-success">Approved for Exam</p>
+                                                    <a href="{% url 'exam:take' application.job.id %}" class="btn btn-primary">Take Exam</a>
+                                                {% elif application.canceled_for_exam %}
+                                                    <p class="badge bg-danger">Not Selected for Exam</p>
+                                                {% else %}
+                                                    <p class="badge bg-warning">Pending Approval</p>
+                                                {% endif %}
+                                            {% else %}
+                                                <p class="badge bg-info">Exam Attended</p>
+                                                <p>Marks: {{ application.obtained_marks }}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">No applied jobs available.</div>
+                {% endif %}
+            {% else %}
+                <div class="alert alert-warning">Please log in to view your applied jobs.</div>
+            {% endif %}
+        </div>
+
+        <!-- Empty space to push Available Jobs further down -->
+        <div class="col-25" style="height:400px;"></div>
+
+        <!-- Available Jobs Section -->
+        <div class="col-md-6">
+            <h2 class="mb-4">Available Jobs</h2>
+            <hr>
+            {% include 'Job/list-job.html' %}
+        </div>
+    </div>
+</div>
+<!-- Footer -->
+<footer class="text-center py-4 bg-dark text-white mt-5">
+    <p>&copy; 2025 SKN. All rights reserved.</p>
+    <p>Contact us: <a href="mailto:contact@sdmportabel.com" class="text-white">contact@sdmportabel.com</a></p>
+</footer>
+
+{% include "./partials/fab.html" %}
+
+</main>
+{% endblock %}
+
+{% block extrastyle %}
+<style>
+    /* Gaya untuk pop-up WhatsApp */
+    .whatsapp-popup {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: rgba(37, 211, 102, 0.9); /* Warna hijau lebih lembut */
+        color: white;
+        padding: 12px 18px;
+        border-radius: 50px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        z-index: 1000;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .whatsapp-popup:hover {
+        background-color: rgba(37, 211, 102, 1); /* Efek hover lebih halus */
+        transform: translateY(-5px);
+    }
+
+    .whatsapp-popup img {
+        width: 30px; /* Ukuran ikon sedikit lebih besar */
+        height: 30px;
+        margin-right: 10px;
+    }
+
+    /* Ensure full-width navigation and footer */
+    .navbar, footer {
+        width: 100%;
+    }
+
+    /* Box Section */
+    body {
+        font-family: 'Roboto', sans-serif;
+        margin: 0;
+        padding: 0;
+        flex-wrap: wrap;
+        justify-content: center;
+        background-color: #f5f5f5; /* Background lebih lembut */
+    }
+
+    .box {
+        width: 220px;
+        height: 80px;
+        margin: 10px;
+        background-color: #ffffff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .box a {
+        text-decoration: none;
+        color: #333;
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .small-box {
+        width: 100px;
+        height: 50px;
+        margin: 5px;
+        background-color: #f1f1f1;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .small-box:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .small-box a {
+        text-decoration: none;
+        color: #555;
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .box.rekrutmen {
+        width: 240px; /* Lebar lebih besar */
+        height: 100px; /* Tinggi lebih besar */
+        font-size: 18px; /* Ukuran teks lebih besar */
+        background-color: #d6d6d6; /* Abu-abu Medium */
+        border-radius: 12px; /* Menambahkan sudut lebih melengkung */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* Menambahkan bayangan */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .box.rekrutmen:hover {
+        transform: translateY(-8px); /* Efek hover untuk mendorong box ke atas */
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Bayangan lebih dalam saat hover */
+    }
+
+    /* Section Titles */
+    h2, h3, h4 {
+        font-size: 22px;
+        font-weight: bold;
+        color: #333;
+        text-align: center;
+    }
+
+    /* Footer Styling */
+    footer {
+        color: white;
+    }
+
+    footer a {
+        color: white;
+        text-decoration: none;
+    }
+
+    footer a:hover {
+        text-decoration: underline;
+    }
+            /* Hero Section */
+    .hero-section {
+        width: 100%;
+        text-align: center;
+        padding: 50px 20px;
+
+        color: rgb(11, 11, 11);
+        font-family: 'Roboto', sans-serif;
+        position: relative;
+    }
+
+    .hero-section h1 {
+        font-size: 36px;
+        font-weight: bold;
+    }
+
+    .hero-section p {
+        font-size: 18px;
+        margin-top: 10px;
+    }
+
+    /* Moving Text Animation */
+    .moving-text {
+        font-size: 20px;
+        font-weight: bold;
+        margin-top: 20px;
+        display: inline-block;
+        animation: moveLeftRight 3s infinite alternate ease-in-out;
+    }
+
+    @keyframes moveLeftRight {
+        0% {
+            transform: translateX(-20px);
+        }
+        100% {
+            transform: translateX(20px);
+        }
+    }
+
+    /* Image Slider */
+    .image-slider {
+        position: relative;
+        width: 100%;
+        max-width: 800px; /* Adjust as needed */
+        height: 300px;
+        overflow: hidden;
+        margin: 20px auto;
+        border-radius: 12px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .image-slider img {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0;
+        transform: translateX(100%);
+        transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+    }
+
+    .image-slider img.active {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+</style>
+<style>
+    .slider-container {
+        width: 100%;
+        max-width: 1000px; /* Increased size */
+        height: 500px; /* Increased height */
+        overflow: hidden;
+        position: relative;
+        margin: auto;
+        border-radius: 10px;
+    }
+
+    .image-slider {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        align-items: center;
+    }
+
+    .slider-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        position: absolute;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+    }
+
+    .slider-image.active {
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block extrscript %}
+<script>
+    let index = 0;
+    const images = document.querySelectorAll(".slider-image");
+
+    function changeImage() {
+        images[index].classList.remove("active");
+        index = (index + 1) % images.length;
+        images[index].classList.add("active");
+    }
+
+    setInterval(changeImage, 6000); // Change every 6 seconds
+</script>
+{% endblock %}

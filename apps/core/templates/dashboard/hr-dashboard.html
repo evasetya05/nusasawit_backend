@@ -1,0 +1,24 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title_block %}
+    HR Dashboard
+{% endblock title_block %}
+
+{% block content %}
+        <!-- Main Content Area -->
+        <div class="main-content">
+            {% if user.is_authenticated %}
+                <h3>Welcome {{ user.username }}</h3>  <!-- Only show welcome message -->
+
+                <!-- Lean HR Content -->
+                <div>
+                    <h4>Welcome to the Lean HR Dashboard</h4>
+                    <p>Here we outline the steps for improving HR processes using Lean HR methodology:</p>
+                </div>
+
+            {% else %}
+                <a href="{% url 'user:login' %}">Login</a>
+            {% endif %}
+        </div>
+
+{% endblock %}

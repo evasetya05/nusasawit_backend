@@ -1,0 +1,180 @@
+{% extends 'dashboard/base.html' %}
+{% block content %}
+  <div class="container mt-4">
+    <h1 class="text-center mb-4">📊 OCAI Scores by Department</h1>
+    {% for departemen, data in grouped_data.items %}
+      <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+          <h2 class="text-primary">Department: {{ departemen }}</h2>
+          <div class="table-responsive">
+            <table class="table table-bordered">
+              <thead class="table-dark">
+                <tr>
+                  <th>Category</th>
+                  <th>Average Current</th>
+                  <th>Average Expected</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for category, values in data.categories.items %}
+                  <tr>
+                    <td>{{ category }}</td>
+                    <td>{{ values.avg_current|floatformat:2 }}</td>
+                    <td>{{ values.avg_expected|floatformat:2 }}</td>
+                  </tr>
+                {% endfor %}
+                <tr class="fw-bold table-secondary">
+                  <td>Total</td>
+                  <td>{{ data.sum_avg_current|floatformat:2 }}</td>
+                  <td>{{ data.sum_avg_expected|floatformat:2 }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+    <h2 class="text-center mt-5">📊 Overall OCAI Scores</h2>
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead class="table-dark">
+          <tr>
+            <th>Category</th>
+            <th>Average Current</th>
+            <th>Average Expected</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for category, values in overall_averages.categories.items %}
+            <tr>
+              <td>{{ category }}</td>
+              <td>{{ values.avg_current|floatformat:2 }}</td>
+              <td>{{ values.avg_expected|floatformat:2 }}</td>
+            </tr>
+          {% endfor %}
+          <tr class="fw-bold table-secondary">
+            <td>Total</td>
+            <td>{{ overall_averages.sum_avg_current|floatformat:2 }}</td>
+            <td>{{ overall_averages.sum_avg_expected|floatformat:2 }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <h2 class="text-center mt-5">📈 OCAI Radar Chart</h2>
+    <div class="d-flex justify-content-center">
+      <canvas id="radarChart" class="mt-4"></canvas>
+    </div>
+  </div>
+  <!-- Floating Feedback Button -->
+  <div class="floating-button feedback-button" onclick="openGoogleForm()">💬 Berikan Saran</div>
+  <!-- Floating WhatsApp Button -->
+  <div class="floating-button whatsapp-button" onclick="openWhatsAppChat()">📲 Konsultasikan Hasil</div>
+  <script>
+        // Function to open Google Form
+        function openGoogleForm() {
+            const googleFormLink = "https://forms.gle/FZEV12oD3j6a298T9"; // Replace with your actual form link
+            window.open(googleFormLink, '_blank');
+        }
+
+        // Function to open WhatsApp chat
+        function openWhatsAppChat() {
+            const phoneNumber = "+6285348178999";
+            const message = encodeURIComponent("Halo, saya ingin konsultasi mengenai hasil tes.");
+            const whatsappURL = `https://wa.me/${phoneNumber}?text=${message}`;
+            window.open(whatsappURL, '_blank');
+        }
+  </script>
+  <style>
+        /* General Floating Button Styles */
+        .floating-button {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            background-color: #ff9800; /* Orange */
+            color: white;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .floating-button:hover {
+            transform: scale(1.05);
+            background-color: #e68900; /* Darker orange */
+        }
+
+        /* Adjust positions for multiple buttons */
+        .whatsapp-button {
+            bottom: 70px; /* Position above feedback button */
+            background-color: #25D366; /* WhatsApp green */
+        }
+
+        .whatsapp-button:hover {
+            background-color: #1ebe57;
+        }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const categories = [];
+        const avgCurrentData = [];
+        const avgExpectedData = [];
+
+        {% for category, values in overall_averages.categories.items %}
+            categories.push("{{ category }}");
+            avgCurrentData.push({{ values.avg_current|floatformat:2 }});
+            avgExpectedData.push({{ values.avg_expected|floatformat:2 }});
+        {% endfor %}
+
+        const ctx = document.getElementById("radarChart").getContext("2d");
+        new Chart(ctx, {
+            type: "radar",
+            data: {
+                labels: categories,
+                datasets: [
+                    {
+                        label: "Current",
+                        data: avgCurrentData,
+                        backgroundColor: "rgba(54, 162, 235, 0.2)",
+                        borderColor: "rgba(54, 162, 235, 1)",
+                        borderWidth: 2,
+                        pointBackgroundColor: "rgba(54, 162, 235, 1)"
+                    },
+                    {
+                        label: "Expected",
+                        data: avgExpectedData,
+                        backgroundColor: "rgba(255, 99, 132, 0.2)",
+                        borderColor: "rgba(255, 99, 132, 1)",
+                        borderWidth: 2,
+                        pointBackgroundColor: "rgba(255, 99, 132, 1)"
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: "top"
+                    }
+                },
+                scales: {
+                    r: {
+                        suggestedMin: 0,
+                        suggestedMax: 10,
+                        ticks: {
+                            stepSize: 1,
+                            backdropColor: "transparent"
+                        }
+                    }
+                }
+            }
+        });
+    });
+  </script>
+{% endblock content %}

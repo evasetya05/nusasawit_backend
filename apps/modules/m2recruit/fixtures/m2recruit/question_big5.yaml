@@ -1,0 +1,182 @@
+- model: m2recruit.Trait
+  pk: 1
+  fields:
+    test: 1
+    name: Openness
+    description: Openness Trait
+- model: m2recruit.Trait
+  pk: 2
+  fields:
+    test: 1
+    name: Conscientiousness
+    description: Conscientiousness Trait
+- model: m2recruit.Trait
+  pk: 3
+  fields:
+    test: 1
+    name: Extraversion
+    description: Extraversion Trait
+- model: m2recruit.Trait
+  pk: 4
+  fields:
+    test: 1
+    name: Agreeableness
+    description: Agreeableness Trait
+- model: m2recruit.Trait
+  pk: 5
+  fields:
+    test: 1
+    name: Neuroticism
+    description: Neuroticism Trait
+
+
+- model: m2recruit.Question
+  pk: 1
+  fields:
+    test: 1
+    trait: 1
+    text: "Saya terbuka untuk mencoba pendekatan baru dalam menyelesaikan tugas pekerjaan."
+- model: m2recruit.Question
+  pk: 2
+  fields:
+    test: 1
+    trait: 1
+    text: "Saya senang menghadapi tantangan yang memerlukan pemikiran kreatif dan solusi inovatif."
+- model: m2recruit.Question
+  pk: 3
+  fields:
+    test: 1
+    trait: 1
+    text: "Saya tertarik untuk mengeksplorasi cara-cara baru yang dapat meningkatkan efisiensi dalam pekerjaan."
+- model: m2recruit.Question
+  pk: 4
+  fields:
+    test: 1
+    trait: 1
+    text: "Saya merasa nyaman mencoba metode yang tidak biasa untuk mengatasi masalah pekerjaan."
+- model: m2recruit.Question
+  pk: 5
+  fields:
+    test: 1
+    trait: 1
+    text: "Saya terbuka untuk perubahan dan perbaikan dalam cara saya bekerja."
+- model: m2recruit.Question
+  pk: 6
+  fields:
+    test: 1
+    trait: 2
+    text: "Saya selalu memastikan bahwa tugas saya diselesaikan dengan baik dan tepat waktu."
+- model: m2recruit.Question
+  pk: 7
+  fields:
+    test: 1
+    trait: 2
+    text: "Saya sering merencanakan dengan detail sebelum melaksanakan suatu proyek atau tugas pekerjaan."
+- model: m2recruit.Question
+  pk: 8
+  fields:
+    test: 1
+    trait: 2
+    text: "Saya cenderung mengikuti prosedur dan pedoman yang ada untuk memastikan hasil yang konsisten."
+- model: m2recruit.Question
+  pk: 9
+  fields:
+    test: 1
+    trait: 2
+    text: "Saya merasa tidak nyaman jika pekerjaan saya tertunda atau tidak terorganisir dengan baik."
+- model: m2recruit.Question
+  pk: 10
+  fields:
+    test: 1
+    trait: 2
+    text: "Saya selalu berusaha bekerja dengan cara yang efisien dan terstruktur dalam setiap tugas."
+- model: m2recruit.Question
+  pk: 11
+  fields:
+    test: 1
+    trait: 3
+    text: "Saya merasa lebih bersemangat dan produktif saat bekerja dalam tim atau dengan orang lain."
+- model: m2recruit.Question
+  pk: 12
+  fields:
+    test: 1
+    trait: 3
+    text: "Saya menikmati berinteraksi dan berdiskusi dengan rekan kerja untuk mencapai tujuan bersama."
+- model: m2recruit.Question
+  pk: 13
+  fields:
+    test: 1
+    trait: 3
+    text: "Saya merasa percaya diri ketika berbicara di depan umum atau memimpin rapat."
+- model: m2recruit.Question
+  pk: 14
+  fields:
+    test: 1
+    trait: 3
+    text: "Saya merasa termotivasi jika ada interaksi sosial yang aktif di lingkungan kerja."
+- model: m2recruit.Question
+  pk: 15
+  fields:
+    test: 1
+    trait: 3
+    text: "Saya sering mengajak rekan kerja untuk bekerja sama dalam proyek atau kegiatan tim."
+- model: m2recruit.Question
+  pk: 16
+  fields:
+    test: 1
+    trait: 4
+    text: "Saya lebih suka bekerja dengan cara yang menjaga hubungan baik dan menghindari konflik."
+- model: m2recruit.Question
+  pk: 17
+  fields:
+    test: 1
+    trait: 4
+    text: "Saya mudah beradaptasi dengan kebutuhan dan perasaan rekan kerja dalam tim."
+- model: m2recruit.Question
+  pk: 18
+  fields:
+    test: 1
+    trait: 4
+    text: "Saya percaya bahwa kerjasama tim sangat penting untuk mencapai tujuan bersama."
+- model: m2recruit.Question
+  pk: 19
+  fields:
+    test: 1
+    trait: 4
+    text: "Saya cenderung menghindari pertengkaran dan lebih memilih bekerja secara harmonis dengan rekan kerja."
+- model: m2recruit.Question
+  pk: 20
+  fields:
+    test: 1
+    trait: 4
+    text: "Saya lebih suka memberikan dukungan kepada rekan kerja daripada terlibat dalam perdebatan."
+- model: m2recruit.Question
+  pk: 21
+  fields:
+    test: 1
+    trait: 5
+    text: "Saya dapat tetap tenang dan fokus dalam menghadapi situasi pekerjaan yang penuh tekanan."
+- model: m2recruit.Question
+  pk: 22
+  fields:
+    test: 1
+    trait: 5
+    text: "Saya merasa mampu mengelola stres dalam pekerjaan dengan baik."
+- model: m2recruit.Question
+  pk: 23
+  fields:
+    test: 1
+    trait: 5
+    text: "Saya jarang merasa cemas atau khawatir tentang pekerjaan yang belum selesai atau masalah yang timbul."
+- model: m2recruit.Question
+  pk: 24
+  fields:
+    test: 1
+    trait: 5
+    text: "Saya merasa mampu mengatasi tantangan pekerjaan tanpa mudah terpengaruh oleh tekanan."
+- model: m2recruit.Question
+  pk: 25
+  fields:
+    test: 1
+    trait: 5
+    text: "Saya tetap berpikir jernih dan menjaga kontrol emosional dalam situasi yang penuh tantangan."

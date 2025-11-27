@@ -1,0 +1,289 @@
+- model: m2recruit.Question
+  pk: 26
+  fields:
+    test: 2
+- model: m2recruit.Question
+  pk: 27
+  fields:
+    test: 2
+- model: m2recruit.Question
+  pk: 28
+  fields:
+    test: 2
+- model: m2recruit.Question
+  pk: 29
+  fields:
+    test: 2
+- model: m2recruit.Question
+  pk: 30
+  fields:
+    test: 2
+- model: m2recruit.Question
+  pk: 31
+  fields:
+    test: 2
+- model: m2recruit.Question
+  pk: 32
+  fields:
+    test: 2
+- model: m2recruit.Question
+  pk: 33
+  fields:
+    test: 2
+- model: m2recruit.Question
+  pk: 34
+  fields:
+    test: 2
+- model: m2recruit.Question
+  pk: 35
+  fields:
+    test: 2
+- model: m2recruit.Question
+  pk: 36
+  fields:
+    test: 2
+- model: m2recruit.Question
+  pk: 37
+  fields:
+    test: 2
+- model: m2recruit.Question
+  pk: 38
+  fields:
+    test: 2
+- model: m2recruit.Question
+  pk: 39
+  fields:
+    test: 2
+- model: m2recruit.Question
+  pk: 40
+  fields:
+    test: 2
+- model: m2recruit.Question
+  pk: 41
+  fields:
+    test: 2
+- model: m2recruit.Question
+  pk: 42
+  fields:
+    test: 2
+- model: m2recruit.Question
+  pk: 43
+  fields:
+    test: 2
+
+- model: m2recruit.Answer
+  pk: 1
+  fields:
+    question: 26
+    text: "Saya cenderung menyampaikan empati atau pendapat saya dengan tegas dan langsung."
+    value: "D"
+- model: m2recruit.Answer
+  pk: 2
+  fields:
+    question: 26
+    text: "Saya cenderung bertanya atau menyampaikan sesuatu dengan ragu-ragu atau tidak langsung."
+    value: "I"
+- model: m2recruit.Answer
+  pk: 3
+  fields:
+    question: 27
+    text: "Keputusan yang saya buat biasanya didasarkan pada data dan fakta."
+    value: "C"
+- model: m2recruit.Answer
+  pk: 4
+  fields:
+    question: 27
+    text: "Keputusan yang saya buat biasanya didasarkan pada perasaan, pengalaman, atau hubungan."
+    value: "S"
+- model: m2recruit.Answer
+  pk: 5
+  fields:
+    question: 28
+    text: "Saya jarang berbagi perasaan pribadi, kecuali saat diminta atau benar-benar diperlukan."
+    value: "I"
+- model: m2recruit.Answer
+  pk: 6
+  fields:
+    question: 28
+    text: "Saya biasanya mengungkapkan perasaan pribadi, baik diminta maupun tidak."
+    value: "D"
+- model: m2recruit.Answer
+  pk: 7
+  fields:
+    question: 29
+    text: "Saya lebih suka mendengarkan dan menerima ide, pemikiran, atau minat dari orang lain."
+    value: "S"
+- model: m2recruit.Answer
+  pk: 8
+  fields:
+    question: 29
+    text: "Saya kurang suka mendengarkan dan menerima ide, pemikiran, atau minat dari orang lain."
+    value: "C"
+- model: m2recruit.Answer
+  pk: 9
+  fields:
+    question: 30
+    text: "Dalam menghadapi konflik, saya merespons dengan cepat dan langsung ke inti masalah."
+    value: "C"
+- model: m2recruit.Answer
+  pk: 10
+  fields:
+    question: 30
+    text: "Dalam menghadapi konflik, saya merespons dengan perlahan dan lebih tidak langsung."
+    value: "S"
+- model: m2recruit.Answer
+  pk: 11
+  fields:
+    question: 31
+    text: "Saya biasanya mengambil tindakan dengan hati-hati dan memikirkannya terlebih dahulu."
+    value: "I"
+- model: m2recruit.Answer
+  pk: 12
+  fields:
+    question: 31
+    text: "Saya cenderung bereaksi dengan cepat dan spontan terhadap situasi."
+    value: "D"
+- model: m2recruit.Answer
+  pk: 13
+  fields:
+    question: 32
+    text: "Saya sering menggunakan ekspresi wajah, bahasa tubuh, atau nada suara untuk menegaskan maksud saya."
+    value: "D"
+- model: m2recruit.Answer
+  pk: 14
+  fields:
+    question: 32
+    text: "Saya jarang menggunakan ekspresi wajah, bahasa tubuh, atau nada suara untuk menegaskan maksud saya."
+    value: "I"
+- model: m2recruit.Answer
+  pk: 15
+  fields:
+    question: 33
+    text: "Saya sering fokus pada minat dan kebutuhan orang lain, meskipun itu keluar dari konteks utama pembicaraan."
+    value: "S"
+- model: m2recruit.Answer
+  pk: 16
+  fields:
+    question: 33
+    text: "Saya lebih sering fokus pada tugas, isu, atau masalah yang sedang dibahas."
+    value: "C"
+- model: m2recruit.Answer
+  pk: 17
+  fields:
+    question: 34
+    text: "Saya cenderung aktif berkontribusi dalam diskusi kelompok."
+    value: "D"
+- model: m2recruit.Answer
+  pk: 18
+  fields:
+    question: 34
+    text: "Saya lebih cenderung diam dan jarang terlibat dalam diskusi kelompok."
+    value: "I"
+- model: m2recruit.Answer
+  pk: 19
+  fields:
+    question: 35
+    text: "Saya lebih suka menunggu orang lain memperkenalkan diri terlebih dahulu dalam acara sosial."
+    value: "I"
+- model: m2recruit.Answer
+  pk: 20
+  fields:
+    question: 35
+    text: "Saya biasanya memperkenalkan diri kepada orang lain terlebih dahulu dalam acara sosial."
+    value: "D"
+- model: m2recruit.Answer
+  pk: 21
+  fields:
+    question: 36
+    text: "Saya cenderung terbuka terhadap orang yang ingin mengenal saya secara pribadi dan membangun hubungan."
+    value: "S"
+- model: m2recruit.Answer
+  pk: 22
+  fields:
+    question: 36
+    text: "Saya cenderung menjaga jarak dan tidak terlalu terbuka dengan orang yang ingin mengenal saya secara pribadi."
+    value: "C"
+- model: m2recruit.Answer
+  pk: 23
+  fields:
+    question: 37
+    text: "Saya lebih memilih mendekati risiko atau tantangan dengan hati-hati dan perencanaan matang."
+    value: "I"
+- model: m2recruit.Answer
+  pk: 24
+  fields:
+    question: 37
+    text: "Saya biasanya menghadapi risiko atau tantangan dengan cara yang dinamis dan terkadang tidak terduga."
+    value: "D"
+- model: m2recruit.Answer
+  pk: 25
+  fields:
+    question: 38
+    text: "Saya lebih suka bekerja sendiri atau menentukan cara orang lain terlibat dalam pekerjaan saya."
+    value: "C"
+- model: m2recruit.Answer
+  pk: 26
+  fields:
+    question: 38
+    text: "Saya lebih suka bekerja dalam tim atau berkolaborasi dengan orang lain, memberikan dukungan jika diperlukan."
+    value: "S"
+- model: m2recruit.Answer
+  pk: 27
+  fields:
+    question: 39
+    text: "Saya cenderung menerima orang lain yang mengganggu waktu saya dengan santai."
+    value: "S"
+- model: m2recruit.Answer
+  pk: 28
+  fields:
+    question: 39
+    text: "Saya biasanya lebih berhati-hati terhadap orang lain yang mengganggu waktu saya."
+    value: "C"
+- model: m2recruit.Answer
+  pk: 29
+  fields:
+    question: 40
+    text: "Saya lebih sering membahas agenda, minat, atau perhatian saya sendiri."
+    value: "C"
+- model: m2recruit.Answer
+  pk: 30
+  fields:
+    question: 40
+    text: "Saya lebih sering merespons dan menyesuaikan diri dengan agenda, minat, atau perhatian orang lain."
+    value: "S"
+- model: m2recruit.Answer
+  pk: 31
+  fields:
+    question: 41
+    text: "Saya biasanya tegas dan terkadang tidak sabar terhadap situasi yang berjalan lambat."
+    value: "D"
+- model: m2recruit.Answer
+  pk: 32
+  fields:
+    question: 41
+    text: "Saya cenderung bersikap lembut dan sabar terhadap situasi yang berjalan lambat."
+    value: "I"
+- model: m2recruit.Answer
+  pk: 33
+  fields:
+    question: 42
+    text: "Saya merasa nyaman dengan situasi yang sudah saya kenal atau lingkungan yang tidak berubah."
+    value: "I"
+- model: m2recruit.Answer
+  pk: 34
+  fields:
+    question: 42
+    text: "Saya lebih suka pengalaman baru atau menghadapi situasi yang berbeda."
+    value: "D"
+- model: m2recruit.Answer
+  pk: 35
+  fields:
+    question: 43
+    text: "Saya lebih fokus pada ide, konsep, dan hasil."
+    value: "C"
+- model: m2recruit.Answer
+  pk: 36
+  fields:
+    question: 43
+    text: "Saya lebih fokus pada hubungan, interaksi, dan pandangan orang lain."
+    value: "S"

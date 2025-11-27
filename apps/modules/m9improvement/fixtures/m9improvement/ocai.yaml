@@ -1,0 +1,144 @@
+- model: m9improvement.OcaiQuestion
+  pk: 1
+  fields:
+    category: Clan
+    dimension: karakter_domain
+    text: Perusahaan ini adalah perusahaan yang merupakan tempat pribadi, seperti keluarga besar dan orang- orang saling berbagi satu sama lain.
+- model: m9improvement.OcaiQuestion
+  pk: 2
+  fields:
+    category: Adhocracy
+    dimension: karakter_domain
+    text: Perusahaan ini merupakan tempat yang sangat dinamis dan enterpreneurial. Setiap anggota perusahaan mau dan berani mengambil resiko.
+- model: m9improvement.OcaiQuestion
+  pk: 3
+  fields:
+    category: Market
+    dimension: karakter_domain
+    text: Perusahaan ini sangat berorientasi pada hasil. Tujuan utamanya adalah menyelesaikan pekerjaan. Setiap anggota perusahaan sangat kompetitif dan berorientasi pada hasil.
+- model: m9improvement.OcaiQuestion
+  pk: 4
+  fields:
+    category: Hierarchy
+    dimension: karakter_domain
+    text: Perusahaan ini merupakan tempat yang sangat terkontrol dan terstruktur. Terdapat prosedur formal untuk mengendalikan apa yang orang kerjakan.
+- model: m9improvement.OcaiQuestion
+  pk: 5
+  fields:
+    category: Clan
+    dimension: kriteria_keberhasilan
+    text: Perusahaan mendefinisikan sukses atas dasar pengembangan SDM, kerja tim, komitmen karyawan dan kepedulian pada anggota perusahaan.
+- model: m9improvement.OcaiQuestion
+  pk: 6
+  fields:
+    category: Adhocracy
+    dimension: kriteria_keberhasilan
+    text: Perusahaan ini mendefinisikan sukses berdasarkan terbentuknya produk terbaru. Perusahaan merupakan pemimpin dalam produk/jasa (product leader) dan inovatior.
+- model: m9improvement.OcaiQuestion
+  pk: 7
+  fields:
+    category: Market
+    dimension: kriteria_keberhasilan
+    text: Perusahaan ini mendefinisikan sukses berdasarkan memenangkan kompetisi. Menjadi pemimpin pasar yang kompetitif merupakan kunci utama.
+- model: m9improvement.OcaiQuestion
+  pk: 8
+  fields:
+    category: Hierarchy
+    dimension: kriteria_keberhasilan
+    text: Perusahaan ini mendefinisikan keberhasilan berdasarkan efisiensi. Produk dan jasa yang dapat diandalkan, jadwal rutin dan produksi dengan ongkos produksi yang rendah merupakan hal yang kritis.
+- model: m9improvement.OcaiQuestion
+  pk: 9
+  fields:
+    category: Clan
+    dimension: leadership
+    text: Kepemimpinan dalam perusahaan ini sangat bersifat mentor, fasilitator yang selalu memberikan bimbingan.
+- model: m9improvement.OcaiQuestion
+  pk: 10
+  fields:
+    category: Adhocracy
+    dimension: leadership
+    text: Kepemimpinan dalam perusahaan ini bersifat enterpreneurship (kewirausahaan), inovatif dan berani mengambil resiko.
+- model: m9improvement.OcaiQuestion
+  pk: 11
+  fields:
+    category: Market
+    dimension: leadership
+    text: Kepemimpinan dalam perusahaan ini bersifat agresif.
+- model: m9improvement.OcaiQuestion
+  pk: 12
+  fields:
+    category: Hierarchy
+    dimension: leadership
+    text: Pemimpin dalam perusahaan ini menjalankan peran sebagai koordinator, mengorganisir, dan memelihara efisiensi.
+- model: m9improvement.OcaiQuestion
+  pk: 13
+  fields:
+    category: Clan
+    dimension: manajemen_karyawan
+    text: Manajemen pada perusahaan ini bercirikan kerja tim, kesepakatan (konsensus) dan partisipatif.
+- model: m9improvement.OcaiQuestion
+  pk: 14
+  fields:
+    category: Adhocracy
+    dimension: manajemen_karyawan
+    text: Manajemen dalam perusahaan ini bercirikan berani mengambil resiko, inovatif, memberikan kebebasan dan keunikan pada setiap individu.
+- model: m9improvement.OcaiQuestion
+  pk: 15
+  fields:
+    category: Market
+    dimension: manajemen_karyawan
+    text: Manajemen dalam perusahaan ini bercirikan kompetitif, dengan tuntutan (demand) yang tinggi dan pencapaian hasil.
+- model: m9improvement.OcaiQuestion
+  pk: 16
+  fields:
+    category: Hierarchy
+    dimension: manajemen_karyawan
+    text: Manajemen dalam perusahaan ini bercirikan rasa aman pada diri karyawan, adanya keseragaman, dapat diprediksi dan stabilitas hubungan.
+- model: m9improvement.OcaiQuestion
+  pk: 17
+  fields:
+    category: Clan
+    dimension: perekat_perusahaan
+    text: Yang menjadi perekatperusahaan ini adalah kesetiaan dan kepercayaan bersama. Komitmen merupakan hal yang sangat penting dalam perusahaan.
+- model: m9improvement.OcaiQuestion
+  pk: 18
+  fields:
+    category: Adhocracy
+    dimension: perekat_perusahaan
+    text: Perekat perusahaan ini adalah komitmen pada inovasi dan pengembangan. Selalu fokus pada hal-hal yang paling mutakhir.
+- model: m9improvement.OcaiQuestion
+  pk: 19
+  fields:
+    category: Market
+    dimension: perekat_perusahaan
+    text: Perekat perusahaan ini adalah pada prestasi dan pencapaian tujuan. Keagresifan dan kemenangan merupakan hal utama.
+- model: m9improvement.OcaiQuestion
+  pk: 20
+  fields:
+    category: Hierarchy
+    dimension: perekat_perusahaan
+    text: Hal yang dapat mempersatukan dalam perusahaan ini adalah peraturan dan kebijakan formal. Memelihara kelancaran jalannya perusahaan merupakan hal yang penting.
+- model: m9improvement.OcaiQuestion
+  pk: 21
+  fields:
+    category: Clan
+    dimension: strategi_perusahaan
+    text: perusahaan menekankan pada pengembangan SDM. Kepercayaan tinggi, keterbukaan, partisipasi dan selalu melibatkan setiap karyawan.
+- model: m9improvement.OcaiQuestion
+  pk: 22
+  fields:
+    category: Adhocracy
+    dimension: strategi_perusahaan
+    text: Perusahaan ini menekankan pada penemuan sumber daya baru dan penciptaan tantangan baru. Mencoba hal-hal baru dan mencari peluang baru.
+- model: m9improvement.OcaiQuestion
+  pk: 23
+  fields:
+    category: Market
+    dimension: strategi_perusahaan
+    text: Perusahaan ini menekankan pada kompensasi dan prestasi. Mencapai target dan memenangkan pasar merupakan hal yang diutamakan.
+- model: m9improvement.OcaiQuestion
+  pk: 24
+  fields:
+    category: Hierarchy
+    dimension: strategi_perusahaan
+    text: Perusahaan ini menekankan pada ketahanan dan stabilitas. Efisiensi, kontrol dan kelancaran operasi merupakan hal yang penting.

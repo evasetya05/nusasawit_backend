@@ -1,0 +1,261 @@
+{% extends 'dashboard/base.html' %}
+{% load static widget_tweaks %}
+{% block title %}Employee List - {{ block.super }}{% endblock %}
+{% block content %}
+  <div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+      <h1 class="h3 mb-0 text-gray-800">Employee List</h1>
+      <button type="button"
+              class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
+              data-bs-toggle="modal"
+              data-bs-target="#addEmployeeModal">
+        <i class="fas fa-plus fa-sm text-white-50"></i> Add New Employee
+      </button>
+    </div>
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">All Employees</h6>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered"
+                 id="employeeTable"
+                 width="100%"
+                 cellspacing="0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Department</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Manager</th>
+                <th>Status</th>
+                <th>Can Login</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for employee in employees %}
+                <tr>
+                  <td>{{ employee.id|default:"-" }}</td>
+                  <td>{{ employee.name|default:"-" }}</td>
+                  <td>{{ employee.position|default:"-" }}</td>
+                  <td>{{ employee.department|default:"-" }}</td>
+                  <td>{{ employee.email|default:"-" }}</td>
+                  <td>{{ employee.phone|default:"-" }}</td>
+                  <td>{{ employee.manager|default:"-" }}</td>
+                  <td>
+                    {% if employee.is_active %}
+                      <span class="badge text-bg-success">Active</span>
+                    {% else %}
+                      <span class="badge text-bg-secondary">Inactive</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if employee.user %}
+                      <span class="badge text-bg-success">Yes</span>
+                    {% else %}
+                      <span class="badge text-bg-secondary">No</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <div class="btn-group" role="group">
+                      <a href="{% url 'm3onboarding:employee-detail' employee.id %}"
+                         class="btn btn-sm btn-info"
+                         title="View">
+                        <i class="fas fa-eye"></i>
+                      </a>
+                      <button type="button" class="btn btn-secondary px-1" disabled></button>
+                      <button type="button"
+                              class="btn btn-sm btn-danger"
+                              title="Delete"
+                              data-bs-toggle="modal"
+                              data-bs-target="#deleteEmployeeModal"
+                              data-employee-id="{{ employee.id }}"
+                              data-employee-name="{{ employee.name }}">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Add Employee Modal -->
+  <div class="modal fade"
+       id="addEmployeeModal"
+       tabindex="-1"
+       aria-labelledby="addEmployeeModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addEmployeeModalLabel">Add New Employee</h5>
+          <button type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <form id="employeeForm"
+              method="post"
+              data-url="{% url 'm3onboarding:struktur_organisasi' %}">
+          {% csrf_token %}
+          <div class="modal-body">
+            {% for field in form.visible_fields %}
+              {% if forloop.counter0|divisibleby:2 %}<div class="row mb-3">{% endif %}
+                <div class="col-md-6">
+                  <label for="{{ field.id_for_label }}" class="form-label">
+                    {{ field.label }}
+                    {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                  </label>
+                  {% if field.name == 'manager' %}
+                    {% render_field field class="form-select" %}
+                  {% elif field.name == 'hire_date' %}
+                    {% render_field field class="form-control" type="date" %}
+                  {% else %}
+                    {% render_field field class="form-control" placeholder=field.label %}
+                  {% endif %}
+                  {% if field.errors %}<div class="invalid-feedback d-block">{{ field.errors.0 }}</div>{% endif %}
+                  {% if field.help_text %}<small class="form-text text-muted">{{ field.help_text }}</small>{% endif %}
+                </div>
+                {% if forloop.counter|divisibleby:2 or forloop.last %}</div>{% endif %}
+            {% endfor %}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              <i class="fas fa-times me-1"></i> Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save me-1"></i> Save Employee
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- Delete Employee Confirmation Modal -->
+  <div class="modal fade"
+       id="deleteEmployeeModal"
+       tabindex="-1"
+       aria-labelledby="deleteEmployeeModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="deleteEmployeeModalLabel">Confirm Deletion</h5>
+          <button type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>
+            Are you sure you want to delete <strong id="employeeName"></strong>?
+          </p>
+          <p class="text-danger">This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <form id="deleteForm" method="post" action="">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">
+              <i class="fas fa-trash me-1"></i> Delete
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+{% block extrastyle %}
+  <link rel="stylesheet"
+        href="{% static 'vendor/datatables/datatables.min.css' %}">
+{% endblock %}
+{% block extrascript %}
+  <script src="{% static 'vendor/datatables/datatables.min.js' %}" defer></script>
+  <script>
+  window.onload = function() {
+    $('#employeeTable').DataTable({
+      "pageLength": 10,
+      "order": [[1, 'asc']],
+      "responsive": true,
+      "language": {
+          "search": "_INPUT_",
+          "searchPlaceholder": "Search employees..."
+      }
+    });
+
+    document.getElementById('employeeForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const url = form.dataset.url;
+      const formData = new FormData(form);
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+          },
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          if (data.errors) {
+            document.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+            document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+
+            Object.entries(data.errors).forEach(([field, messages]) => {
+              const input = form.querySelector(`[name=${field}]`);
+              if (input) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = Array.isArray(messages) ? messages[0] : messages;
+                input.parentNode.insertBefore(errorDiv, input.nextSibling);
+              }
+            });
+          }
+          return;
+        }
+
+        if (data.success) {
+          const modal = bootstrap.Modal.getInstance(document.getElementById('addEmployeeModal'));
+          modal.hide();
+          window.location.reload();
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+      }
+    });
+  };
+  </script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const deleteModal = document.getElementById('deleteEmployeeModal');
+    if (deleteModal) {
+      deleteModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const employeeId = button.getAttribute('data-employee-id');
+        const employeeName = button.getAttribute('data-employee-name');
+
+        const modal = this;
+        modal.querySelector('#employeeName').textContent = employeeName;
+
+        const form = modal.querySelector('#deleteForm');
+        form.action = `/m3onboarding/struktur-organisasi/${employeeId}/delete/`;
+      });
+    }
+  });
+  </script>
+{% endblock %}

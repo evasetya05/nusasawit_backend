@@ -1,0 +1,61 @@
+{% extends 'dashboard/base.html' %}
+{% block content %}
+  <div class="container mt-4">
+    <h1 class="text-center mb-4">Daftar Interview</h1>
+    {% for pelamar in applicants %}
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="candidate-header">Nama Kandidat: {{ pelamar.result.user.name }}</h2>
+          <p>
+            <strong>Total Rating:</strong> <span>{{ pelamar.score_summary }}</span>
+          </p>
+          <p>
+            <strong>Email:</strong> {{ pelamar.result.user.email }}
+          </p>
+          <p>
+            <strong>Telephone:</strong> {{ pelamar.result.user.phone }}
+          </p>
+          <p>
+            <strong>Pendidikan:</strong> {{ pelamar.result.user.education }}
+          </p>
+          <p>
+            <strong>Umur:</strong> {{ pelamar.result.user.age }}
+          </p>
+          <p>
+            <strong>Riwayat Kerja 1:</strong> {{ pelamar.result.user.work_experience_1 }}
+          </p>
+          <p>
+            <strong>Riwayat Kerja 2:</strong> {{ pelamar.result.user.work_experience_2 }}
+          </p>
+          <p>
+            <strong>User Interviewer:</strong> {{ pelamar.result.company.owner }}
+          </p>
+          <div class="table-responsive">
+            <table class="table table-bordered mt-2">
+              <thead class="table-primary">
+                <tr>
+                  <th>Kategori</th>
+                  <th>Skill / Attribute</th>
+                  <th>Pertanyaan Wawancara</th>
+                  <th>Rating</th>
+                  <th>Komentar</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for interview in pelamar.user_answer.all %}
+                  <tr>
+                    <td>{{ interview.question.trait.name }}</td>
+                    <td>{{ interview.question.trait.description }}</td>
+                    <td>{{ interview.question.text }}</td>
+                    <td>{{ interview.answer_value }}</td>
+                    <td>{{ interview.comment }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock content %}

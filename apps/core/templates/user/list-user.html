@@ -1,0 +1,68 @@
+{% extends 'dashboard/base.html' %}
+{% block content %}
+  <div class="user-list-container">
+    <h3>All Users</h3>
+    {% for user in user_list %}
+      <div class="user-item">
+        <h4>{{ user.username }}</h4>
+        <p>
+          <strong>Position:</strong> {{ user.user_position }}
+        </p>
+        <a href="{% url 'user:edit' pk=user.pk %}" class="btn-edit">Edit</a>
+        <hr>
+      </div>
+    {% endfor %}
+  </div>
+  <style>
+        /* Basic styles for the user list page */
+        .user-list-container {
+            padding: 20px;
+            margin-left: 250px; /* Adjust for sidebar space */
+        }
+
+        .user-item {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-item h4 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .user-item p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
+        .btn-edit {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .btn-edit:hover {
+            background-color: #45a049;
+        }
+
+        hr {
+            margin-top: 15px;
+            border: 1px solid #ddd;
+        }
+
+        /* Optional: Style for the page on smaller screens */
+        @media (max-width: 768px) {
+            .user-list-container {
+                margin-left: 0;
+            }
+        }
+  </style>
+{% endblock %}

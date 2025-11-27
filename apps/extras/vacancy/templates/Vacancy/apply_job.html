@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Apply Job</title>
+</head>
+<body>
+<h4>Apply for {{ job }}</h4>
+<form enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Apply For Job</button>
+
+</form>
+</body>
+</html>

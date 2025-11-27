@@ -1,0 +1,40 @@
+{% extends 'dashboard/base.html' %}
+{% block content %}
+  <div class="container mt-4">
+    <h1 class="text-center mb-4">Jawaban OCAI by Department and Employee</h1>
+    {% for departemen, employees in grouped_by_departemen.items %}
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="department-title text-primary">Department: {{ departemen }}</h2>
+          {% for nama_karyawan, items in employees.items %}
+            <div class="mt-3">
+              <h4 class="text-secondary">Employee: {{ nama_karyawan }}</h4>
+              <div class="table-responsive">
+                <table class="table table-bordered employee-table">
+                  <thead class="table-dark">
+                    <tr>
+                      <th>Category</th>
+                      <th>Dimensi</th>
+                      <th>Current Score</th>
+                      <th>Expected Score</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for item in items %}
+                      <tr>
+                        <td>{{ item.question.category }}</td>
+                        <td>{{ item.question.dimension }}</td>
+                        <td>{{ item.current }}</td>
+                        <td>{{ item.expected }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock content %}

@@ -1,0 +1,75 @@
+{% extends 'dashboard/base.html' %}
+{% block sidebar %}{% endblock %}
+{% block main %}
+  <main class="overflow-auto">
+    <div class="container">
+      <h2 class="title">Blog List</h2>
+      {% if blogs %}
+        {% for blog in blogs %}
+          <div class="blog-post card shadow">
+            <h3 class="blog-title">
+              <a href="{% url 'blog:blog_detail' slug=blog.slug %}">{{ blog.title }}</a>
+            </h3>
+            <!-- Render content using safe filter -->
+            <div class="blog-content">{{ blog.content|safe }}</div>
+            {% if blog.image %}
+              <img src="{{ blog.image.url }}"
+                   alt="Blog Image"
+                   class="blog-image img-fluid">
+            {% else %}
+            {% endif %}
+            <small class="blog-meta">By {{ blog.penulis.username }} at {{ blog.created_at }}</small>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="no-blogs">No blog posts available.</p>
+      {% endif %}
+    </div>
+  </main>
+{% endblock %}
+{% block extrastyle %}
+  <style>
+        .title {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .blog-post {
+            padding: 3rem;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .blog-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .blog-content {
+            font-size: 16px;
+            text-align: justify;
+        }
+
+        .blog-meta {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .blog-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .no-blogs {
+            text-align: center;
+            font-size: 18px;
+            color: #999;
+        }
+  </style>
+{% endblock %}

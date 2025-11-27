@@ -1,0 +1,8 @@
+{% extends "account/base.html" %}
+{% block lr_form %}
+  <p>Anda berhasil mendaftar. Email aktivasi telah dikirim ke alamat email yang anda daftarkan.</p>
+  <p>Silahkan aktivasi akun anda melalui email yang telah dikirim.</p>
+{% endblock %}
+{% block lr_help %}
+  <span><a href="{% url 'login' %}">Masuk</a></span>
+{% endblock %}

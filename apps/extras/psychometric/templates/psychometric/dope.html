@@ -1,0 +1,320 @@
+{% extends 'dashboard/base.html' %}
+{% block sidebar %}{% endblock %}
+{% block main %}
+<main class="overflow-auto">
+    <!-- Content -->
+    <div class="container my-5">
+        <h2>DOPE Analysis</h2>
+        <p>DOPE personality assessment dengan pendekatan <strong>Bird Styles</strong> membagi kepribadian menjadi empat tipe:
+            <strong>Eagle (Elang)</strong> yang dominan, berorientasi pada hasil, dan tegas;
+            <strong>Peacock (Merak)</strong> yang komunikatif, energik, dan suka berinteraksi;
+            <strong>Dove (Merpati)</strong> yang sabar, empatik, dan mengutamakan harmoni; serta
+            <strong>Owl (Burung Hantu)</strong> yang teliti, analitis, dan logis. Setiap tipe menggambarkan cara seseorang
+            berinteraksi dan bertindak dalam berbagai situasi.</p>
+    </div>
+
+    <!-- Form Section -->
+    <div class="container form-container">
+        <h4>Evaluasi Gaya Perilaku</h4>
+        <p><strong>Petunjuk:</strong> Pilih pernyataan yang paling sesuai dengan diri Anda saat ini dari setiap pasangan pernyataan berikut.</p>
+        <form id="behavior-style-form">
+            <!-- Questions -->
+            <div class="mb-3">
+                <label><strong>1.</strong> Pilih salah satu:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q1-d" name="q1" value="D">
+                    <label class="form-check-label" for="q1-d">Saya cenderung menyampaikan empati atau pendapat saya dengan tegas dan langsung. <strong>D</strong></label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q1-i" name="q1" value="I">
+                    <label class="form-check-label" for="q1-i">Saya cenderung bertanya atau menyampaikan sesuatu dengan ragu-ragu atau tidak langsung. <strong>I</strong></label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label><strong>2.</strong> Pilih salah satu:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q2-c" name="q2" value="C">
+                    <label class="form-check-label" for="q2-c">Keputusan yang saya buat biasanya didasarkan pada data dan fakta. <strong>C</strong></label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q2-s" name="q2" value="S">
+                    <label class="form-check-label" for="q2-s">Keputusan yang saya buat biasanya didasarkan pada perasaan, pengalaman, atau hubungan. <strong>S</strong></label>
+                </div>
+            </div>
+
+            <!-- Additional Questions -->
+            <div class="mb-3">
+                <label><strong>3.</strong> Pilih salah satu:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q3-i" name="q3" value="I">
+                    <label class="form-check-label" for="q3-i">Saya jarang berbagi perasaan pribadi, kecuali saat diminta atau benar-benar diperlukan. <strong>I</strong></label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q3-d" name="q3" value="D">
+                    <label class="form-check-label" for="q3-d">Saya biasanya mengungkapkan perasaan pribadi, baik diminta maupun tidak. <strong>D</strong></label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label><strong>4.</strong> Pilih salah satu:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q4-s" name="q4" value="S">
+                    <label class="form-check-label" for="q4-s">Saya lebih suka mendengarkan dan menerima ide, pemikiran, atau minat dari orang lain. <strong>S</strong></label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q4-c" name="q4" value="C">
+                    <label class="form-check-label" for="q4-c">Saya kurang suka mendengarkan dan menerima ide, pemikiran, atau minat dari orang lain. <strong>C</strong></label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label><strong>5.</strong> Pilih salah satu:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q5-c" name="q5" value="C">
+                    <label class="form-check-label" for="q5-c">Dalam menghadapi konflik, saya merespons dengan cepat dan langsung ke inti masalah. <strong>C</strong></label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q5-s" name="q5" value="S">
+                    <label class="form-check-label" for="q5-s">Dalam menghadapi konflik, saya merespons dengan perlahan dan lebih tidak langsung. <strong>S</strong></label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label><strong>6.</strong> Pilih salah satu:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q6-i" name="q6" value="I">
+                    <label class="form-check-label" for="q6-i">Saya biasanya mengambil tindakan dengan hati-hati dan memikirkannya terlebih dahulu. <strong>I</strong></label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q6-d" name="q6" value="D">
+                    <label class="form-check-label" for="q6-d">Saya cenderung bereaksi dengan cepat dan spontan terhadap situasi. <strong>D</strong></label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label><strong>7.</strong> Pilih salah satu:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q7-d" name="q7" value="D">
+                    <label class="form-check-label" for="q7-d">Saya sering menggunakan ekspresi wajah, bahasa tubuh, atau nada suara untuk menegaskan maksud saya. <strong>D</strong></label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q7-i" name="q7" value="I">
+                    <label class="form-check-label" for="q7-i">Saya jarang menggunakan ekspresi wajah, bahasa tubuh, atau nada suara untuk menegaskan maksud saya. <strong>I</strong></label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label><strong>8.</strong> Pilih salah satu:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q8-s" name="q8" value="S">
+                    <label class="form-check-label" for="q8-s">Saya sering fokus pada minat dan kebutuhan orang lain, meskipun itu keluar dari konteks utama pembicaraan. <strong>S</strong></label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q8-c" name="q8" value="C">
+                    <label class="form-check-label" for="q8-c">Saya lebih sering fokus pada tugas, isu, atau masalah yang sedang dibahas. <strong>C</strong></label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label><strong>9.</strong> Pilih salah satu:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q9-d" name="q9" value="D">
+                    <label class="form-check-label" for="q9-d">Saya cenderung aktif berkontribusi dalam diskusi kelompok. <strong>D</strong></label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q9-i" name="q9" value="I">
+                    <label class="form-check-label" for="q9-i">Saya lebih cenderung diam dan jarang terlibat dalam diskusi kelompok. <strong>I</strong></label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label><strong>10.</strong> Pilih salah satu:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q10-i" name="q10" value="I">
+                    <label class="form-check-label" for="q10-i">Saya lebih suka menunggu orang lain memperkenalkan diri terlebih dahulu dalam acara sosial. <strong>I</strong></label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q10-d" name="q10" value="D">
+                    <label class="form-check-label" for="q10-d">Saya biasanya memperkenalkan diri kepada orang lain terlebih dahulu dalam acara sosial. <strong>D</strong></label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label><strong>11.</strong> Pilih salah satu:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q11-s" name="q11" value="S">
+                    <label class="form-check-label" for="q11-s">Saya cenderung terbuka terhadap orang yang ingin mengenal saya secara pribadi dan membangun hubungan. <strong>S</strong></label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q11-c" name="q11" value="C">
+                    <label class="form-check-label" for="q11-c">Saya cenderung menjaga jarak dan tidak terlalu terbuka dengan orang yang ingin mengenal saya secara pribadi. <strong>C</strong></label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label><strong>12.</strong> Pilih salah satu:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q12-i" name="q12" value="I">
+                    <label class="form-check-label" for="q12-i">Saya lebih memilih mendekati risiko atau tantangan dengan hati-hati dan perencanaan matang. <strong>I</strong></label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q12-d" name="q12" value="D">
+                    <label class="form-check-label" for="q12-d">Saya biasanya menghadapi risiko atau tantangan dengan cara yang dinamis dan terkadang tidak terduga. <strong>D</strong></label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label><strong>13.</strong> Pilih salah satu:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q13-c" name="q13" value="C">
+                    <label class="form-check-label" for="q13-c">Saya lebih suka bekerja sendiri atau menentukan cara orang lain terlibat dalam pekerjaan saya. <strong>C</strong></label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q13-s" name="q13" value="S">
+                    <label class="form-check-label" for="q13-s">Saya lebih suka bekerja dalam tim atau berkolaborasi dengan orang lain, memberikan dukungan jika diperlukan. <strong>S</strong></label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label><strong>14.</strong> Pilih salah satu:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q14-s" name="q14" value="S">
+                    <label class="form-check-label" for="q14-s">Saya cenderung menerima orang lain yang mengganggu waktu saya dengan santai. <strong>S</strong></label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q14-c" name="q14" value="C">
+                    <label class="form-check-label" for="q14-c">Saya biasanya lebih berhati-hati terhadap orang lain yang mengganggu waktu saya. <strong>C</strong></label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label><strong>15.</strong> Pilih salah satu:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q15-c" name="q15" value="C">
+                    <label class="form-check-label" for="q15-c">Saya lebih sering membahas agenda, minat, atau perhatian saya sendiri. <strong>C</strong></label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q15-s" name="q15" value="S">
+                    <label class="form-check-label" for="q15-s">Saya lebih sering merespons dan menyesuaikan diri dengan agenda, minat, atau perhatian orang lain. <strong>S</strong></label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label><strong>16.</strong> Pilih salah satu:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q16-d" name="q16" value="D">
+                    <label class="form-check-label" for="q16-d">Saya biasanya tegas dan terkadang tidak sabar terhadap situasi yang berjalan lambat. <strong>D</strong></label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q16-i" name="q16" value="I">
+                    <label class="form-check-label" for="q16-i">Saya cenderung bersikap lembut dan sabar terhadap situasi yang berjalan lambat. <strong>I</strong></label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label><strong>17.</strong> Pilih salah satu:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q17-i" name="q17" value="I">
+                    <label class="form-check-label" for="q17-i">Saya merasa nyaman dengan situasi yang sudah saya kenal atau lingkungan yang tidak berubah. <strong>I</strong></label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q17-d" name="q17" value="D">
+                    <label class="form-check-label" for="q17-d">Saya lebih suka pengalaman baru atau menghadapi situasi yang berbeda. <strong>D</strong></label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label><strong>18.</strong> Pilih salah satu:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q18-c" name="q18" value="C">
+                    <label class="form-check-label" for="q18-c">Saya lebih fokus pada ide, konsep, dan hasil. <strong>C</strong></label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="q18-s" name="q18" value="S">
+                    <label class="form-check-label" for="q18-s">Saya lebih fokus pada hubungan, interaksi, dan pandangan orang lain. <strong>S</strong></label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-3">Submit</button>
+        </form>
+    <!-- Result Section -->
+    <div id="result" class="mt-4" style="display: none;">
+        <h5>Hasil Evaluasi</h5>
+        <p><strong>Jumlah Pilihan:</strong></p>
+        <ul>
+            <li>D: <span id="count-d"></span></li>
+            <li>I: <span id="count-i"></span></li>
+            <li>C: <span id="count-c"></span></li>
+            <li>S: <span id="count-s"></span></li>
+        </ul>
+        <h6 id="personality-result"></h6> <!-- This will show the personality type -->
+</div>
+</div>
+
+<!-- Footer -->
+<footer class="footer text-center">
+    <p>&copy; 2024 SKN. All rights reserved.</p>
+    <p>Email: <a href="mailto:semar.karya.nusantara@gmail.com">semar.karya.nusantara@gmail.com</a></p>
+    <p>WhatsApp: <a href="https://wa.me/6285348178999" target="_blank">+6285348178999</a></p>
+</footer>
+</main>
+{% endblock %}
+
+{% block extrastyle %}
+<style>
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block extrascript %}
+<script>
+    // Handle form submission
+    document.getElementById('behavior-style-form').addEventListener('submit', function (e) {
+        e.preventDefault(); // Prevent default form submission
+
+        // Collect selected answers and calculate totals
+        const totals = { D: 0, I: 0, C: 0, S: 0 };
+        for (let i = 1; i <= 18; i++) {
+            const selectedOption = document.querySelector(`input[name="q${i}"]:checked`);
+            if (selectedOption) {
+                totals[selectedOption.value]++;
+            } else {
+                alert(`Please select an answer for question ${i}.`);
+                return;
+            }
+        }
+
+        // Display counts in the result section
+        document.getElementById('count-d').textContent = totals.D;
+        document.getElementById('count-i').textContent = totals.I;
+        document.getElementById('count-c').textContent = totals.C;
+        document.getElementById('count-s').textContent = totals.S;
+
+        // Determine the personality type based on the result conditions
+        let personality = "";
+
+        // Conditions based on highest values of selected pairs
+        if ((totals.C + totals.I) > (totals.S + totals.D)) {
+            personality = "Owl (Burung Hantu)";
+        } else if ((totals.S + totals.D) > (totals.C + totals.I)) {
+            personality = "Peacock (Merak)";
+        } else if ((totals.S + totals.I) > (totals.C + totals.D)) {
+            personality = "Dove (Merpati)";
+        } else if ((totals.C + totals.D) > (totals.S + totals.I)) {
+        personality = "Eagle (Elang)";
+        }
+
+        // Display the result section
+        document.getElementById('result').style.display = 'block';
+        document.getElementById('personality-result').textContent = `Tipe Kepribadianmu: ${personality}`;
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% load sidebar_menu %}
+{% create_menu user as nav_menu %}
+<div class="d-flex flex-column text-bg-dark h-100" style="width: 290px">
+  <div class="overflow-auto p-3">
+    {% if user.is_staff %}
+      {% create_hr_menu as hr_menu %}
+      <ul class="nav nav-pills flex-column mb-auto">
+        {% for menu in hr_menu %}
+          <li class="nav-item">
+            {% url menu.url as href %}
+            <a class="nav-link text-white{% if request.path == href %} active{% endif %}"
+               href="{{ href }}">{{ menu.label }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+      <hr />
+    {% endif %}
+    {% if user.is_owner %}
+      <ul class="nav nav-pills flex-column mb-auto">
+        {% create_owner_menu as owner_menu %}
+        {% for menu in owner_menu %}
+          <li class="nav-item">
+            {% url menu.url as href %}
+            <a class="nav-link text-white{% if request.path == href %} active{% endif %}"
+               href="{{ href }}">{{ menu.label }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+      <hr />
+    {% endif %}
+    {% if user.is_owner or user.is_employee %}
+      <ul class="nav nav-pills flex-column mb-auto">
+        {% for menu in nav_menu %}
+          <li class="nav-item">
+            {% url menu.url as href %}
+            <a class="nav-link text-white{% if request.path == href %} active{% endif %}"
+               href="{{ href }}">{{ menu.label }}</a>
+            {% if menu.sub %}
+              <ul class="nav nav-pills flex-column ps-4">
+                {% for sub in menu.sub %}
+                  <li>
+                    {% url sub.url as href %}
+                    <a class="nav-link text-white{{ request.path|is_active:href }}"
+                       href="{{ href }}">{{ sub.label }}</a>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+</div>

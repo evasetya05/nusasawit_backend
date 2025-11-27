@@ -1,0 +1,20 @@
+- model: m2recruit.Test
+  pk: 1
+  fields:
+    name: Big 5
+    description: Personality Big 5 Test
+- model: m2recruit.Test
+  pk: 2
+  fields:
+    name: Dope
+    description: Dope Test
+- model: m2recruit.Test
+  pk: 3
+  fields:
+    name: Interview
+    description: Direct Interview
+- model: m2recruit.Test
+  pk: 4
+  fields:
+    name: Pressure
+    description: Pressure Test

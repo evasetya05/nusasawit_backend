@@ -1,0 +1,315 @@
+{% extends 'dashboard/base.html' %}
+{% load static widget_tweaks %}
+{% block title %}Edit {{ employee.name }} - Employee Details{% endblock %}
+{% block content %}
+  <div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+      <h1 class="h3 mb-0 text-gray-800">Edit Employee: {{ employee.name }}</h1>
+      <div>
+        <a href="{% url 'm3onboarding:employee-detail' employee.id %}"
+           class="btn btn-secondary">
+          <i class="fas fa-times me-1"></i> Cancel
+        </a>
+        <button type="submit" form="employeeEditForm" class="btn btn-primary">
+          <i class="fas fa-save me-1"></i> Save Changes
+        </button>
+      </div>
+    </div>
+    <form method="post" enctype="multipart/form-data" id="employeeEditForm">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+          {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
+      {% endif %}
+      <div class="row">
+        <!-- Left Column - Personal Information -->
+        <div class="col-lg-4">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">Profile</h6>
+            </div>
+            <div class="card-body text-center">
+              <div class="mb-3 position-relative" style="width: 150px; margin: 0 auto;">
+                <div class="profile-image-container">
+                  {% if employee.photo %}
+                    <img id="profileImage"
+                         alt="Profile Image"
+                         src="{{ employee.photo.url }}"
+                         class="img-profile rounded-circle mb-3"
+                         width="150"
+                         height="150"
+                         style="object-fit: cover;
+                                width: 150px;
+                                height: 150px">
+                  {% else %}
+                    <div id="defaultImage"
+                         class="bg-light rounded-circle d-flex align-items-center justify-content-center mb-3"
+                         style="width: 150px;
+                                height: 150px">
+                      <i class="fas fa-user fa-4x text-gray-400"></i>
+                    </div>
+                  {% endif %}
+                  <div class="profile-image-overlay">
+                    <i class="fas fa-pencil-alt text-white"></i>
+                  </div>
+                </div>
+                {{ form.photo|add_class:"d-none" }}
+                <div id="fileName" class="small text-muted text-center mt-1"></div>
+              </div>
+              <div class="form-group text-start">
+                <label class="form-label">
+                  Full Name <span class="text-danger">*</span>
+                </label>
+                {{ form.name|add_class:"form-control" }}
+                {% if form.name.errors %}<div class="invalid-feedback d-block">{{ form.name.errors|join:", " }}</div>{% endif %}
+              </div>
+              <div class="form-group text-start mt-3">
+                <label class="form-label">Employee ID</label>
+                <input type="text" class="form-control" value="{{ employee.id }}" disabled>
+                <small class="form-text text-muted">System generated ID</small>
+              </div>
+              <div class="form-group text-start mt-3">
+                <label class="form-label">Status</label>
+                <div class="form-check form-switch">
+                  {{ form.is_active|add_class:"form-check-input" }}
+                  <label class="form-check-label" for="{{ form.is_active.id_for_label }}">Active Employee</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Right Column - Work Information -->
+        <div class="col-lg-8">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">Work Information</h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Department</label>
+                    {{ form.department|add_class:"form-select" }}
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Position</label>
+                    {{ form.position|add_class:"form-select" }}
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Manager</label>
+                    {{ form.manager|add_class:"form-select" }}
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Hire Date</label>
+                    {{ form.hire_date|add_class:"form-control" }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">Contact Information</h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">
+                      Email <span class="text-danger">*</span>
+                    </label>
+                    {{ form.email|add_class:"form-control" }}
+                    {% if form.email.errors %}<div class="invalid-feedback d-block">{{ form.email.errors|join:", " }}</div>{% endif %}
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Phone</label>
+                    {{ form.phone|add_class:"form-control" }}
+                  </div>
+                </div>
+              </div>
+              <div class="form-group mb-3">
+                <label class="form-label">Address</label>
+                {{ form.address|add_class:"form-control" }}
+              </div>
+            </div>
+          </div>
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">Documents</h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">KK</label>
+                    {{ form.kk|add_class:"form-control" }}
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">KTP</label>
+                    {{ form.ktp|add_class:"form-control" }}
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">NPWP</label>
+                    {{ form.npwp|add_class:"form-control" }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+{% endblock %}
+{% block extrascript %}
+  <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const form = document.getElementById('employeeEditForm');
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    }
+
+    // Photo upload functionality
+    const fileInput = document.querySelector('input[type="file"][name="photo"]');
+    const profileImage = document.getElementById('profileImage');
+    const defaultImage = document.getElementById('defaultImage');
+    const fileNameDisplay = document.getElementById('fileName');
+    const profileContainer = document.querySelector('.profile-image-container');
+
+    // Handle click on the profile image container
+    if (profileContainer) {
+        profileContainer.addEventListener('click', function(e) {
+            e.preventDefault();
+            fileInput.click();
+        });
+    }
+
+    // Handle file selection
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Update file name display
+                if (fileNameDisplay) {
+                    fileNameDisplay.textContent = file.name;
+                }
+
+                // Show preview if it's an image
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        if (profileImage) {
+                            profileImage.src = event.target.result;
+                            if (profileImage.classList.contains('d-none')) {
+                                profileImage.classList.remove('d-none');
+                            }
+                        } else if (defaultImage) {
+                            // Create image element if it doesn't exist
+                            const newImg = document.createElement('img');
+                            newImg.id = 'profileImage';
+                            newImg.alt = 'Profile Image';
+                            newImg.className = 'img-profile rounded-circle mb-3';
+                            newImg.style.objectFit = 'cover';
+                            newImg.style.width = '150px';
+                            newImg.style.height = '150px';
+                            newImg.src = event.target.result;
+
+                            // Insert the new image before the overlay
+                            const overlay = defaultImage.nextElementSibling;
+                            defaultImage.parentNode.insertBefore(newImg, overlay);
+                            defaultImage.classList.add('d-none');
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+    }
+
+    // Handle clear checkbox if it exists
+    const clearCheckbox = document.querySelector('input[type="checkbox"][name$="-clear"]');
+    if (clearCheckbox) {
+        clearCheckbox.addEventListener('change', function() {
+            if (this.checked && profileImage) {
+                profileImage.classList.add('d-none');
+                if (defaultImage) {
+                    defaultImage.classList.remove('d-none');
+                }
+                if (fileNameDisplay) {
+                    fileNameDisplay.textContent = '';
+                }
+            }
+        });
+    }
+});
+  </script>
+{% endblock %}
+{% block extrastyle %}
+  <style>
+  .profile-image-container {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+  }
+
+  .profile-image-overlay {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .profile-image-container:hover .profile-image-overlay {
+    opacity: 1;
+  }
+
+  #profileImage, #defaultImage {
+    transition: filter 0.3s ease;
+  }
+
+  .profile-image-container:hover #profileImage,
+  .profile-image-container:hover #defaultImage {
+    filter: brightness(0.8);
+  }
+
+  #photo-clear_id {
+    margin-left: 10px;
+  }
+
+  .file-input-label {
+    cursor: pointer;
+  }
+  </style>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'dashboard/base.html' %}
+{% block header %}
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{% url 'index' %}">SDM Portabel</a>
+      <button class="navbar-toggler"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#navbarNav"
+              aria-controls="navbarNav"
+              aria-expanded="false"
+              aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
+  </nav>
+{% endblock %}
+{% block sidebar %}{% endblock %}
+{% block content %}
+  <div class="container mt-3">
+    <h1>Thank You for Submitting Your Test</h1>
+    <div class="message">
+        Your responses have been successfully submitted. We will review them and get back to you soon.
+    </div>
+    <a href="{% url 'index' %}" class="button">Go to Home</a>
+  </div>
+{% endblock %}

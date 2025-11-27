@@ -1,0 +1,18 @@
+{% extends 'account/base.html' %}
+{% load widget_tweaks %}
+{% block lr_title %}Aktivasi Akun{% endblock %}
+{% block lr_form %}
+  <p>Selamat datang, <b>{{ user.name }}</b>!</p>
+  <p>Masukkan username dan password untuk mengaktifkan akun anda di <b>{{ user.company.name }}</b>.</p>
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="mb-3">
+        {{ field|add_label_class:"col-form-label" }}
+        {{ field|add_class:"form-control" }}
+        {% for error in field.errors %}<div class="text-danger fs-6">{{ error }}</div>{% endfor %}
+      </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary w-100">Aktifkan Akun</button>
+  </form>
+{% endblock %}

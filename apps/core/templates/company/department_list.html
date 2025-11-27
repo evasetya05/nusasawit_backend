@@ -1,0 +1,45 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block content %}
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h4 class="mb-0">Departments</h4>
+      <a href="{% url 'company:department_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add Department
+      </a>
+    </div>
+    <div class="card-body">
+      {% if departments %}
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for department in departments %}
+                <tr>
+                  <td>{{ department.name }}</td>
+                  <td class="text-end">
+                    <a href="{% url 'company:department_update' department.pk %}"
+                       class="btn btn-sm btn-outline-primary">
+                      <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a href="{% url 'company:department_delete' department.pk %}"
+                       class="btn btn-sm btn-outline-danger">
+                      <i class="fas fa-trash"></i> Delete
+                    </a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="alert alert-info">No departments found. Click the 'Add Department' button to create one.</div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

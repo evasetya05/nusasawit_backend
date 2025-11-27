@@ -1,0 +1,52 @@
+{% extends 'dashboard/base.html' %}
+{% block content %}
+  <div class="container mt-5">
+    <h1 class="text-center mb-4">Interview Questions</h1>
+    <form method="post" class="mb-4">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="pelamar" class="form-label">Select Candidate:</label>
+        <select name="pelamar" id="pelamar" class="form-select" required>
+          <option value="" disabled selected>Choose a candidate...</option>
+          {% for candidate in applicants %}<option value="{{ candidate.id }}">{{ candidate.user.name }}</option>{% endfor %}
+        </select>
+      </div>
+      <!-- Questions and rating/comment fields -->
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead class="table-primary">
+            <tr>
+              <th>Kategori</th>
+              <th>Skill / Attribute</th>
+              <th>Example Interview Question</th>
+              <th>Rating (1-5)</th>
+              <th>Comment</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for question in questions %}
+              <tr>
+                <td>{{ question.trait.name }}</td>
+                <td>{{ question.trait.description }}</td>
+                <td>{{ question.text }}</td>
+                <td>
+                  <input type="number"
+                         name="rating_{{ question.id }}"
+                         class="form-control"
+                         min="1"
+                         max="5">
+                </td>
+                <td>
+                  <textarea name="comment_{{ question.id }}" class="form-control" rows="2"></textarea>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="text-center mt-3">
+        <button type="submit" class="btn btn-primary">Save Responses</button>
+      </div>
+    </form>
+  </div>
+{% endblock content %}

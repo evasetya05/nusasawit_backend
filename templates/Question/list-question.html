@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All Questions</title>
+</head>
+<body>
+    <a href="{% url 'questions:create' job_id=current_job_id  %}">Add Questions</a>
+    {% for question in question_list %}
+        <p>{{ forloop.counter }}).{{ question.question }}</p>
+        <ul><p>Options</p>
+            <li><p>{{ question.option_1 }}</p></li>
+            <li><p>{{ question.option_2 }}</p></li>
+            <li><p>{{ question.option_3 }}</p></li>
+            <li><p>{{ question.option_4 }}</p></li>
+        </ul>
+        <p><i>Correct option</i>:{{ question.correct_option }}</p>
+        <p>
+            <a href="{% url 'questions:delete' pk=question.pk job_id=current_job_id %}">Delete</a>
+            <a href="{% url 'questions:update' pk=question.pk job_id=current_job_id %}">Update</a>
+        </p>
+    {% endfor %}
+</body>
+</html>

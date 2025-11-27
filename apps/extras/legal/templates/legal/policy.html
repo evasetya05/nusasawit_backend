@@ -1,0 +1,11 @@
+{% extends 'dashboard/base.html' %}
+{% block sidebar %}{% endblock %}
+{% block main %}
+  <main class="overflow-auto">
+    <div class="container mb-3">
+      <h1>{{ policy.get_type_display }}</h1>
+      <p>{{ policy.created_at }}</p>
+      <div class="card shadow p-5">{{ policy.content|safe }}</div>
+    </div>
+  </main>
+{% endblock %}

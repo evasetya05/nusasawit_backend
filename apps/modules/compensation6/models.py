@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from decimal import Decimal
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 from apps.core.models import Employee, Borongan  # pastikan app core sudah punya model Employee

@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.utils import timezone
 from decimal import Decimal
 from datetime import date, timedelta
-from apps.core.models import Employee
+from apps.core.models import Employee, Borongan
 from ..models import Payroll, PayrollPeriod, Allowance, Deduction, BPJSConfig, Attendance, LeaveRequest
 from ..forms import (
     AllowanceForm, DeductionForm, PayrollPeriodForm,
@@ -20,10 +20,13 @@ from django.template.loader import render_to_string
 def absensi_harian(request):
     """Absensi harian: form clock in/out, list attendance."""
     form = AttendanceForm(request.POST or None)
-    if request.method == 'POST' and form.is_valid():
-        attendance = form.save()
-        messages.success(request, f'Absensi untuk {attendance.employee} pada {attendance.date} berhasil disimpan.')
-        return redirect('compensation6:absensi_harian')
+    if request.method == 'POST':
+        if form.is_valid():
+            attendance = form.save()
+            messages.success(request, f'Absensi untuk {attendance.employee} pada {attendance.date} berhasil disimpan.')
+            return redirect('compensation6:absensi_harian')
+        else:
+            messages.error(request, 'Gagal menyimpan. Periksa kembali input Anda.')
 
     # Get current user's employee if applicable
     person = getattr(request.user, 'person', None)
@@ -32,8 +35,11 @@ def absensi_harian(request):
     else:
         attendances = Attendance.objects.all().order_by('-date')[:50]  # Limit for admin
 
+    # Ambil semua opsi borongan untuk dropdown
+    borongan_options = Borongan.objects.all().select_related('employee')
+
     return render(request, 'compensation6/absensi_harian.html', {
         'form': form,
         'attendances': attendances,
+        'borongan_options': borongan_options,
     })
-

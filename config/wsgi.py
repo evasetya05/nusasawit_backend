@@ -8,9 +8,25 @@ https://docs.djangoproject.com/en/3.1/howto/deployment/wsgi/
 """
 
 import os
+import sys
 
-from django.core.wsgi import get_wsgi_application
+# Add the project directory to the Python path
+project_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if project_path not in sys.path:
+    sys.path.append(project_path)
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.production')
+# Set the Django settings module explicitly
+os.environ['DJANGO_SETTINGS_MODULE'] = 'config.settings.production'
 
-application = get_wsgi_application()
+# Debug output
+print("Python version:", sys.version)
+print("Python path:", sys.path)
+print("DJANGO_SETTINGS_MODULE:", os.environ.get('DJANGO_SETTINGS_MODULE'))
+
+try:
+    from django.core.wsgi import get_wsgi_application
+    application = get_wsgi_application()
+    print("WSGI application loaded successfully")
+except Exception as e:
+    print("Error loading WSGI application:", str(e))
+    raise

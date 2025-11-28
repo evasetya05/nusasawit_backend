@@ -44,9 +44,20 @@ class BoronganSerializer(serializers.ModelSerializer):
 
 
 class WorkRequestSummarySerializer(serializers.ModelSerializer):
+    flutter_user_info = serializers.SerializerMethodField()
+    
     class Meta:
         model = WorkRequest
-        fields = ["id", "title", "description", "start_date", "end_date", "due_date"]
+        fields = ["id", "title", "description", "start_date", "end_date", "due_date", "flutter_user_info"]
+    
+    def get_flutter_user_info(self, obj):
+        if obj.flutter_user:
+            return {
+                "identifier": obj.flutter_user.identifier,
+                "email": obj.flutter_user.email,
+                "phone_number": obj.flutter_user.phone_number,
+            }
+        return None
 
 
 class EmployeeAvailabilitySerializer(serializers.ModelSerializer):

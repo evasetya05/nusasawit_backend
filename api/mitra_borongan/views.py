@@ -216,8 +216,12 @@ class WorkRequestCreateView(APIView):
             start_date=start_date_parsed,
             end_date=end_date_parsed,
             due_date=due_date_parsed,
-            user_identifier=getattr(request, 'user_identifier', 'unknown'),
+            flutter_user=getattr(request, 'flutter_user', None),
             created_by=request.user if request.user.is_authenticated else None,
+        )
+
+        identifier = getattr(request, 'flutter_user_identifier', None) or getattr(
+            request, 'user_identifier', 'unknown'
         )
 
         # Return created work request
@@ -226,7 +230,7 @@ class WorkRequestCreateView(APIView):
             {
                 "detail": "WorkRequest berhasil dibuat.",
                 "work_request": serializer.data,
-                "created_by": request.user_identifier,
+                "flutter_user_identifier": identifier,
             },
             status=status.HTTP_201_CREATED,
         )

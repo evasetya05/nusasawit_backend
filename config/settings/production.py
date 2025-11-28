@@ -2,7 +2,7 @@ from .base import *
 from decouple import config
 
 DEBUG = False
-ALLOWED_HOSTS = ['nusasawit.sdmportabel.com', 'www.nusasawit.sdmportabel.com']
+ALLOWED_HOSTS = ['nusasawit.sdmportabel.com', 'www.nusasawit.sdmportabel.com', "testserver"]
 
 # PostgreSQL
 DATABASES = {
@@ -15,5 +15,3 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-# Static files production
-STATIC_ROOT = config('STATIC_ROOT', default=os.path.join(BASE_DIR, 'staticfiles'))

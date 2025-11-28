@@ -170,6 +170,27 @@
           </div>
           <div class="card shadow mb-4">
             <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">Area/Wilayah</h6>
+            </div>
+            <div class="card-body">
+              <div class="form-group mb-3">
+                <label class="form-label">Desa/Kelurahan</label>
+                {{ form.desa|add_class:"form-select" }}
+                <small class="form-text text-muted">Pilih desa/kelurahan tempat tinggal karyawan</small>
+              </div>
+              {% if employee.desa %}
+                <div class="alert alert-info">
+                  <strong>Lokasi Saat Ini:</strong><br>
+                  {{ employee.desa.get_jenis_display }} {{ employee.desa.nama }}, 
+                  Kec. {{ employee.desa.kecamatan.nama }}, 
+                  {{ employee.desa.kecamatan.kabupaten_kota }}, 
+                  {{ employee.desa.kecamatan.kabupaten_kota.provinsi.nama }}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
               <h6 class="m-0 font-weight-bold text-primary">Compensation</h6>
             </div>
             <div class="card-body">

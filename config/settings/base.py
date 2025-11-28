@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'apps.modules.compliance7',
     'apps.modules.ir8',
     'apps.modules.m9improvement',
+    'apps.modules.area',
 
     'api.tips', 
     'api.mitra_borongan', 

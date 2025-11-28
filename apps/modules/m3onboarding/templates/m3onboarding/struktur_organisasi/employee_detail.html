@@ -138,6 +138,41 @@
         </div>
         <div class="card shadow mb-4">
           <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Area/Wilayah</h6>
+          </div>
+          <div class="card-body">
+            {% if employee.desa %}
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <h6 class="text-primary">Desa/Kelurahan</h6>
+                  <p>{{ employee.desa.get_jenis_display }} {{ employee.desa.nama }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <h6 class="text-primary">Kecamatan</h6>
+                  <p>Kec. {{ employee.desa.kecamatan.nama }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <h6 class="text-primary">Kabupaten/Kota</h6>
+                  <p>{{ employee.desa.kecamatan.kabupaten_kota }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <h6 class="text-primary">Provinsi</h6>
+                  <p>{{ employee.desa.kecamatan.kabupaten_kota.provinsi.nama }}</p>
+                </div>
+                {% if employee.desa.kode_pos %}
+                  <div class="col-md-6 mb-3">
+                    <h6 class="text-primary">Kode Pos</h6>
+                    <p>{{ employee.desa.kode_pos }}</p>
+                  </div>
+                {% endif %}
+              </div>
+            {% else %}
+              <p class="text-muted mb-0">Belum ada data wilayah</p>
+            {% endif %}
+          </div>
+        </div>
+        <div class="card shadow mb-4">
+          <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">Compensation</h6>
           </div>
           <div class="card-body">

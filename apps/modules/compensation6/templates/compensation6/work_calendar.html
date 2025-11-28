@@ -105,7 +105,10 @@
                   <td style="border:1px solid #ddd;padding:8px;text-align:left;vertical-align:top;">
                     {% if request %}
                       <div style="display:flex;flex-direction:column;gap:4px;">
-                        <strong style="color:#0d6efd;">{{ request.title }}</strong>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                          <span class="badge bg-primary" style="background:#0d6efd;color:#fff;padding:2px 6px;font-size:0.75em;font-weight:bold;">#{{ request.id }}</span>
+                          <strong style="color:#0d6efd;">{{ request.title }}</strong>
+                        </div>
                         <small style="color:#6c757d;">Due: {{ request.due_date|date:"d M Y" }}</small>
                         {% if request.description %}
                           <div style="font-size:0.85em;color:#495057;">{{ request.description }}</div>

@@ -208,6 +208,27 @@ class WorkRequestCreateView(APIView):
         end_date_parsed = parse_date(end_date) if end_date else None
         due_date_parsed = parse_date(due_date) if due_date else None
 
+        # Check for existing WorkRequest for same employee and date range
+        existing = WorkRequest.objects.filter(
+            employee=employee,
+            start_date=start_date_parsed,
+            end_date=end_date_parsed
+        ).first()
+        
+        if existing:
+            return Response(
+                {
+                    "detail": f"WorkRequest sudah ada untuk {employee.name} pada periode {start_date_parsed} hingga {end_date_parsed}.",
+                    "existing_request": {
+                        "id": existing.id,
+                        "title": existing.title,
+                        "start_date": existing.start_date,
+                        "end_date": existing.end_date
+                    }
+                },
+                status=status.HTTP_409_CONFLICT,
+            )
+
         # Create WorkRequest with user tracking
         work_request = WorkRequest.objects.create(
             employee=employee,

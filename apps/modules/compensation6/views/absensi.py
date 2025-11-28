@@ -118,7 +118,7 @@ class WorkCalendarView(TemplateView):
                 start_date__lte=active_period.end_date,
                 end_date__gte=active_period.start_date
             )
-            .select_related('employee')
+            .select_related('employee', 'flutter_user')
             .order_by('employee__name', 'start_date')
         )
 

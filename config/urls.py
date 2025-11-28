@@ -27,6 +27,7 @@ urlpatterns = [
     path('industrial/', include('apps.modules.ir8.urls'), name="industrial"),
     path('continues_improvement/', include('apps.modules.m9improvement.urls'),
          name="continues_improvement"),
+    path('area/', include('apps.modules.area.urls'), name="area"),
 
 
     path('psychometric/', include('apps.extras.psychometric.urls'),

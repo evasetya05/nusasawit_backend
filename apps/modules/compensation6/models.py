@@ -229,6 +229,7 @@ class WorkRequest(models.Model):
 
     class Meta:
         ordering = ["-start_date", "employee__name"]
+        unique_together = ['employee', 'start_date', 'end_date']
 
     def __str__(self):
         if self.start_date == self.end_date:

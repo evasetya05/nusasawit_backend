@@ -24,7 +24,7 @@ class EmployeeEditForm(forms.ModelForm):
         fields = [
             'name', 'email', 'position', 'department', 'phone', 'address', 'emergency_contact', 'manager',
             'hire_date', 'birth_date', 'is_active', 'photo', 'kk', 'ktp', 'npwp',
-            'basic_salary', 'default_allowance', 'pph21_status'
+            'basic_salary', 'default_allowance', 'pph21_status', 'desa'
         ]
         widgets = {
             'hire_date': forms.DateInput(attrs={'type': 'date'}),

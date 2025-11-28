@@ -65,6 +65,16 @@ class Employee(Person):
     ktp = models.FileField(upload_to='document/ktp', null=True, blank=True)
     npwp = models.FileField(upload_to='document/npwp', null=True, blank=True)
     emergency_contact = models.CharField(max_length=225, blank=True)
+    
+    # Area/Location
+    desa = models.ForeignKey(
+        'area.Desa', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        verbose_name='Desa/Kelurahan',
+        help_text='Desa/Kelurahan tempat tinggal karyawan'
+    )
 
     # Compensation defaults
     basic_salary = models.DecimalField(max_digits=12, decimal_places=2, default=0, validators=[MinValueValidator(0)])

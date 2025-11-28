@@ -12,6 +12,20 @@ class HasValidAppKey(BasePermission):
         if not expected_key:
             return False
 
+        # Store user identifier from headers if available
+        email = request.headers.get("X-EMAIL")
+        phone = request.headers.get("X-PHONE")
+        
+        # Create user identifier from email and/or phone
+        if email and phone:
+            request.user_identifier = f"{email}|{phone}"
+        elif email:
+            request.user_identifier = email
+        elif phone:
+            request.user_identifier = phone
+        else:
+            request.user_identifier = "unknown"
+
         provided_key = request.headers.get("X-APP-KEY")
         if provided_key is None:
             provided_key = request.query_params.get("app_key")

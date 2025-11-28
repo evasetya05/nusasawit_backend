@@ -176,7 +176,24 @@ class WorkRequest(models.Model):
     due_date = models.DateField(help_text="Tanggal batas pengerjaan", null=True, blank=True)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-
+    
+    # Tracking fields
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="created_work_requests",
+        help_text="User yang membuat permintaan kerja"
+    )
+    flutter_user = models.ForeignKey(
+        "user_flutter.FlutterUser",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="work_requests",
+        help_text="Referensi user Flutter yang membuat permintaan"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

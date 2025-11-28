@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.utils.dateparse import parse_date
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import status
 
 from api.permission import HasValidAppKey
 from apps.core.models import Employee
@@ -12,6 +13,7 @@ from apps.modules.compensation6.models import PayrollPeriod, WorkRequest
 from .serializers import (
     EmployeeAvailabilitySerializer,
     EmployeeWorkCalendarSerializer,
+    WorkRequestSummarySerializer,
 )
 
 
@@ -170,4 +172,61 @@ class EmployeeWorkCalendarView(APIView):
                 "date_range": [current.isoformat() for current in date_range],
                 "employees": serializer.data,
             }
+        )
+
+
+class WorkRequestCreateView(APIView):
+    """Create WorkRequest with user tracking."""
+    permission_classes = [HasValidAppKey]
+
+    def post(self, request):
+        employee_id = request.data.get("employee_id")
+        title = request.data.get("title")
+        description = request.data.get("description", "")
+        start_date = request.data.get("start_date")
+        end_date = request.data.get("end_date")
+        due_date = request.data.get("due_date")
+
+        # Validate required fields
+        if not employee_id or not title:
+            return Response(
+                {"detail": "employee_id dan title wajib diisi."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Validate employee exists
+        try:
+            employee = Employee.objects.get(id=employee_id, is_active=True)
+        except Employee.DoesNotExist:
+            return Response(
+                {"detail": "Employee tidak ditemukan atau tidak aktif."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # Parse dates
+        start_date_parsed = parse_date(start_date) if start_date else None
+        end_date_parsed = parse_date(end_date) if end_date else None
+        due_date_parsed = parse_date(due_date) if due_date else None
+
+        # Create WorkRequest with user tracking
+        work_request = WorkRequest.objects.create(
+            employee=employee,
+            title=title,
+            description=description,
+            start_date=start_date_parsed,
+            end_date=end_date_parsed,
+            due_date=due_date_parsed,
+            user_identifier=getattr(request, 'user_identifier', 'unknown'),
+            created_by=request.user if request.user.is_authenticated else None,
+        )
+
+        # Return created work request
+        serializer = WorkRequestSummarySerializer(work_request)
+        return Response(
+            {
+                "detail": "WorkRequest berhasil dibuat.",
+                "work_request": serializer.data,
+                "created_by": request.user_identifier,
+            },
+            status=status.HTTP_201_CREATED,
         )

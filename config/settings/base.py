@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'api.mitra_borongan', 
     'api.consultation',
     'api.sertifikasi',
+    'api.user_flutter',
 ]
 
 # Middleware

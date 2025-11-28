@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.conf import settings
 
 from apps.core.models import Employee
 from apps.core.models.employee import Borongan
@@ -6,9 +7,16 @@ from apps.modules.compensation6.models import WorkRequest
 
 
 class BoronganSerializer(serializers.ModelSerializer):
+    employee_photo = serializers.SerializerMethodField()
+    
     class Meta:
         model = Borongan
-        fields = ["id", "pekerjaan", "satuan", "harga_borongan"]
+        fields = ["id", "pekerjaan", "satuan", "harga_borongan", "employee_photo"]
+    
+    def get_employee_photo(self, obj):
+        if obj.employee.photo:
+            return f"{settings.MEDIA_URL}{obj.employee.photo}"
+        return None
 
 
 class WorkRequestSummarySerializer(serializers.ModelSerializer):

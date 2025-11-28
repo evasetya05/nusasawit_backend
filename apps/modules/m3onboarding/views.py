@@ -215,6 +215,12 @@ class BoronganCreateView(LoginRequiredMixin, FormView):
             return redirect('m3onboarding:struktur_organisasi')
         
         form = BoronganForm(request.POST)
+        # Debug: Print form data and errors
+        print(f"Form data: {request.POST}")
+        print(f"Form is valid: {form.is_valid()}")
+        if not form.is_valid():
+            print(f"Form errors: {form.errors}")
+        
         if form.is_valid():
             borongan = form.save(commit=False)
             borongan.employee = employee  # Set employee explicitly

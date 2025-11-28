@@ -113,6 +113,14 @@
                         {% if request.description %}
                           <div style="font-size:0.85em;color:#495057;">{{ request.description }}</div>
                         {% endif %}
+                        {% if request.flutter_user %}
+                          <div style="font-size:0.8em;color:#6c757d;">
+                            <strong>Flutter User:</strong> 
+                            {% if request.flutter_user.email %}Email: {{ request.flutter_user.email }}{% endif %}
+                            {% if request.flutter_user.email and request.flutter_user.phone_number %} | {% endif %}
+                            {% if request.flutter_user.phone_number %}Phone: {{ request.flutter_user.phone_number }}{% endif %}
+                          </div>
+                        {% endif %}
                         {% if request.is_editable %}
                           <a href="?edit={{ request.id }}" class="btn btn-sm btn-outline-primary" style="padding:4px 8px;font-size:0.8em;align-self:flex-start;">Edit</a>
                         {% else %}

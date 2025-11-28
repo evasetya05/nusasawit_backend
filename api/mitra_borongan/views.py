@@ -35,6 +35,7 @@ class EmployeeAvailabilityView(APIView):
         employees = (
             Employee.objects.filter(is_active=True)
             .prefetch_related("borongan")
+            .select_related("desa__kecamatan__kabupaten_kota__provinsi")
             .order_by("name")
         )
 

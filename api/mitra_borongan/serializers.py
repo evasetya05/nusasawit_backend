@@ -6,6 +6,7 @@ from rest_framework import serializers
 from apps.core.models import Employee
 from apps.core.models.employee import Borongan
 from apps.modules.compensation6.models import WorkRequest
+from apps.modules.area.models import Desa
 
 
 class BoronganSerializer(serializers.ModelSerializer):
@@ -60,13 +61,21 @@ class WorkRequestSummarySerializer(serializers.ModelSerializer):
         return None
 
 
+class AreaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Desa
+        fields = ["id", "nama", "jenis", "kode_pos", "alamat_lengkap"]
+        depth = 2
+
+
 class EmployeeAvailabilitySerializer(serializers.ModelSerializer):
     borongan = BoronganSerializer(many=True, read_only=True)
     is_available = serializers.SerializerMethodField()
+    area = AreaSerializer(source='desa', read_only=True)
 
     class Meta:
         model = Employee
-        fields = ["id", "name", "borongan", "is_available"]
+        fields = ["id", "name", "borongan", "is_available", "area"]
 
     def get_is_available(self, obj):
         busy_employee_ids = self.context.get("busy_employee_ids", set())

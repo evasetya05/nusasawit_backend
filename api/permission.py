@@ -1,5 +1,6 @@
 from django.conf import settings
 from rest_framework.permissions import BasePermission
+from .user_flutter.models import FlutterUser
 
 
 class HasValidAppKey(BasePermission):
@@ -25,6 +26,9 @@ class HasValidAppKey(BasePermission):
             request.user_identifier = phone
         else:
             request.user_identifier = "unknown"
+
+        # Resolve and save FlutterUser from headers
+        FlutterUser.resolve_from_request(request)
 
         provided_key = request.headers.get("X-APP-KEY")
         if provided_key is None:

@@ -2,10 +2,10 @@ from datetime import timedelta
 
 from django.utils import timezone
 from django.utils.dateparse import parse_date
-from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from api.permission import HasValidAppKey
 from apps.core.models import Employee
 from apps.modules.compensation6.models import PayrollPeriod, WorkRequest
 
@@ -16,7 +16,7 @@ from .serializers import (
 
 
 class EmployeeAvailabilityView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [HasValidAppKey]
 
     def get(self, request):
         query_date = request.query_params.get("date")
@@ -52,7 +52,7 @@ class EmployeeAvailabilityView(APIView):
 
 
 class EmployeeWorkCalendarView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [HasValidAppKey]
 
     def get(self, request):
         start_date_param = request.query_params.get("start_date")

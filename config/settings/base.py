@@ -8,6 +8,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # Secret key
 SECRET_KEY = 'replace_this'
 
+APP_SECRET_KEY = "NUSA-APP-KEY-15c9f3fd8c8943f8a3bcd871df1b6f49"
+
+
 # Installed apps
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -43,6 +46,8 @@ INSTALLED_APPS = [
 
     'api.tips', 
     'api.mitra_borongan', 
+    'api.consultation',
+    'api.sertifikasi',
 ]
 
 # Middleware

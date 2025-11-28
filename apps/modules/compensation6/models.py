@@ -128,6 +128,36 @@ class BPJSConfig(models.Model):
         return "BPJSConfig (Persentase)"
 
 
+class LeaveRequest(models.Model):
+    """Model untuk pengajuan cuti secara hirarki."""
+    class Status(models.TextChoices):
+        PENDING = 'pending', 'Menunggu Approval'
+        APPROVED_SUPERVISOR = 'approved_supervisor', 'Disetujui Supervisor'
+        APPROVED_HR = 'approved_hr', 'Disetujui HR'
+        REJECTED = 'rejected', 'Ditolak'
+
+    class LeaveType(models.TextChoices):
+        ANNUAL = 'annual', 'Cuti Tahunan'
+        SICK = 'sick', 'Cuti Sakit'
+        MATERNITY = 'maternity', 'Cuti Melahirkan'
+        OTHER = 'other', 'Lainnya'
+
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    leave_type = models.CharField(max_length=20, choices=LeaveType.choices, default=LeaveType.ANNUAL)
+    reason = models.TextField()
+    status = models.CharField(max_length=30, choices=Status.choices, default=Status.PENDING)
+    approved_by_supervisor = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='supervisor_approvals')
+    approved_by_hr = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='hr_approvals')
+    approval_date = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.employee} - {self.leave_type} ({self.start_date} to {self.end_date})"
+
+
 class Attendance(models.Model):
     """Model untuk tracking absensi harian karyawan."""
     class Status(models.TextChoices):
@@ -222,32 +252,3 @@ class WorkRequest(models.Model):
         """Check if this work request covers the given date."""
         return self.start_date <= date <= self.end_date
 
-
-class LeaveRequest(models.Model):
-    """Model untuk pengajuan cuti secara hirarki."""
-    class Status(models.TextChoices):
-        PENDING = 'pending', 'Menunggu Approval'
-        APPROVED_SUPERVISOR = 'approved_supervisor', 'Disetujui Supervisor'
-        APPROVED_HR = 'approved_hr', 'Disetujui HR'
-        REJECTED = 'rejected', 'Ditolak'
-
-    class LeaveType(models.TextChoices):
-        ANNUAL = 'annual', 'Cuti Tahunan'
-        SICK = 'sick', 'Cuti Sakit'
-        MATERNITY = 'maternity', 'Cuti Melahirkan'
-        OTHER = 'other', 'Lainnya'
-
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
-    start_date = models.DateField()
-    end_date = models.DateField()
-    leave_type = models.CharField(max_length=20, choices=LeaveType.choices, default=LeaveType.ANNUAL)
-    reason = models.TextField()
-    status = models.CharField(max_length=30, choices=Status.choices, default=Status.PENDING)
-    approved_by_supervisor = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='supervisor_approvals')
-    approved_by_hr = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='hr_approvals')
-    approval_date = models.DateTimeField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"{self.employee} - {self.leave_type} ({self.start_date} to {self.end_date})"

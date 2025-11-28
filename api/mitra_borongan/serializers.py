@@ -1,5 +1,7 @@
-from rest_framework import serializers
+from urllib.parse import urljoin
+
 from django.conf import settings
+from rest_framework import serializers
 
 from apps.core.models import Employee
 from apps.core.models.employee import Borongan
@@ -14,9 +16,31 @@ class BoronganSerializer(serializers.ModelSerializer):
         fields = ["id", "pekerjaan", "satuan", "harga_borongan", "employee_photo"]
     
     def get_employee_photo(self, obj):
-        if obj.employee.photo:
-            return f"{settings.MEDIA_URL}{obj.employee.photo}"
-        return None
+        photo_field = getattr(obj.employee, "photo", None)
+        if not photo_field:
+            return None
+
+        photo_name = getattr(photo_field, "name", "")
+        if not photo_name:
+            return None
+
+        storage = getattr(photo_field, "storage", None)
+        if storage and not storage.exists(photo_name):
+            return None
+
+        try:
+            url = photo_field.url
+        except ValueError:
+            return None
+
+        request = self.context.get("request")
+        if request:
+            return request.build_absolute_uri(url)
+
+        if url.startswith("http"):
+            return url
+
+        return urljoin(settings.MEDIA_URL, url.lstrip("/"))
 
 
 class WorkRequestSummarySerializer(serializers.ModelSerializer):

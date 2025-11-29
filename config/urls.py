@@ -38,6 +38,8 @@ urlpatterns = [
     path('api/mitra/', include('api.mitra_borongan.urls')),
     path('api/consultation/', include('api.consultation.urls')),
     path('api/sertifikasi/', include('api.sertifikasi.urls')),
+    path('api/pasar/', include('api.pasar.urls')),
+    path('api/petunjuk/', include('api.petunjuk.urls')),
     
 
     path('ckeditor/', include('ckeditor_uploader.urls')),

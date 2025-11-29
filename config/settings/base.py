@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'api.consultation',
     'api.sertifikasi',
     'api.user_flutter',
+    'api.pasar',
+    'api.petunjuk'
 ]
 
 # Middleware

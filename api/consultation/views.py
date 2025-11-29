@@ -13,10 +13,10 @@ class FarmerConsultationListCreateView(generics.ListCreateAPIView):
     serializer_class = ConsultationSerializer
 
     def get_queryset(self):
-        return Consultation.objects.filter(farmer=self.request.user).order_by("-created_at")
+        return Consultation.objects.filter(farmer=self.request.flutter_user).order_by("-created_at")
 
     def perform_create(self, serializer):
-        serializer.save(farmer=self.request.user)
+        serializer.save(farmer=self.request.flutter_user)
 
 
 class ConsultantConsultationDetailView(generics.RetrieveAPIView):
@@ -35,7 +35,7 @@ class ConsultationAnswerCreateView(generics.CreateAPIView):
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(consultant=request.user, consultation=consultation)
+        serializer.save(consultant=request.flutter_user, consultation=consultation)
 
         consultation.status = "answered"
         consultation.save()

@@ -1,6 +1,6 @@
-from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from api.user_flutter.models import FlutterUser
 
 
 class Consultation(models.Model):
@@ -11,7 +11,7 @@ class Consultation(models.Model):
     )
 
     farmer = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        FlutterUser,
         on_delete=models.CASCADE,
         related_name="consultations"
     )
@@ -35,13 +35,10 @@ class ConsultationAnswer(models.Model):
         related_name="answer"
     )
     
-    consultant = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True
-    )
+    consultant_name = models.CharField(max_length=255, null=True, blank=True)
+    institution_name = models.CharField(max_length=255, null=True, blank=True)
     answer = models.TextField()
     answered_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"Jawaban untuk Konsultasi #{self.consultation.id}"
+        return f"Jawaban untuk Konsultasi #{self.consultation.id} oleh {self.consultant_name}"

@@ -4,69 +4,28 @@ from api.user_flutter.models import FlutterUser
 
 
 class Consultant(models.Model):
-    """Model untuk data konsultan dengan keahlian dan pengalaman"""
-    user = models.OneToOneField(
-        FlutterUser,
-        on_delete=models.CASCADE,
-        related_name="consultant_profile"
-    )
-    
+    """Model untuk data konsultan yang sederhana"""
     name = models.CharField(max_length=255)
-    institution_name = models.CharField(max_length=255, blank=True)
-    bio = models.TextField(blank=True, help_text="Bio/deskripsi singkat konsultan")
-    
-    # Keahlian dan spesialisasi
-    expertise_areas = models.JSONField(
-        default=list,
-        blank=True,
-        help_text="List keahlian, misal: ['pertanian organik', 'hama tanaman', 'pupuk']"
+    institution_name = models.CharField(
+        max_length=255, 
+        null=True, 
+        blank=True, 
+        help_text="Nama lembaga/institusi"
     )
-    specialization = models.CharField(
-        max_length=100,
-        blank=True,
-        help_text="Spesialisasi utama"
+    bio = models.TextField(
+        null=True, 
+        blank=True, 
+        help_text="Bio/deskripsi singkat konsultan"
     )
-    
-    # Pengalaman dan kualifikasi
-    experience_years = models.PositiveIntegerField(
-        default=0,
-        help_text="Pengalaman dalam tahun"
-    )
-    education = models.CharField(
-        max_length=255,
-        blank=True,
-        help_text="Pendidikan terakhir"
-    )
-    certifications = models.JSONField(
-        default=list,
-        blank=True,
-        help_text="List sertifikat/kualifikasi"
-    )
-    
-    # Rating dan statistik
-    rating = models.DecimalField(
-        max_digits=3,
-        decimal_places=2,
-        default=0.0,
-        help_text="Rating rata-rata (0-5)"
-    )
-    total_consultations = models.PositiveIntegerField(
-        default=0,
-        help_text="Total konsultasi yang pernah ditangani"
-    )
-    
-    # Status ketersediaan
-    is_active = models.BooleanField(default=True)
-    is_available = models.BooleanField(default=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["-rating", "-total_consultations", "name"]
+        ordering = ["name"]
 
     def __str__(self):
-        return f"{self.name} - {self.specialization or 'General Consultant'}"
+        return self.name
 
 
 class Consultation(models.Model):
@@ -130,7 +89,9 @@ class ConsultationMessage(models.Model):
     sender = models.ForeignKey(
         FlutterUser,
         on_delete=models.CASCADE,
-        related_name="consultation_messages"
+        related_name="consultation_messages",
+        null=True,
+        blank=True
     )
     
     message_type = models.CharField(
@@ -139,7 +100,11 @@ class ConsultationMessage(models.Model):
         default="question"
     )
     
-    content = models.TextField(help_text="Isi pesan")
+    content = models.TextField(
+        help_text="Isi pesan",
+        null=True,
+        blank=True
+    )
     
     # Reference ke consultant jika jawaban dari konsultan
     consultant = models.ForeignKey(
@@ -157,6 +122,59 @@ class ConsultationMessage(models.Model):
 
     def __str__(self):
         return f"Message #{self.id} in Consultation #{self.consultation.id}"
+
+
+class ConsultationImage(models.Model):
+    """Model untuk lampiran gambar dalam konsultasi"""
+    consultation = models.ForeignKey(
+        Consultation,
+        on_delete=models.CASCADE,
+        related_name="images"
+    )
+    
+    message = models.ForeignKey(
+        ConsultationMessage,
+        on_delete=models.CASCADE,
+        related_name="images",
+        null=True,
+        blank=True
+    )
+    
+    image = models.ImageField(
+        upload_to='consultation_images/',
+        help_text="Gambar untuk konsultasi"
+    )
+    
+    uploaded_by = models.ForeignKey(
+        FlutterUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="uploaded_consultation_images"
+    )
+    
+    consultant_uploader = models.ForeignKey(
+        Consultant,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="uploaded_images"
+    )
+    
+    caption = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text="Keterangan gambar"
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"Image for Consultation #{self.consultation.id}"
 
 
 # Backward compatibility

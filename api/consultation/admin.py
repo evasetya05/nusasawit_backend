@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Consultant, Consultation, ConsultationMessage, ConsultationAnswer
+from .models import Consultant, Consultation, ConsultationMessage, ConsultationAnswer, ConsultationImage
 
 
 @admin.register(Consultant)
@@ -7,34 +7,15 @@ class ConsultantAdmin(admin.ModelAdmin):
     list_display = [
         'name', 
         'institution_name', 
-        'specialization', 
-        'experience_years', 
-        'rating', 
-        'total_consultations',
-        'is_active',
-        'is_available'
+        'created_at'
     ]
-    list_filter = ['is_active', 'is_available', 'specialization']
-    search_fields = ['name', 'institution_name', 'specialization']
-    readonly_fields = ['rating', 'total_consultations', 'created_at', 'updated_at']
-    ordering = ['-rating', '-total_consultations', 'name']
+    search_fields = ['name', 'institution_name']
+    readonly_fields = ['created_at', 'updated_at']
+    ordering = ['name']
     
     fieldsets = (
         ('Basic Info', {
-            'fields': ('user', 'name', 'institution_name', 'bio')
-        }),
-        ('Expertise', {
-            'fields': ('specialization', 'expertise_areas')
-        }),
-        ('Experience', {
-            'fields': ('experience_years', 'education', 'certifications')
-        }),
-        ('Statistics', {
-            'fields': ('rating', 'total_consultations'),
-            'classes': ('collapse',)
-        }),
-        ('Status', {
-            'fields': ('is_active', 'is_available')
+            'fields': ('name', 'institution_name', 'bio')
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),
@@ -93,6 +74,35 @@ class ConsultationMessageAdmin(admin.ModelAdmin):
         }),
         ('Consultant Info', {
             'fields': ('consultant',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_at',),
+            'classes': ('collapse',)
+        }),
+    )
+
+
+@admin.register(ConsultationImage)
+class ConsultationImageAdmin(admin.ModelAdmin):
+    list_display = [
+        'id',
+        'consultation', 
+        'uploaded_by',
+        'consultant_uploader',
+        'caption',
+        'created_at'
+    ]
+    list_filter = ['created_at', 'uploaded_by', 'consultant_uploader']
+    search_fields = ['consultation__id', 'caption']
+    readonly_fields = ['created_at']
+    ordering = ['-created_at']
+    
+    fieldsets = (
+        ('Image Info', {
+            'fields': ('consultation', 'image', 'caption')
+        }),
+        ('Uploader Info', {
+            'fields': ('uploaded_by', 'consultant_uploader')
         }),
         ('Timestamps', {
             'fields': ('created_at',),

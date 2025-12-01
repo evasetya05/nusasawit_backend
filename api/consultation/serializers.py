@@ -1,10 +1,9 @@
 from rest_framework import serializers
-from .models import Consultant, Consultation, ConsultationMessage, ConsultationAnswer
+from .models import Consultant, Consultation, ConsultationMessage, ConsultationAnswer, ConsultationImage
 
 
 class ConsultantSerializer(serializers.ModelSerializer):
-    """Serializer untuk data konsultan dengan keahlian"""
-    user_info = serializers.SerializerMethodField()
+    """Serializer untuk data konsultan yang sederhana"""
     
     class Meta:
         model = Consultant
@@ -13,33 +12,15 @@ class ConsultantSerializer(serializers.ModelSerializer):
             "name",
             "institution_name",
             "bio",
-            "expertise_areas",
-            "specialization",
-            "experience_years",
-            "education",
-            "certifications",
-            "rating",
-            "total_consultations",
-            "is_active",
-            "is_available",
-            "user_info",
             "created_at",
         ]
-    
-    def get_user_info(self, obj):
-        if obj.user:
-            return {
-                "identifier": obj.user.identifier,
-                "email": obj.user.email,
-                "phone_number": obj.user.phone_number,
-            }
-        return None
 
 
 class ConsultationMessageSerializer(serializers.ModelSerializer):
     """Serializer untuk pesan dalam diskusi konsultasi"""
-    sender_name = serializers.CharField(source="sender.identifier", read_only=True)
+    sender_name = serializers.CharField(source="sender.identifier", read_only=True, allow_null=True)
     consultant_info = serializers.SerializerMethodField()
+    images = serializers.SerializerMethodField()
     
     class Meta:
         model = ConsultationMessage
@@ -49,6 +30,7 @@ class ConsultationMessageSerializer(serializers.ModelSerializer):
             "content", 
             "sender_name",
             "consultant_info",
+            "images",
             "created_at"
         ]
     
@@ -57,20 +39,50 @@ class ConsultationMessageSerializer(serializers.ModelSerializer):
             return {
                 "id": obj.consultant.id,
                 "name": obj.consultant.name,
-                "specialization": obj.consultant.specialization,
-                "rating": obj.consultant.rating,
+                "institution_name": obj.consultant.institution_name,
             }
+        return None
+    
+    def get_images(self, obj):
+        images = obj.images.all()
+        return [
+            {
+                "id": img.id,
+                "image_url": img.image.url if img.image else None,
+                "caption": img.caption,
+                "created_at": img.created_at,
+            }
+            for img in images
+        ]
+
+
+class ConsultationImageSerializer(serializers.ModelSerializer):
+    """Serializer untuk gambar konsultasi"""
+    image_url = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = ConsultationImage
+        fields = [
+            "id",
+            "image_url",
+            "caption",
+            "created_at",
+        ]
+    
+    def get_image_url(self, obj):
+        if obj.image:
+            return obj.image.url
         return None
 
 
 class ConsultationSerializer(serializers.ModelSerializer):
-    """Serializer untuk konsultasi dengan auto-assign consultant"""
+    """Serializer untuk konsultasi"""
     farmer_name = serializers.CharField(source="farmer.identifier", read_only=True)
     messages = ConsultationMessageSerializer(many=True, read_only=True)
     assigned_consultant_info = serializers.SerializerMethodField()
+    images = ConsultationImageSerializer(many=True, read_only=True, source="images.all")
     email = serializers.SerializerMethodField()
     phone = serializers.SerializerMethodField()
-    suggested_consultants = serializers.SerializerMethodField()
 
     def get_email(self, obj):
         request = self.context.get('request')
@@ -89,28 +101,14 @@ class ConsultationSerializer(serializers.ModelSerializer):
             return {
                 "id": obj.assigned_consultant.id,
                 "name": obj.assigned_consultant.name,
-                "specialization": obj.assigned_consultant.specialization,
-                "rating": obj.assigned_consultant.rating,
-                "institution": obj.assigned_consultant.institution_name,
+                "institution_name": obj.assigned_consultant.institution_name,
+                "bio": obj.assigned_consultant.bio,
             }
         return None
     
     def get_suggested_consultants(self, obj):
-        """Get suggested consultants based on category and expertise"""
-        consultants = Consultant.objects.filter(
-            is_active=True,
-            is_available=True
-        )
-        
-        if obj.category:
-            # Filter by expertise areas matching category
-            consultants = consultants.filter(
-                expertise_areas__contains=[obj.category]
-            )
-        
-        # Order by rating and experience
-        consultants = consultants.order_by('-rating', '-experience_years')[:3]
-        
+        """Get all available consultants"""
+        consultants = Consultant.objects.all().order_by('name')[:10]
         return ConsultantSerializer(consultants, many=True).data
         
     def create(self, validated_data):
@@ -121,18 +119,7 @@ class ConsultationSerializer(serializers.ModelSerializer):
         # Create consultation
         consultation = super().create(validated_data)
         
-        # Auto-assign consultant if category provided
-        if consultation.category:
-            best_consultant = Consultant.objects.filter(
-                is_active=True,
-                is_available=True,
-                expertise_areas__contains=[consultation.category]
-            ).order_by('-rating', '-experience_years').first()
-            
-            if best_consultant:
-                consultation.assigned_consultant = best_consultant
-                consultation.status = "assigned"
-                consultation.save()
+        # Don't auto-assign consultant - let user choose from frontend
         
         # Create initial message from the question
         ConsultationMessage.objects.create(
@@ -157,6 +144,7 @@ class ConsultationSerializer(serializers.ModelSerializer):
             "assigned_consultant_info",
             "suggested_consultants",
             "messages",
+            "images",
             "created_at",
             "updated_at",
         ]

@@ -4,12 +4,13 @@ from rest_framework.response import Response
 
 from api.permission import HasValidAppKey
 
-from .models import Consultation, ConsultationMessage, Consultant, ConsultationAnswer
+from .models import Consultation, ConsultationMessage, Consultant, ConsultationAnswer, ConsultationImage
 from .serializers import (
     ConsultationSerializer, 
     ConsultationMessageSerializer,
     ConsultantSerializer,
-    ConsultationAnswerSerializer
+    ConsultationAnswerSerializer,
+    ConsultationImageSerializer
 )
 
 
@@ -43,18 +44,19 @@ class ConsultationMessageListCreateView(generics.ListCreateAPIView):
         consultation_id = self.kwargs['pk']
         consultation = Consultation.objects.get(id=consultation_id)
         
-        # Auto-assign consultant if not assigned and this is an answer
-        if not consultation.assigned_consultant and hasattr(self.request, 'flutter_user'):
+        # Check if this is a consultant answer
+        consultant_id = self.request.data.get('consultant_id')
+        if consultant_id:
             try:
-                consultant = Consultant.objects.get(user=self.request.flutter_user)
-                consultation.assigned_consultant = consultant
-                consultation.status = "answered"
-                consultation.save()
+                consultant = Consultant.objects.get(id=consultant_id)
+                if not consultation.assigned_consultant:
+                    consultation.assigned_consultant = consultant
+                    consultation.status = "answered"
+                    consultation.save()
                 
                 # Set consultant in message
                 serializer.save(
                     consultation=consultation,
-                    sender=self.request.flutter_user,
                     consultant=consultant,
                     message_type="answer"
                 )
@@ -77,23 +79,7 @@ class ConsultantListView(generics.ListAPIView):
     serializer_class = ConsultantSerializer
     
     def get_queryset(self):
-        queryset = Consultant.objects.filter(is_active=True, is_available=True)
-        
-        # Filter by specialization if provided
-        specialization = self.request.query_params.get('specialization')
-        if specialization:
-            queryset = queryset.filter(
-                expertise_areas__contains=[specialization]
-            )
-        
-        # Filter by category if provided
-        category = self.request.query_params.get('category')
-        if category:
-            queryset = queryset.filter(
-                expertise_areas__contains=[category]
-            )
-        
-        return queryset.order_by('-rating', '-experience_years')
+        return Consultant.objects.all().order_by('name')
 
 
 class ConsultantAssignView(generics.UpdateAPIView):
@@ -113,7 +99,7 @@ class ConsultantAssignView(generics.UpdateAPIView):
             )
         
         try:
-            consultant = Consultant.objects.get(id=consultant_id, is_active=True, is_available=True)
+            consultant = Consultant.objects.get(id=consultant_id)
             consultation.assigned_consultant = consultant
             consultation.status = "assigned"
             consultation.save()
@@ -124,9 +110,45 @@ class ConsultantAssignView(generics.UpdateAPIView):
             })
         except Consultant.DoesNotExist:
             return Response(
-                {"error": "Consultant not found or not available"}, 
+                {"error": "Consultant not found"}, 
                 status=status.HTTP_404_NOT_FOUND
             )
+
+
+class ConsultationImageView(generics.ListCreateAPIView):
+    """View untuk mengupload dan melihat gambar konsultasi"""
+    permission_classes = [HasValidAppKey]
+    serializer_class = ConsultationImageSerializer
+    
+    def get_queryset(self):
+        consultation_id = self.kwargs['pk']
+        return ConsultationImage.objects.filter(consultation_id=consultation_id)
+    
+    def perform_create(self, serializer):
+        consultation_id = self.kwargs['pk']
+        consultation = Consultation.objects.get(id=consultation_id)
+        
+        # Determine uploader type
+        if hasattr(self.request, 'flutter_user'):
+            # Flutter user upload
+            serializer.save(
+                consultation=consultation,
+                uploaded_by=self.request.flutter_user
+            )
+        else:
+            # Consultant upload - need to identify consultant
+            consultant_id = self.request.data.get('consultant_id')
+            if consultant_id:
+                try:
+                    consultant = Consultant.objects.get(id=consultant_id)
+                    serializer.save(
+                        consultation=consultation,
+                        consultant_uploader=consultant
+                    )
+                except Consultant.DoesNotExist:
+                    pass
+            else:
+                serializer.save(consultation=consultation)
 
 
 # Backward compatibility

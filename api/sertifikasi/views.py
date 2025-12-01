@@ -33,3 +33,41 @@ class FlutterCertificationListView(APIView):
             'user_identifier': flutter_user.identifier,
             'certifications': result
         })
+
+
+class FlutterCertificationDetailView(APIView):
+    permission_classes = [HasValidAppKey]
+    
+    def get(self, request, pk):
+        flutter_user = getattr(request, 'flutter_user', None)
+        if not flutter_user:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        try:
+            scheme = CertificationScheme.objects.get(id=pk)
+        except CertificationScheme.DoesNotExist:
+            return Response({"error": "Certification not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Get scheme details
+        details = scheme.details.all() if hasattr(scheme, 'details') else []
+        
+        scheme_data = {
+            'id': scheme.id,
+            'name': scheme.name,
+            'description': scheme.description,
+            'user_status': 'not_started',
+            'has_progress': False,
+            'details': [
+                {
+                    'id': detail.id,
+                    'title': detail.title,
+                    'description': detail.description,
+                }
+                for detail in details
+            ]
+        }
+        
+        return Response({
+            'user_identifier': flutter_user.identifier,
+            'certification': scheme_data
+        })

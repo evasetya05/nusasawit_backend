@@ -50,7 +50,7 @@ class Petunjuk(models.Model):
         verbose_name_plural = "Petunjuk"
     
     def __str__(self):
-        return f"{self.judul} - {self.get_kategori_display()}"
+        return f"{self.judul} - {self.kategori}"
 
 
 class PetunjukBaca(models.Model):

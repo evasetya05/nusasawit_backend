@@ -79,6 +79,7 @@ class WorkCalendarView(TemplateView):
             calendar_data.append({
                 'employee': employee,
                 'days': days,
+                'status': 'available' if not any(days.values()) else 'sibuk',
             })
 
         context['date_range'] = date_range

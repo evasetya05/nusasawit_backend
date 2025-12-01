@@ -1,33 +1,35 @@
-from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from api.permission import HasValidAppKey
-from .models import CertificationProgress, CertificationTask
-from .serializers import CertificationProgressSerializer, CertificationTaskSerializer
+from .models import CertificationScheme
 
 
-class FarmerCertificationListCreateView(generics.ListCreateAPIView):
+class FlutterCertificationListView(APIView):
     permission_classes = [HasValidAppKey]
-    serializer_class = CertificationProgressSerializer
-
-    def get_queryset(self):
-        return CertificationProgress.objects.filter(farmer=self.request.user)
-
-    def perform_create(self, serializer):
-        serializer.save(farmer=self.request.user)
-
-
-class CertificationProgressDetailView(generics.RetrieveAPIView):
-    permission_classes = [HasValidAppKey]
-    queryset = CertificationProgress.objects.all()
-    serializer_class = CertificationProgressSerializer
-
-
-class CertificationTaskCreateView(generics.CreateAPIView):
-    permission_classes = [HasValidAppKey]
-    serializer_class = CertificationTaskSerializer
-
-    def perform_create(self, serializer):
-        progress_id = self.kwargs.get("pk")
-        progress = CertificationProgress.objects.get(id=progress_id)
-        serializer.save(certification=progress)
+    
+    def get(self, request):
+        flutter_user = getattr(request, 'flutter_user', None)
+        if not flutter_user:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Get all certification schemes
+        schemes = CertificationScheme.objects.all()
+        
+        # Create simple response
+        result = []
+        for scheme in schemes:
+            scheme_data = {
+                'id': scheme.id,
+                'name': scheme.name,
+                'description': scheme.description,
+                'user_status': 'not_started',  # Default status since we don't have progress tracking
+                'has_progress': False,
+            }
+            result.append(scheme_data)
+        
+        return Response({
+            'user_identifier': flutter_user.identifier,
+            'certifications': result
+        })

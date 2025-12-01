@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import CertificationScheme, CertificationProgress, CertificationTask
+from .models import CertificationScheme, CertificationSchemeDetail
 
 admin.site.register(CertificationScheme)
-admin.site.register(CertificationProgress)
-admin.site.register(CertificationTask)
+admin.site.register(CertificationSchemeDetail)

@@ -25,13 +25,20 @@ class ConsultantConsultationDetailView(generics.RetrieveAPIView):
     serializer_class = ConsultationSerializer
 
 
-class ConsultationAnswerCreateView(generics.CreateAPIView):
+class ConsultationAnswerCreateView(generics.CreateAPIView, generics.UpdateAPIView):
     permission_classes = [HasValidAppKey]
     serializer_class = ConsultationAnswerSerializer
 
     def create(self, request, *args, **kwargs):
         consultation_id = kwargs.get("pk")
         consultation = Consultation.objects.get(id=consultation_id)
+
+        # Check if consultation already has an answer
+        if hasattr(consultation, 'answer'):
+            return Response(
+                {"error": "Consultation already has an answer. Use PUT to update."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -41,3 +48,27 @@ class ConsultationAnswerCreateView(generics.CreateAPIView):
         consultation.save()
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        consultation_id = kwargs.get("pk")
+        consultation = Consultation.objects.get(id=consultation_id)
+        
+        # Check if consultation has an answer and if it's the same consultant
+        if not hasattr(consultation, 'answer'):
+            return Response(
+                {"error": "No answer found. Use POST to create first answer."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if consultation.answer.consultant != request.flutter_user:
+            return Response(
+                {"error": "Only the original consultant can update the answer."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        answer = consultation.answer
+        serializer = self.get_serializer(answer, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)

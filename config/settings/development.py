@@ -23,4 +23,6 @@ EMAIL_HOST_PASSWORD = 'dummy'  # bisa kosong juga
 
 
 
-INTERNAL_IPS = ['127.0.0.1']
+# Disable debug toolbar for API testing
+DEBUG_TOOLBAR = False
+INTERNAL_IPS = []

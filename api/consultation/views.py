@@ -26,6 +26,18 @@ class ConsultationViewSet(viewsets.ModelViewSet):
     serializer_class = ConsultationSerializer
     permission_classes = [HasValidAppKey]
 
+    def get_queryset(self):
+        """
+        Filter konsultasi berdasarkan pengguna (petani) yang diidentifikasi
+        melalui header X-EMAIL.
+        """
+        email = self.request.headers.get('X-EMAIL')
+        if email:
+            farmer = FlutterUser.objects.filter(email=email).first()
+            if farmer:
+                return Consultation.objects.filter(farmer=farmer)
+        return Consultation.objects.none()
+
     def get_serializer_class(self):
         if self.action == 'list':
             return ConsultationListSerializer
@@ -35,10 +47,13 @@ class ConsultationViewSet(viewsets.ModelViewSet):
         email = self.request.headers.get('X-EMAIL')
         phone = self.request.headers.get('X-PHONE')
 
-        # Dapatkan atau buat pengguna Flutter berdasarkan email dan telepon
-        farmer, created = FlutterUser.objects.get_or_create(
-            email=email,
-            defaults={'phone': phone, 'identifier': email}
-        )
+        # Dapatkan pengguna Flutter pertama yang cocok dengan email, atau buat yang baru jika tidak ada.
+        # Ini mencegah error 'MultipleObjectsReturned'.
+        farmer = FlutterUser.objects.filter(email=email).first()
+        if not farmer:
+            farmer = FlutterUser.objects.create(
+                email=email,
+                defaults={'phone': phone, 'identifier': email}
+            )
 
         serializer.save(farmer=farmer)

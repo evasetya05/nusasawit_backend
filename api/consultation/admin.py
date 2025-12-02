@@ -49,7 +49,7 @@ class ConsultationAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Basic Info', {
-            'fields': ('farmer', 'topic')
+            'fields': ('farmer', 'topic',)
         }),
         ('Assignment', {
             'fields': ('consultant', 'status')

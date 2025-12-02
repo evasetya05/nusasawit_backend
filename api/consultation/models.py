@@ -20,9 +20,7 @@ class Consultation(models.Model):
     farmer = models.ForeignKey(
         FlutterUser,
         on_delete=models.CASCADE,
-        related_name="consultations",
-        null=True,
-        blank=True
+        related_name="consultations"
     )
     consultant = models.ForeignKey(
         Consultant,

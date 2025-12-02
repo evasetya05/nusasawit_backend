@@ -17,7 +17,7 @@ class ConsultantAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Basic Info', {
-            'fields': ('name', 'profile_picture', 'institution_name', 'bio')
+            'fields': ('user', 'name', 'profile_picture', 'institution_name', 'bio')
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),
@@ -30,6 +30,18 @@ class ConsultantAdmin(admin.ModelAdmin):
             return format_html('<img src="{}" width="50" height="50" style="border-radius:50%;" />', obj.profile_picture.url)
         return "No Image"
     display_profile_picture.short_description = 'Profile Picture'
+
+
+class ConsultationMessageInline(admin.TabularInline):
+    """Menampilkan pesan sebagai inline di halaman Consultation."""
+    model = ConsultationMessage
+    fields = ('sender_farmer', 'sender_consultant', 'content', 'created_at')
+    readonly_fields = ('created_at', 'sender_farmer', 'sender_consultant')
+    extra = 1 # Menampilkan satu form kosong untuk balasan baru
+    ordering = ('created_at',)
+
+    def has_change_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(Consultation)
@@ -46,6 +58,7 @@ class ConsultationAdmin(admin.ModelAdmin):
     search_fields = ['farmer__identifier', 'topic']
     readonly_fields = ['created_at', 'updated_at']
     ordering = ['-created_at']
+    inlines = [ConsultationMessageInline]
     
     fieldsets = (
         ('Basic Info', {
@@ -87,3 +100,15 @@ class ConsultationMessageAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+
+    def save_formset(self, request, form, formset, change):
+        """
+        Saat menyimpan pesan baru dari inline, otomatis set pengirimnya
+        adalah konsultan yang sedang login.
+        """
+        instances = formset.save(commit=False)
+        for instance in instances:
+            if isinstance(instance, ConsultationMessage) and hasattr(request.user, 'consultant_profile'):
+                instance.sender_consultant = request.user.consultant_profile
+                instance.save()
+        formset.save_m2m()

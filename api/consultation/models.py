@@ -1,10 +1,12 @@
 from django.db import models
 from django.utils import timezone
 from api.user_flutter.models import FlutterUser
+from django.contrib.auth.models import User
 
 
 class Consultant(models.Model):
     name = models.CharField(max_length=255, null=True, blank=True)
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='consultant_profile')
     profile_picture = models.ImageField(upload_to='consultant_profiles/', null=True, blank=True)
     institution_name = models.CharField(max_length=255, null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
@@ -70,7 +72,7 @@ class ConsultationMessage(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="sent_messages_consultant"
+        related_name="sent_consultant_messages"
     )
 
     content = models.TextField(null=True, blank=True)

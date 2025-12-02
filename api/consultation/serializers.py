@@ -6,7 +6,7 @@ from api.user_flutter.models import FlutterUser
 class ConsultantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Consultant
-        fields = ['id', 'name', 'institution_name', 'bio']
+        fields = ['id', 'name', 'profile_picture', 'institution_name', 'bio']
 
 
 class ConsultationMessageSerializer(serializers.ModelSerializer):

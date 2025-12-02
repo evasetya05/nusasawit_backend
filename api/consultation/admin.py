@@ -1,11 +1,13 @@
 from django.contrib import admin
 from .models import Consultant, Consultation, ConsultationMessage
+from django.utils.html import format_html
 
 
 @admin.register(Consultant)
 class ConsultantAdmin(admin.ModelAdmin):
     list_display = [
-        'name', 
+        'display_profile_picture',
+        'name',
         'institution_name', 
         'created_at'
     ]
@@ -15,13 +17,19 @@ class ConsultantAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Basic Info', {
-            'fields': ('name', 'institution_name', 'bio')
+            'fields': ('name', 'profile_picture', 'institution_name', 'bio')
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
     )
+
+    def display_profile_picture(self, obj):
+        if obj.profile_picture:
+            return format_html('<img src="{}" width="50" height="50" style="border-radius:50%;" />', obj.profile_picture.url)
+        return "No Image"
+    display_profile_picture.short_description = 'Profile Picture'
 
 
 @admin.register(Consultation)

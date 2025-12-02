@@ -1,0 +1,3 @@
+echo $DJANGO_SETTINGS_MODULE
+
+export DJANGO_SETTINGS_MODULE=config.settings.production

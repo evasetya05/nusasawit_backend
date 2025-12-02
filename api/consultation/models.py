@@ -5,6 +5,7 @@ from api.user_flutter.models import FlutterUser
 
 class Consultant(models.Model):
     name = models.CharField(max_length=255, null=True, blank=True)
+    profile_picture = models.ImageField(upload_to='consultant_profiles/', null=True, blank=True)
     institution_name = models.CharField(max_length=255, null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
 

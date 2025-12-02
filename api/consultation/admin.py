@@ -1,6 +1,9 @@
+from django import forms
 from django.contrib import admin
-from .models import Consultant, Consultation, ConsultationMessage
 from django.utils.html import format_html
+from django.forms.models import BaseInlineFormSet
+
+from .models import Consultant, Consultation, ConsultationMessage
 
 
 @admin.register(Consultant)
@@ -32,11 +35,42 @@ class ConsultantAdmin(admin.ModelAdmin):
     display_profile_picture.short_description = 'Profile Picture'
 
 
+class ConsultationMessageInlineForm(forms.ModelForm):
+    class Meta:
+        model = ConsultationMessage
+        fields = '__all__'
+
+    def __init__(self, *args, parent_consultation=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Nonaktifkan pengeditan manual dari admin
+        self.fields['sender_farmer'].disabled = True
+        self.fields['sender_consultant'].disabled = True
+
+        if not self.instance.pk and parent_consultation:
+            if parent_consultation.farmer_id:
+                self.fields['sender_farmer'].initial = parent_consultation.farmer
+            if parent_consultation.consultant_id:
+                self.fields['sender_consultant'].initial = parent_consultation.consultant
+
+
+class ConsultationMessageInlineFormSet(BaseInlineFormSet):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.parent_consultation = self.instance
+
+    def _construct_form(self, i, **kwargs):
+        kwargs['parent_consultation'] = self.parent_consultation
+        return super()._construct_form(i, **kwargs)
+
+
 class ConsultationMessageInline(admin.TabularInline):
     """Menampilkan pesan sebagai inline di halaman Consultation."""
     model = ConsultationMessage
+    form = ConsultationMessageInlineForm
+    formset = ConsultationMessageInlineFormSet
     fields = ('sender_farmer', 'sender_consultant', 'content', 'created_at')
-    readonly_fields = ('created_at', 'sender_farmer', 'sender_consultant')
+    readonly_fields = ('created_at',)
     extra = 1 # Menampilkan satu form kosong untuk balasan baru
     ordering = ('created_at',)
 
@@ -73,6 +107,27 @@ class ConsultationAdmin(admin.ModelAdmin):
         }),
     )
 
+    def save_formset(self, request, form, formset, change):
+        """
+        Saat menyimpan pesan baru dari inline, otomatis set pengirimnya
+        adalah konsultan yang sedang login.
+        """
+        instances = formset.save(commit=False)
+        parent_consultation = form.instance
+        for instance in instances:
+            if isinstance(instance, ConsultationMessage):
+                if parent_consultation and not instance.consultation_id:
+                    instance.consultation = parent_consultation
+                if parent_consultation and not instance.sender_farmer_id and parent_consultation.farmer_id:
+                    instance.sender_farmer = parent_consultation.farmer
+                if not instance.sender_consultant_id:
+                    if parent_consultation and parent_consultation.consultant_id:
+                        instance.sender_consultant = parent_consultation.consultant
+                    elif hasattr(request.user, 'consultant_profile'):
+                        instance.sender_consultant = request.user.consultant_profile
+            instance.save()
+        super().save_formset(request, form, formset, change)
+
 
 @admin.register(ConsultationMessage)
 class ConsultationMessageAdmin(admin.ModelAdmin):
@@ -100,15 +155,3 @@ class ConsultationMessageAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
-
-    def save_formset(self, request, form, formset, change):
-        """
-        Saat menyimpan pesan baru dari inline, otomatis set pengirimnya
-        adalah konsultan yang sedang login.
-        """
-        instances = formset.save(commit=False)
-        for instance in instances:
-            if isinstance(instance, ConsultationMessage) and hasattr(request.user, 'consultant_profile'):
-                instance.sender_consultant = request.user.consultant_profile
-                instance.save()
-        formset.save_m2m()

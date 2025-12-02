@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Consultant, Consultation, ConsultationMessage, ConsultationAnswer, ConsultationImage
+from .models import Consultant, Consultation, ConsultationMessage
 
 
 @admin.register(Consultant)
@@ -29,22 +29,22 @@ class ConsultationAdmin(admin.ModelAdmin):
     list_display = [
         'id', 
         'farmer', 
-        'category', 
+        'topic', 
         'status', 
-        'assigned_consultant',
+        'consultant',
         'created_at'
     ]
-    list_filter = ['status', 'category', 'assigned_consultant']
-    search_fields = ['farmer__identifier', 'question', 'category']
+    list_filter = ['status', 'consultant']
+    search_fields = ['farmer__identifier', 'topic']
     readonly_fields = ['created_at', 'updated_at']
     ordering = ['-created_at']
     
     fieldsets = (
         ('Basic Info', {
-            'fields': ('farmer', 'category', 'question')
+            'fields': ('farmer', 'topic')
         }),
         ('Assignment', {
-            'fields': ('assigned_consultant', 'status')
+            'fields': ('consultant', 'status')
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),
@@ -58,58 +58,24 @@ class ConsultationMessageAdmin(admin.ModelAdmin):
     list_display = [
         'id', 
         'consultation', 
-        'sender', 
-        'message_type', 
-        'consultant',
+        'sender_farmer',
+        'sender_consultant',
         'created_at'
     ]
-    list_filter = ['message_type', 'consultant', 'created_at']
-    search_fields = ['consultation__id', 'sender__identifier', 'content']
-    readonly_fields = ['created_at']
+    list_filter = ['created_at', 'sender_consultant']
+    search_fields = ['consultation__id', 'sender_farmer__identifier', 'content']
+    readonly_fields = ['created_at',]
     ordering = ['-created_at']
     
     fieldsets = (
         ('Message Info', {
-            'fields': ('consultation', 'sender', 'message_type', 'content')
+            'fields': ('consultation', 'content', 'image')
         }),
-        ('Consultant Info', {
-            'fields': ('consultant',)
-        }),
-        ('Timestamps', {
-            'fields': ('created_at',),
-            'classes': ('collapse',)
-        }),
-    )
-
-
-@admin.register(ConsultationImage)
-class ConsultationImageAdmin(admin.ModelAdmin):
-    list_display = [
-        'id',
-        'consultation', 
-        'uploaded_by',
-        'consultant_uploader',
-        'caption',
-        'created_at'
-    ]
-    list_filter = ['created_at', 'uploaded_by', 'consultant_uploader']
-    search_fields = ['consultation__id', 'caption']
-    readonly_fields = ['created_at']
-    ordering = ['-created_at']
-    
-    fieldsets = (
-        ('Image Info', {
-            'fields': ('consultation', 'image', 'caption')
-        }),
-        ('Uploader Info', {
-            'fields': ('uploaded_by', 'consultant_uploader')
+        ('Sender Info', {
+            'fields': ('sender_farmer', 'sender_consultant')
         }),
         ('Timestamps', {
             'fields': ('created_at',),
             'classes': ('collapse',)
         }),
     )
-
-
-# Backward compatibility
-admin.site.register(ConsultationAnswer)

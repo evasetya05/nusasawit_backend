@@ -29,7 +29,7 @@ class ConsultationMessageSerializer(serializers.ModelSerializer):
 class ConsultationSerializer(serializers.ModelSerializer):
     messages = ConsultationMessageSerializer(many=True, read_only=True)
     farmer_id = serializers.PrimaryKeyRelatedField(
-        queryset=FlutterUser.objects.all(), source='farmer', write_only=True
+        read_only=True, source='farmer'
     )
     consultant_id = serializers.PrimaryKeyRelatedField(
         queryset=Consultant.objects.all(), source='consultant', write_only=True
@@ -41,7 +41,7 @@ class ConsultationSerializer(serializers.ModelSerializer):
             'id', 'farmer_id', 'consultant_id', 'topic', 'status', 
             'created_at', 'updated_at', 'messages'
         ]
-        read_only_fields = ['created_at', 'updated_at', 'messages']
+        read_only_fields = ['created_at', 'updated_at', 'messages', 'status']
 
 
 class ConsultationListSerializer(serializers.ModelSerializer):

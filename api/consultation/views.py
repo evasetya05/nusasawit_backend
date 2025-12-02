@@ -1,6 +1,7 @@
 from rest_framework import viewsets, permissions
 from .models import Consultant, Consultation, ConsultationMessage
 from api.permission import HasValidAppKey
+from api.user_flutter.models import FlutterUser
 from .serializers import (
     ConsultantSerializer, 
     ConsultationSerializer, 
@@ -29,3 +30,15 @@ class ConsultationViewSet(viewsets.ModelViewSet):
         if self.action == 'list':
             return ConsultationListSerializer
         return ConsultationSerializer
+
+    def perform_create(self, serializer):
+        email = self.request.headers.get('X-EMAIL')
+        phone = self.request.headers.get('X-PHONE')
+
+        # Dapatkan atau buat pengguna Flutter berdasarkan email dan telepon
+        farmer, created = FlutterUser.objects.get_or_create(
+            email=email,
+            defaults={'phone': phone, 'identifier': email}
+        )
+
+        serializer.save(farmer=farmer)

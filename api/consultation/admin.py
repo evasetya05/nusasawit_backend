@@ -1,38 +1,12 @@
 from django import forms
 from django.contrib import admin
-from django.utils.html import format_html
 from django.forms.models import BaseInlineFormSet
 
-from .models import Consultant, Consultation, ConsultationMessage
+from apps.core.models import Consultant
+from .models import Consultation, ConsultationMessage
 
 
-@admin.register(Consultant)
-class ConsultantAdmin(admin.ModelAdmin):
-    list_display = [
-        'display_profile_picture',
-        'name',
-        'institution_name', 
-        'created_at'
-    ]
-    search_fields = ['name', 'institution_name']
-    readonly_fields = ['created_at', 'updated_at']
-    ordering = ['name']
-    
-    fieldsets = (
-        ('Basic Info', {
-            'fields': ('user', 'name', 'profile_picture', 'institution_name', 'bio')
-        }),
-        ('Timestamps', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-    )
 
-    def display_profile_picture(self, obj):
-        if obj.profile_picture:
-            return format_html('<img src="{}" width="50" height="50" style="border-radius:50%;" />', obj.profile_picture.url)
-        return "No Image"
-    display_profile_picture.short_description = 'Profile Picture'
 
 
 class ConsultationMessageInlineForm(forms.ModelForm):
@@ -43,14 +17,22 @@ class ConsultationMessageInlineForm(forms.ModelForm):
     def __init__(self, *args, parent_consultation=None, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Nonaktifkan pengeditan manual dari admin
-        self.fields['sender_farmer'].disabled = True
-        self.fields['sender_consultant'].disabled = True
+        # Nonaktifkan pengeditan manual dari admin, diset otomatis oleh sistem
+        for field_name in ('sender_farmer', 'sender_consultant'):
+            if field_name in self.fields:
+                self.fields[field_name].disabled = True
+
+        # Permudah konsultan menulis balasan langsung dari inline
+        if 'content' in self.fields:
+            self.fields['content'].widget.attrs.setdefault(
+                'placeholder', 'Tulis balasan konsultan di sini...'
+            )
+            self.fields['content'].widget.attrs.setdefault('rows', 2)
 
         if not self.instance.pk and parent_consultation:
-            if parent_consultation.farmer_id:
+            if parent_consultation.farmer_id and 'sender_farmer' in self.fields:
                 self.fields['sender_farmer'].initial = parent_consultation.farmer
-            if parent_consultation.consultant_id:
+            if parent_consultation.consultant_id and 'sender_consultant' in self.fields:
                 self.fields['sender_consultant'].initial = parent_consultation.consultant
 
 
@@ -69,13 +51,38 @@ class ConsultationMessageInline(admin.TabularInline):
     model = ConsultationMessage
     form = ConsultationMessageInlineForm
     formset = ConsultationMessageInlineFormSet
-    fields = ('sender_farmer', 'sender_consultant', 'content', 'created_at')
-    readonly_fields = ('created_at',)
+    fields = (
+        'sender_label',
+        'sender_farmer',
+        'sender_consultant',
+        'content',
+        'image',
+        'created_at'
+    )
+    readonly_fields = (
+        'sender_label',
+        'sender_farmer',
+        'sender_consultant',
+        'created_at'
+    )
+    can_delete = False
     extra = 1 # Menampilkan satu form kosong untuk balasan baru
     ordering = ('created_at',)
 
     def has_change_permission(self, request, obj=None):
         return False
+
+    def sender_label(self, obj):
+        if not obj or not obj.pk:
+            return "Balasan baru (konsultan)"
+        if obj.sender_consultant_id:
+            consultant_name = obj.sender_consultant.name or obj.sender_consultant.user or 'Konsultan'
+            return f"Konsultan · {consultant_name}"
+        if obj.sender_farmer_id:
+            return f"Flutter User · {obj.sender_farmer.identifier}"
+        return "Sistem"
+
+    sender_label.short_description = "Pengirim"
 
 
 @admin.register(Consultation)

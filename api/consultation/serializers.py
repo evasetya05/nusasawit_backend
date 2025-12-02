@@ -11,10 +11,10 @@ class ConsultantSerializer(serializers.ModelSerializer):
 
 class ConsultationMessageSerializer(serializers.ModelSerializer):
     sender_farmer_id = serializers.PrimaryKeyRelatedField(
-        queryset=FlutterUser.objects.all(), source='sender_farmer', write_only=True, required=False, allow_null=True
+        source='sender_farmer', read_only=True
     )
     sender_consultant_id = serializers.PrimaryKeyRelatedField(
-        queryset=Consultant.objects.all(), source='sender_consultant', write_only=True, required=False, allow_null=True
+        source='sender_consultant', read_only=True
     )
 
     class Meta:
@@ -23,7 +23,7 @@ class ConsultationMessageSerializer(serializers.ModelSerializer):
             'id', 'consultation', 'sender_farmer_id', 'sender_consultant_id', 
             'content', 'image', 'created_at'
         ]
-        read_only_fields = ['created_at']
+        read_only_fields = ['created_at', 'consultation']
 
 
 class ConsultationSerializer(serializers.ModelSerializer):

@@ -6,31 +6,18 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
-from PIL import Image
 
 from api.user_flutter.models import FlutterUser
 
 
-def validate_image_dimension(image_field) -> None:
-    """Ensure image largest dimension does not exceed 200px."""
+def validate_image_size(image_field) -> None:
+    """Ensure image file size does not exceed 150KB."""
     if not image_field:
         return
 
-    try:
-        file_obj = getattr(image_field, "file", image_field)
-        position = file_obj.tell() if hasattr(file_obj, "tell") else None
-        image = Image.open(file_obj)
-        width, height = image.size
-        if position is not None and hasattr(file_obj, "seek"):
-            file_obj.seek(position)
-    except Exception as exc:  # pragma: no cover - defensive
-        raise ValidationError("Gagal memproses gambar.") from exc
-
-    max_size = 200
-    if width > max_size or height > max_size:
-        raise ValidationError(
-            f"Ukuran gambar maksimal {max_size}px untuk lebar dan tinggi."
-        )
+    max_size_kb = 150
+    if image_field.size > max_size_kb * 1024:
+        raise ValidationError(f"Ukuran file gambar tidak boleh melebihi {max_size_kb} KB.")
 
 
 class MarketplaceItem(models.Model):
@@ -54,13 +41,13 @@ class MarketplaceItem(models.Model):
 
     photo_1 = models.ImageField(
         upload_to="pasar/items/",
-        validators=[validate_image_dimension],
+        validators=[validate_image_size],
         blank=True,
         null=True,
     )
     photo_2 = models.ImageField(
         upload_to="pasar/items/",
-        validators=[validate_image_dimension],
+        validators=[validate_image_size],
         blank=True,
         null=True,
     )
@@ -81,9 +68,6 @@ class MarketplaceItem(models.Model):
         super().clean()
         if not self.photo_1 and not self.photo_2:
             raise ValidationError("Minimal satu foto diperlukan.")
-
-        for image_field in (self.photo_1, self.photo_2):
-            validate_image_dimension(image_field)
 
     def set_sold(self, is_sold: bool = True) -> None:
         self.is_sold = is_sold
@@ -116,4 +100,3 @@ class MarketplaceComment(models.Model):
     def __str__(self) -> str:  # pragma: no cover - representasional
         identifier = self.buyer_identifier or "anonim"
         return f"Komentar {identifier}"
-

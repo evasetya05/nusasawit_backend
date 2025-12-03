@@ -16,7 +16,9 @@ urlpatterns = [
 
 
 
-    path('planing/', include('apps.modules.planing1.urls'), name="planing"),
+    
+    path('m1planning/', include('apps.modules.m1planning.urls'), name="planning"),
+  
     path('recruit/', include('apps.modules.m2recruit.urls'), name="recruit"),
     path('onboarding/', include('apps.modules.m3onboarding.urls'), name="onboarding"),
     path('kinerja/', include('apps.modules.kinerja4.urls'), name="kinerja"),

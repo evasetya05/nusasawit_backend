@@ -7,8 +7,9 @@ register = template.Library()
 def create_menu(user):
     menu_items = [
         {'label': '1. Perencanaan Tenaga Kerja', 'id': 'modul1', 'sub': [
-            {'label':'Dashboard LCR', 'url': 'm1planning:dashboard', 'perm': 'm1planning.view_lcrrecord'},
-            {'label':'Rasio Biaya Karyawan', 'url': 'm1planning:list', 'perm': 'm1planning.view_lcrrecord'},
+            {'label':'Dashboard LCR', 'url': 'm1planning:dashboard'},
+            {'label':'Rasio Biaya Karyawan', 'url': 'm1planning:list'},
+            
         ]},
         {'label': '2. Rekrutmen dan Seleksi', 'id': 'modul2', 'sub': [
             {'label': 'Dashboard', 'url': 'recruit_dashboard'},

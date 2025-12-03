@@ -26,6 +26,8 @@ INSTALLED_APPS = [
     'ckeditor',
     'ckeditor_uploader',
     'widget_tweaks',
+    'crispy_forms',
+    'crispy_bootstrap4',
 
     'apps.account',
     'apps.core',
@@ -34,7 +36,7 @@ INSTALLED_APPS = [
     'apps.extras.psychometric',
     'apps.extras.blog',
     'apps.extras.legal',
-    'apps.modules.planing1',
+    'apps.modules.m1planning',
     'apps.modules.m2recruit',
     'apps.modules.m3onboarding',
     'apps.modules.kinerja4',
@@ -53,6 +55,9 @@ INSTALLED_APPS = [
     'api.pasar',
     'api.petunjuk'
 ]
+
+# Crispy Forms Configuration
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 # Middleware
 MIDDLEWARE = [

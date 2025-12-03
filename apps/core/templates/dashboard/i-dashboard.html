@@ -1,10 +1,17 @@
-{% extends 'dashboard/base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 
-{% block sidebar %} {% endblock %}
+{% block extrastyle %}
+<!-- Tailwind CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  /* Minor custom styles */
+  .glass { background: rgba(255,255,255,0.6); backdrop-filter: blur(6px); }
+  .hero-bg { background-image: linear-gradient(90deg, rgba(16,185,129,0.06), rgba(6,95,70,0.04)); }
+</style>
+{% endblock %}
 
-{% block main %}
-
+{% block body %}
 <!doctype html>
 <html lang="id">
 <head>
@@ -12,13 +19,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Nusasawit — Mendukung Petani Kelapa Sawit</title>
   <meta name="description" content="Nusasawit: platform untuk membantu petani sawit dengan marketplace, harga TBS, pelatihan, sertifikasi, dan konsultasi." />
-  <!-- Tailwind CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    /* Minor custom styles */
-    .glass { background: rgba(255,255,255,0.6); backdrop-filter: blur(6px); }
-    .hero-bg { background-image: linear-gradient(90deg, rgba(16,185,129,0.06), rgba(6,95,70,0.04)); }
-  </style>
 </head>
 <body class="antialiased text-slate-800 bg-gradient-to-b from-green-50 to-white min-h-screen">
   <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b">
@@ -32,7 +32,7 @@
         <a href="#harga-tbs" class="hover:text-green-700">Harga TBS</a>
         <a href="#pelatihan" class="hover:text-green-700">Pelatihan</a>
         <a href="#sertifikasi" class="hover:text-green-700">Sertifikasi</a>
-        <a href="#kontak" class="text-white bg-green-600 px-3 py-1 rounded-md shadow">Hubungi Kami</a>
+        <a href="{% url 'login' %}" class="text-white bg-green-600 px-3 py-1 rounded-md shadow">Login</a>
       </nav>
       <div class="md:hidden">
         <button id="menuBtn" class="p-2 rounded-md border">☰</button>
@@ -44,7 +44,7 @@
         <a href="#harga-tbs">Harga TBS</a>
         <a href="#pelatihan">Pelatihan</a>
         <a href="#sertifikasi">Sertifikasi</a>
-        <a href="#kontak" class="text-white bg-green-600 px-3 py-1 rounded-md text-center">Hubungi Kami</a>
+        <a href="{% url 'login' %}" class="text-white bg-green-600 px-3 py-1 rounded-md text-center">Login</a>
       </div>
     </div>
   </header>
@@ -237,19 +237,13 @@
     menuBtn && menuBtn.addEventListener('click', () => {
       mobileMenu.classList.toggle('hidden');
     });
-  </script>
-</body>
-</html>
 
-
-{% endblock %}
-{% block extrascript %}
-<script>
   function actionChatForDemo() {
     const phoneNumber = "+6285348178999";
     const message = encodeURIComponent("Halo, saya ingin konsultasi mengenai demo SDM Portabel.");
     const whatsappURL = `https://wa.me/${phoneNumber}?text=${message}`;
     window.open(whatsappURL, "_blank");
   }
-</script>
+  </script>
+
 {% endblock %}

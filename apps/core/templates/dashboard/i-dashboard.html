@@ -49,6 +49,26 @@
     </div>
   </header>
 
+  <!-- Debug User Role Information -->
+  {% if debug_user %}
+  <div class="max-w-6xl mx-auto px-4 py-4">
+    <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+      <h4 class="font-semibold text-yellow-800 mb-2">Debug User Role Information:</h4>
+      <ul class="text-sm text-yellow-700 space-y-1">
+        <li><strong>Username:</strong> {{ debug_user.username }}</li>
+        <li><strong>is_owner:</strong> {{ debug_is_owner }}</li>
+        <li><strong>is_employee:</strong> {{ debug_is_employee }}</li>
+        <li><strong>is_supervisor:</strong> {{ debug_is_supervisor }}</li>
+        {% if debug_person %}
+          <li><strong>Person Name:</strong> {{ debug_person.name }}</li>
+          <li><strong>Has Subordinates:</strong> {{ debug_person.subordinates.exists }}</li>
+          <li><strong>Subordinate Count:</strong> {{ debug_person.subordinates.count }}</li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+  {% endif %}
+
   <main class="max-w-6xl mx-auto px-4 py-8">
     <section class="hero-bg rounded-2xl p-8 md:p-12 shadow-sm">
       <div class="md:flex md:gap-8 items-center">

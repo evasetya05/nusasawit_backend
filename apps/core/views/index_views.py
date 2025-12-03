@@ -17,6 +17,23 @@ def index(request):
 
     if request.user.is_authenticated:
         current_user = request.user
+        
+        # Debug: Show user role information
+        person = getattr(current_user, 'person', None)
+        is_supervisor = bool(person and person.subordinates.exists())
+        
+        print(f"DEBUG: User {current_user.username} logged in")
+        print(f"DEBUG: is_owner: {current_user.is_owner()}")
+        print(f"DEBUG: is_employee: {current_user.is_employee}")
+        print(f"DEBUG: person exists: {person is not None}")
+        print(f"DEBUG: is_supervisor: {is_supervisor}")
+        print(f"DEBUG: company: {current_user.company}")
+        print(f"DEBUG: company owner: {current_user.company.owner if current_user.company else None}")
+        if person:
+            print(f"DEBUG: person name: {person.name}")
+            print(f"DEBUG: person has subordinates: {person.subordinates.exists()}")
+            print(f"DEBUG: subordinate count: {person.subordinates.count()}")
+        
         if current_user.is_owner:
             return render(request, 'dashboard/hr-dashboard.html')
 
@@ -26,7 +43,12 @@ def index(request):
             return render(request, 'dashboard/tl-dashboard.html',
                           context={'jobs': jobs.all(), 'applications': applications})
 
-    return render(request, 'dashboard/i-dashboard.html', context={'jobs': jobs.all()})
+    return render(request, 'dashboard/i-dashboard.html', context={'jobs': jobs.all(), 
+                                                                   'debug_user': request.user if request.user.is_authenticated else None,
+                                                                   'debug_is_owner': request.user.is_owner() if request.user.is_authenticated else False,
+                                                                   'debug_is_employee': request.user.is_employee() if request.user.is_authenticated else False,
+                                                                   'debug_person': getattr(request.user, 'person', None) if request.user.is_authenticated else None,
+                                                                   'debug_is_supervisor': bool(getattr(request.user, 'person', None) and getattr(request.user, 'person', None).subordinates.exists()) if request.user.is_authenticated else False})
 
 
 def pricing(request):

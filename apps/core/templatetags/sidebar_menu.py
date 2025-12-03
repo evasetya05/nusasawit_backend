@@ -2,6 +2,33 @@ from django import template
 
 register = template.Library()
 
+SUPERVISOR_MENU_PERMISSIONS = {
+    'modul3': {'m3onboarding:struktur_organisasi'},
+    'modul6': {
+        'compensation6:komponen_gaji',
+        'compensation6:absensi_harian',
+        'compensation6:payslip_select',
+        'compensation6:work_calendar',
+    },
+}
+
+EMPLOYEE_MENU_PERMISSIONS = {
+    'modul6': {
+        'compensation6:absensi_harian',
+        'compensation6:payslip_select',
+    }
+}
+
+
+def _callable_attr(obj, name):
+    attr = getattr(obj, name, False)
+    return attr() if callable(attr) else attr
+
+
+def _merge_permissions(target, source):
+    for module_id, urls in source.items():
+        target.setdefault(module_id, set()).update(urls)
+
 
 @register.simple_tag
 def create_menu(user):
@@ -47,14 +74,37 @@ def create_menu(user):
         ]},
     ]
 
+    is_owner = _callable_attr(user, 'is_owner')
+    person = getattr(user, 'person', None)
+    
+    # Supervisor = person has subordinates = True
+    # Employee = person has subordinates = False  
+    is_supervisor = bool(person and person.subordinates.exists())
+    is_employee = bool(person and not person.subordinates.exists())
+
+    role_permissions = {}
+    if not is_owner:
+        if is_supervisor:
+            _merge_permissions(role_permissions, SUPERVISOR_MENU_PERMISSIONS)
+        if is_employee:
+            _merge_permissions(role_permissions, EMPLOYEE_MENU_PERMISSIONS)
+
     result = []
     for item in menu_items:
-        if 'sub' in item:
-            item['sub'] = [sub for sub in item['sub'] if 'perm' not in sub or user.has_perm(sub['perm'])]
-            if item['sub']:
-                result.append(item)
-        else:
-            result.append(item)
+        sub_items = item.get('sub', [])
+        filtered_subs = [sub for sub in sub_items if 'perm' not in sub or user.has_perm(sub['perm'])]
+
+        if not filtered_subs:
+            continue
+
+        if not is_owner:
+            allowed_urls = role_permissions.get(item['id'])
+            if not allowed_urls:
+                continue
+            filtered_subs = [sub for sub in filtered_subs if sub['url'] in allowed_urls]
+
+        if filtered_subs:
+            result.append({**item, 'sub': filtered_subs})
 
     return result
 

@@ -341,7 +341,7 @@ class AttendanceForm(forms.ModelForm):
             'clock_in': forms.TimeInput(attrs={'type': 'time'}),
             'clock_out': forms.TimeInput(attrs={'type': 'time'}),
             'realisasi': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0', 'placeholder': '0'}),
-            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Catatan tambahan...'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Catatan kerja di lahan siapa. Contoh : kerja di lahan A pak Budi...'}),
         }
         labels = {
             'employee': 'Pemborong',

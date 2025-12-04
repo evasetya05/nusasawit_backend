@@ -2,6 +2,13 @@ echo $DJANGO_SETTINGS_MODULE
 
 export DJANGO_SETTINGS_MODULE=config.settings.production
 
+=== ATTENDANCE FORM DEBUG ===
+User: pengecek1
+Person: pengecek1
+Is Owner: <bound method SystemUser.is_owner of <SystemUser: pengecek1>>
+Branch: OWNER
+Final employee queryset: [(2, 'mitra_borongan_1'), (4, 'mitra_borongan_2'), (1, 'pengecek1'), (3, 'pengecek 2')]
+===========================
 
 
 Logic untuk menentukan supervisor ada di beberapa file:

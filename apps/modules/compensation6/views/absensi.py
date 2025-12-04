@@ -84,12 +84,40 @@ def absensi_harian(request):
         else:
             messages.error(request, 'Gagal menyimpan. Periksa kembali input Anda.')
 
+
     # Get current user's employee if applicable
     person = getattr(request.user, 'person', None)
     if person:
         attendances = Attendance.objects.filter(employee=person).order_by('-date')
     else:
         attendances = Attendance.objects.all().order_by('-date')[:50]  # Limit for admin
+
+    # Debug information
+    debug_info = {
+        'user': request.user,
+        'is_owner': getattr(request.user, 'is_owner', False),
+        'has_person': person is not None,
+        'person': person,
+    }
+    
+    if person and hasattr(person, 'employee'):
+        employee = person.employee
+        debug_info['is_employee'] = True
+        debug_info['employee'] = employee
+        debug_info['manager'] = employee.manager
+        debug_info['subordinates'] = list(employee.subordinates.all())
+    else:
+        debug_info['is_employee'] = False
+        debug_info['employee'] = None
+        debug_info['manager'] = None
+        debug_info['subordinates'] = []
+    
+    if person:
+        debug_info['person_subordinates'] = list(person.subordinates.all())
+        debug_info['is_supervisor'] = person.subordinates.exists()
+    else:
+        debug_info['person_subordinates'] = []
+        debug_info['is_supervisor'] = False
 
     # Ambil semua opsi borongan untuk dropdown
     borongan_options = Borongan.objects.all().select_related('employee')
@@ -98,6 +126,7 @@ def absensi_harian(request):
         'form': form,
         'attendances': attendances,
         'borongan_options': borongan_options,
+        'debug_info': debug_info,
     })
 
 

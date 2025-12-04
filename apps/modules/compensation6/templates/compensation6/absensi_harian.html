@@ -5,8 +5,39 @@
 <div class="container" style="max-width:900px;margin:auto;padding:20px;">
   <h2 style="text-align:center;margin-bottom:20px;">Absensi Harian</h2>
 
+  <!-- Debug Info Panel -->
+  <div class="alert alert-info" style="margin-bottom:20px;">
+    <h5>Debug Information</h5>
+    <ul style="margin-bottom:0;">
+      <li><strong>User:</strong> {{ debug_info.user.username }} (ID: {{ debug_info.user.id }})</li>
+      <li><strong>Is Owner:</strong> {{ debug_info.is_owner }}</li>
+      <li><strong>Has Person:</strong> {{ debug_info.has_person }}</li>
+      <li><strong>Is Employee:</strong> {{ debug_info.is_employee }}</li>
+      <li><strong>Is Supervisor:</strong> {{ debug_info.is_supervisor }}</li>
+      {% if debug_info.employee %}
+      <li><strong>Employee:</strong> {{ debug_info.employee.name }} (ID: {{ debug_info.employee.id }})</li>
+      <li><strong>Manager:</strong> {{ debug_info.manager|default:"None" }}</li>
+      <li><strong>Subordinates (Employee):</strong>
+        {% if debug_info.subordinates %}
+        {% for sub in debug_info.subordinates %}{{ sub.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+        {% else %}
+        None
+        {% endif %}
+      </li>
+      {% endif %}
+      <li><strong>Person Subordinates:</strong>
+        {% if debug_info.person_subordinates %}
+        {% for sub in debug_info.person_subordinates %}{{ sub.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+        {% else %}
+        None
+        {% endif %}
+      </li>
+    </ul>
+  </div>
+
   <!-- Form Clock In/Out -->
-  <div style="background:#fff;border:1px solid #eee;border-radius:10px;padding:20px;margin-bottom:30px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+  <div
+    style="background:#fff;border:1px solid #eee;border-radius:10px;padding:20px;margin-bottom:30px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
     <h4>Catat Absensi</h4>
     <form method="post">
       {% csrf_token %}
@@ -21,16 +52,18 @@
       </div>
       <div style="margin-top:15px;padding:15px;background:#f0f8ff;border-radius:6px;border-left:4px solid #2563eb;">
         <h5 style="margin-top:0;color:#2563eb;">Borongan (Opsional)</h5>
-        <p style="font-size:0.9em;color:#666;margin:5px 0 10px 0;">Pilih pekerjaan borongan dan masukkan realisasinya</p>
+        <p style="font-size:0.9em;color:#666;margin:5px 0 10px 0;">Pilih pekerjaan borongan dan masukkan realisasinya
+        </p>
         <div style="display:grid;grid-template-columns:2fr 1fr;gap:15px;">
           <div>
             <label class="form-label">Pekerjaan Borongan:</label>
             <select name="borongan" class="form-control" id="id_borongan" style="width:100%;">
               <option value="">--- Pilih Borongan ---</option>
               {% for borongan in borongan_options %}
-                <option value="{{ borongan.id }}" data-satuan="{{ borongan.satuan }}" data-harga="{{ borongan.harga_borongan }}">
-                  {{ borongan.pekerjaan }} ({{ borongan.satuan }}) - Rp {{ borongan.harga_borongan }}
-                </option>
+              <option value="{{ borongan.id }}" data-satuan="{{ borongan.satuan }}"
+                data-harga="{{ borongan.harga_borongan }}">
+                {{ borongan.pekerjaan }} ({{ borongan.satuan }}) - Rp {{ borongan.harga_borongan }}
+              </option>
               {% endfor %}
             </select>
           </div>
@@ -41,105 +74,110 @@
         </div>
         <div style="margin-top:10px;padding:10px;background:#fff;border-radius:4px;border:1px solid #ddd;">
           <small style="color:#666;">
-            <strong>Info Borongan:</strong> Satuan: <span id="satuan-display">-</span> | Harga: Rp <span id="harga-display">0</span> | Hasil Akhir: Rp <span id="hasil-akhir">0</span>
+            <strong>Info Borongan:</strong> Satuan: <span id="satuan-display">-</span> | Harga: Rp <span
+              id="harga-display">0</span> | Hasil Akhir: Rp <span id="hasil-akhir">0</span>
           </small>
         </div>
       </div>
       <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
           const boronganSelect = document.getElementById('id_borongan');
           const realisasiInput = document.querySelector('input[name="realisasi"]');
-          
+
           function updateBoronganInfo() {
             const selectedOption = boronganSelect.options[boronganSelect.selectedIndex];
             const satuan = selectedOption.dataset.satuan || '-';
             const harga = parseFloat(selectedOption.dataset.harga || '0');
             const realisasi = parseFloat(realisasiInput.value || '0');
             const hasilAkhir = realisasi * harga;
-            
+
             document.getElementById('satuan-display').textContent = satuan;
             document.getElementById('harga-display').textContent = harga.toLocaleString('id-ID');
-            document.getElementById('hasil-akhir').textContent = hasilAkhir.toLocaleString('id-ID', {maximumFractionDigits: 0});
+            document.getElementById('hasil-akhir').textContent = hasilAkhir.toLocaleString('id-ID', { maximumFractionDigits: 0 });
           }
-          
+
           boronganSelect.addEventListener('change', updateBoronganInfo);
           realisasiInput.addEventListener('input', updateBoronganInfo);
-          
+
           updateBoronganInfo();
         });
       </script>
       <div style="margin-top:15px;">{{ form.notes.label }}: {{ form.notes }}</div>
-      <button type="submit" style="margin-top:15px;padding:10px 20px;background:#2563eb;color:#fff;border:0;border-radius:6px;">Simpan Absensi</button>
+      <button type="submit"
+        style="margin-top:15px;padding:10px 20px;background:#2563eb;color:#fff;border:0;border-radius:6px;">Simpan
+        Absensi</button>
     </form>
   </div>
 
   <!-- List Absensi -->
-  <div style="background:#fff;border:1px solid #eee;border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+  <div
+    style="background:#fff;border:1px solid #eee;border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
     <h4>Riwayat Absensi</h4>
     {% if attendances %}
-      <table style="width:100%;border-collapse:collapse;font-size:0.9em;">
-        <thead>
-          <tr style="background:#f8f9fa;">
-            <th style="border:1px solid #ddd;padding:8px;">Tanggal</th>
-            <th style="border:1px solid #ddd;padding:8px;">Karyawan</th>
-            <th style="border:1px solid #ddd;padding:8px;">Clock In</th>
-            <th style="border:1px solid #ddd;padding:8px;">Clock Out</th>
-            <th style="border:1px solid #ddd;padding:8px;">Status</th>
-            <th style="border:1px solid #ddd;padding:8px;">Borongan</th>
-            <th style="border:1px solid #ddd;padding:8px;">Realisasi</th>
-            <th style="border:1px solid #ddd;padding:8px;">Harga</th>
-            <th style="border:1px solid #ddd;padding:8px;">Hasil Akhir</th>
-            <th style="border:1px solid #ddd;padding:8px;">Catatan</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for a in attendances %}
-          <tr>
-            <td style="border:1px solid #ddd;padding:8px;">{{ a.date }}</td>
-            <td style="border:1px solid #ddd;padding:8px;">{{ a.employee }}</td>
-            <td style="border:1px solid #ddd;padding:8px;">{{ a.clock_in|default:'-' }}</td>
-            <td style="border:1px solid #ddd;padding:8px;">{{ a.clock_out|default:'-' }}</td>
-            <td style="border:1px solid #ddd;padding:8px;">{{ a.get_status_display }}</td>
-            <td style="border:1px solid #ddd;padding:8px;">
-              {% if a.borongan %}
-                <strong>{{ a.borongan.pekerjaan }}</strong><br><small style="color:#666;">({{ a.borongan.satuan }})</small>
-              {% else %}
-                -
-              {% endif %}
-            </td>
-            <td style="border:1px solid #ddd;padding:8px;text-align:center;">
-              {% if a.borongan %}
-                {{ a.realisasi|floatformat:0|intcomma }}
-              {% else %}
-                -
-              {% endif %}
-            </td>
-            <td style="border:1px solid #ddd;padding:8px;text-align:right;">
-              {% if a.borongan %}
-                Rp {{ a.borongan.harga_borongan|floatformat:0|intcomma }}
-              {% else %}
-                -
-              {% endif %}
-            </td>
-            <td style="border:1px solid #ddd;padding:8px;text-align:right;font-weight:bold;background:#f0f8ff;">
-              {% if a.borongan and a.realisasi %}
-                Rp {{ a.get_hasil_akhir|floatformat:0|intcomma }}
-              {% else %}
-                -
-              {% endif %}
-            </td>
-            <td style="border:1px solid #ddd;padding:8px;">{{ a.notes|default:'-' }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <table style="width:100%;border-collapse:collapse;font-size:0.9em;">
+      <thead>
+        <tr style="background:#f8f9fa;">
+          <th style="border:1px solid #ddd;padding:8px;">Tanggal</th>
+          <th style="border:1px solid #ddd;padding:8px;">Karyawan</th>
+          <th style="border:1px solid #ddd;padding:8px;">Clock In</th>
+          <th style="border:1px solid #ddd;padding:8px;">Clock Out</th>
+          <th style="border:1px solid #ddd;padding:8px;">Status</th>
+          <th style="border:1px solid #ddd;padding:8px;">Borongan</th>
+          <th style="border:1px solid #ddd;padding:8px;">Realisasi</th>
+          <th style="border:1px solid #ddd;padding:8px;">Harga</th>
+          <th style="border:1px solid #ddd;padding:8px;">Hasil Akhir</th>
+          <th style="border:1px solid #ddd;padding:8px;">Catatan</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in attendances %}
+        <tr>
+          <td style="border:1px solid #ddd;padding:8px;">{{ a.date }}</td>
+          <td style="border:1px solid #ddd;padding:8px;">{{ a.employee }}</td>
+          <td style="border:1px solid #ddd;padding:8px;">{{ a.clock_in|default:'-' }}</td>
+          <td style="border:1px solid #ddd;padding:8px;">{{ a.clock_out|default:'-' }}</td>
+          <td style="border:1px solid #ddd;padding:8px;">{{ a.get_status_display }}</td>
+          <td style="border:1px solid #ddd;padding:8px;">
+            {% if a.borongan %}
+            <strong>{{ a.borongan.pekerjaan }}</strong><br><small style="color:#666;">({{ a.borongan.satuan }})</small>
+            {% else %}
+            -
+            {% endif %}
+          </td>
+          <td style="border:1px solid #ddd;padding:8px;text-align:center;">
+            {% if a.borongan %}
+            {{ a.realisasi|floatformat:0|intcomma }}
+            {% else %}
+            -
+            {% endif %}
+          </td>
+          <td style="border:1px solid #ddd;padding:8px;text-align:right;">
+            {% if a.borongan %}
+            Rp {{ a.borongan.harga_borongan|floatformat:0|intcomma }}
+            {% else %}
+            -
+            {% endif %}
+          </td>
+          <td style="border:1px solid #ddd;padding:8px;text-align:right;font-weight:bold;background:#f0f8ff;">
+            {% if a.borongan and a.realisasi %}
+            Rp {{ a.get_hasil_akhir|floatformat:0|intcomma }}
+            {% else %}
+            -
+            {% endif %}
+          </td>
+          <td style="border:1px solid #ddd;padding:8px;">{{ a.notes|default:'-' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
     {% else %}
-      <p>Belum ada data absensi.</p>
+    <p>Belum ada data absensi.</p>
     {% endif %}
   </div>
 
   <div style="text-align:center;margin-top:30px;">
-    <a href="{% url 'compensation6:komponen_gaji' %}" style="display:inline-block;background:#6c757d;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;">
+    <a href="{% url 'compensation6:komponen_gaji' %}"
+      style="display:inline-block;background:#6c757d;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;">
       ← Kembali ke Komponen Gaji
     </a>
   </div>

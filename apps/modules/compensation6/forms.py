@@ -239,40 +239,112 @@ class AttendanceForm(forms.ModelForm):
 
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        print(f"\n=== ATTENDANCE FORM DEBUG ===")
+        print(f"User: {user}")
+        
         if user:
             person = getattr(user, 'person', None)
-            is_owner = getattr(user, 'is_owner', False)
+            is_owner_attr = getattr(user, 'is_owner', False)
+            # is_owner might be a method, so call it if callable
+            is_owner = is_owner_attr() if callable(is_owner_attr) else is_owner_attr
+            
+            print(f"Person: {person}")
+            print(f"Is Owner: {is_owner}")
+            print(f"Is Owner Callable: {callable(is_owner_attr)}")
             
             if is_owner:
+                print("Branch: OWNER")
                 # Owner sees all active employees in their company
                 self.fields['employee'].queryset = Employee.objects.filter(
                     company=user.company, 
                     is_active=True
                 ).order_by('name')
-            elif person and hasattr(person, 'employee'):
-                # Regular employee or Supervisor
-                employee = person.employee
+            elif person:
+                print("Branch: HAS PERSON")
+                # Check if person is an employee
+                has_employee = hasattr(person, 'employee')
+                print(f"Has employee attribute: {has_employee}")
                 
-                # Get all subordinates recursively
-                def get_descendants(emp):
-                    descendants = set()
-                    direct_subs = emp.subordinates.all()
-                    for sub in direct_subs:
-                        descendants.add(sub.id)
-                        descendants.update(get_descendants(sub))
-                    return descendants
-                
-                subordinate_ids = get_descendants(employee)
-                # Include self
-                allowed_ids = subordinate_ids | {employee.id}
-                
-                self.fields['employee'].queryset = Employee.objects.filter(
-                    id__in=allowed_ids,
-                    is_active=True
-                ).order_by('name')
+                if has_employee:
+                    print("Sub-branch: PERSON IS EMPLOYEE")
+                    # Regular employee or Supervisor (with Employee record)
+                    employee = person.employee
+                    
+                    # Get all subordinates recursively
+                    def get_descendants(emp):
+                        descendants = set()
+                        direct_subs = emp.subordinates.all()
+                        for sub in direct_subs:
+                            descendants.add(sub.id)
+                            descendants.update(get_descendants(sub))
+                        return descendants
+                    
+                    subordinate_ids = get_descendants(employee)
+                    # Include self
+                    allowed_ids = subordinate_ids | {employee.id}
+                    
+                    print(f"Allowed employee IDs: {allowed_ids}")
+                    
+                    self.fields['employee'].queryset = Employee.objects.filter(
+                        id__in=allowed_ids,
+                        is_active=True
+                    ).order_by('name')
+                else:
+                    print("Sub-branch: PERSON WITHOUT EMPLOYEE RECORD")
+                    # Person without Employee record (e.g., supervisor that's just a Person)
+                    # Get their person subordinates
+                    allowed_ids = set()
+                    
+                    # Include themselves if they exist as an Employee
+                    try:
+                        self_employee = Employee.objects.get(id=person.id)
+                        allowed_ids.add(self_employee.id)
+                        print(f"Found self as employee: {self_employee.id}")
+                    except Employee.DoesNotExist:
+                        print("Self not found as employee")
+                    
+                    # Get all person subordinates and check if they're employees
+                    person_subordinates = person.subordinates.all()
+                    print(f"Person subordinates: {list(person_subordinates)}")
+                    
+                    for subordinate in person_subordinates:
+                        print(f"  Checking subordinate: {subordinate}")
+                        # Check if this person is also an employee
+                        if hasattr(subordinate, 'employee'):
+                            allowed_ids.add(subordinate.employee.id)
+                            print(f"    Found as employee via attribute: {subordinate.employee.id}")
+                        else:
+                            # Person subordinate might have the same ID as Employee
+                            try:
+                                emp = Employee.objects.get(id=subordinate.id)
+                                allowed_ids.add(emp.id)
+                                print(f"    Found as employee by ID: {emp.id}")
+                            except Employee.DoesNotExist:
+                                print(f"    Not found as employee")
+                    
+                    print(f"Final allowed employee IDs: {allowed_ids}")
+                    
+                    if allowed_ids:
+                        self.fields['employee'].queryset = Employee.objects.filter(
+                            id__in=allowed_ids,
+                            is_active=True
+                        ).order_by('name')
+                        print(f"Queryset count: {self.fields['employee'].queryset.count()}")
+                    else:
+                        self.fields['employee'].queryset = Employee.objects.none()
+                        print("No allowed IDs - empty queryset")
             else:
-                # Fallback for users without employee record
+                print("Branch: NO PERSON - FALLBACK")
+                # Fallback for users without person record
                 self.fields['employee'].queryset = Employee.objects.none()
+        else:
+            print("No user provided to form")
+            
+        print(f"Final employee queryset: {list(self.fields['employee'].queryset.values_list('id', 'name'))}")
+        print(f"===========================\n")
+
+
 
 
 class WorkRequestForm(forms.ModelForm):

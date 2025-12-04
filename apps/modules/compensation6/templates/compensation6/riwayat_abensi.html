@@ -5,6 +5,73 @@
 <div class="container" style="max-width:1200px;margin:auto;padding:20px;">
   <h2 style="text-align:center;margin-bottom:20px;">Riwayat Absensi</h2>
 
+  <!-- Filter Section -->
+  <div style="background:#fff;border:1px solid #eee;border-radius:10px;padding:20px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+    <form method="GET" style="display:flex;gap:15px;align-items:end;flex-wrap:wrap;">
+      <div style="flex:1;min-width:200px;">
+        <label class="form-label fw-semibold">Karyawan</label>
+        <select name="employee" class="form-select">
+          <option value="">Semua Karyawan</option>
+          {% for emp in available_employees %}
+          <option value="{{ emp.id }}" {% if emp.id|stringformat:"s" == selected_employee_id %}selected{% endif %}>
+            {{ emp.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <div style="flex:0 0 120px;">
+        <label class="form-label fw-semibold">Bulan</label>
+        <select name="month" class="form-select">
+          <option value="">Semua Bulan</option>
+          {% for month in available_months %}
+          <option value="{{ month }}" {% if month|stringformat:"s" == selected_month %}selected{% endif %}>
+            {{ month|date:"F" }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <div style="flex:0 0 100px;">
+        <label class="form-label fw-semibold">Tahun</label>
+        <select name="year" class="form-select">
+          <option value="">Semua Tahun</option>
+          {% for year in available_years %}
+          <option value="{{ year }}" {% if year|stringformat:"s" == selected_year %}selected{% endif %}>
+            {{ year }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <div style="flex:0 0 auto;">
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-filter"></i> Filter
+        </button>
+        <a href="{% url 'compensation6:riwayat_absensi' %}" class="btn btn-secondary">
+          <i class="fas fa-times"></i> Reset
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Results Summary -->
+  {% if selected_employee_id or selected_month or selected_year %}
+  <div class="alert alert-info" style="margin-bottom:20px;">
+    <strong>Filter Aktif:</strong>
+    {% if selected_employee_id %}
+      Karyawan: {% for emp in available_employees %}{% if emp.id|stringformat:"s" == selected_employee_id %}{{ emp.name }}{% endif %}{% endfor %}
+    {% endif %}
+    {% if selected_month %}
+      Bulan: {{ selected_month|date:"F" }}
+    {% endif %}
+    {% if selected_year %}
+      Tahun: {{ selected_year }}
+    {% endif %}
+    - <strong>{{ attendances.count }}</strong> data ditemukan
+  </div>
+  {% endif %}
+
   <div
     style="background:#fff;border:1px solid #eee;border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
     {% if attendances %}

@@ -1,7 +1,7 @@
 from django import forms
 import calendar
 from .models import PayrollPeriod, Allowance, Deduction, BPJSConfig, Attendance, LeaveRequest, WorkRequest
-from apps.core.models import Employee
+from apps.core.models import Employee, Borongan
 
 class PayrollPeriodForm(forms.ModelForm):
     class Meta:
@@ -175,23 +175,34 @@ class PayslipSelectionForm(forms.Form):
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         
+        print(f"\n=== PAYSLIP FORM DEBUG ===")
+        print(f"User: {user}")
+        
         # Filter employees based on user role
         if user:
             person = getattr(user, 'person', None)
             is_owner_attr = getattr(user, 'is_owner', False)
             is_owner = is_owner_attr() if callable(is_owner_attr) else is_owner_attr
             
+            print(f"Person: {person}")
+            print(f"Is Owner: {is_owner}")
+            print(f"Is Owner Callable: {callable(is_owner_attr)}")
+            
             if is_owner:
+                print("Branch: OWNER")
                 # Owner sees all employees in their company
                 self.fields['employee'].queryset = Employee.objects.filter(
                     company=user.company, 
                     is_active=True
                 ).order_by('name')
             elif person:
+                print("Branch: HAS PERSON")
                 # Check if person is an employee (supervisor or regular employee)
                 has_employee = hasattr(person, 'employee')
+                print(f"Has employee attribute: {has_employee}")
                 
                 if has_employee:
+                    print("Sub-branch: PERSON IS EMPLOYEE")
                     # Person is an employee - can be supervisor or regular employee
                     employee = person.employee
                     
@@ -199,6 +210,7 @@ class PayslipSelectionForm(forms.Form):
                     def get_descendants(emp):
                         descendants = set()
                         direct_subs = emp.subordinates.all()
+                        print(f"Direct subordinates of {emp.name}: {list(direct_subs)}")
                         for sub in direct_subs:
                             descendants.add(sub.id)
                             descendants.update(get_descendants(sub))
@@ -208,26 +220,67 @@ class PayslipSelectionForm(forms.Form):
                     # Include self for supervisor and regular employee
                     allowed_ids = subordinate_ids | {employee.id}
                     
+                    print(f"Allowed employee IDs: {allowed_ids}")
+                    
                     self.fields['employee'].queryset = Employee.objects.filter(
                         id__in=allowed_ids,
                         is_active=True
                     ).order_by('name')
                 else:
-                    # Person without employee record - fallback to self only
+                    print("Sub-branch: PERSON WITHOUT EMPLOYEE RECORD")
+                    # Person without employee record - supervisor yang hanya Person
+                    # Include self if exists as Employee
+                    allowed_ids = set()
+                    
+                    # Check if person exists as employee (by same ID)
                     try:
                         self_employee = Employee.objects.get(id=person.id)
-                        self.fields['employee'].queryset = Employee.objects.filter(
-                            id=self_employee.id,
-                            is_active=True
-                        )
+                        allowed_ids.add(self_employee.id)
+                        print(f"Found self as employee: {self_employee.id} - {self_employee.name}")
                     except Employee.DoesNotExist:
+                        print("Self not found as employee")
+                    
+                    # Get all person subordinates and check if they're employees
+                    person_subordinates = person.subordinates.all()
+                    print(f"Person subordinates: {list(person_subordinates)}")
+                    
+                    for subordinate in person_subordinates:
+                        print(f"  Checking subordinate: {subordinate}")
+                        # Check if this person is also an employee
+                        if hasattr(subordinate, 'employee'):
+                            allowed_ids.add(subordinate.employee.id)
+                            print(f"    Found as employee via attribute: {subordinate.employee.id}")
+                        else:
+                            # Person subordinate might have the same ID as Employee
+                            try:
+                                emp = Employee.objects.get(id=subordinate.id)
+                                allowed_ids.add(emp.id)
+                                print(f"    Found as employee by ID: {emp.id} - {emp.name}")
+                            except Employee.DoesNotExist:
+                                print(f"    Not found as employee")
+                    
+                    print(f"Final allowed employee IDs: {allowed_ids}")
+                    
+                    if allowed_ids:
+                        self.fields['employee'].queryset = Employee.objects.filter(
+                            id__in=allowed_ids,
+                            is_active=True
+                        ).order_by('name')
+                        print(f"Queryset count: {self.fields['employee'].queryset.count()}")
+                    else:
                         self.fields['employee'].queryset = Employee.objects.none()
+                        print("No allowed IDs - empty queryset")
             else:
+                print("Branch: NO PERSON - FALLBACK")
                 # No person record - no access
                 self.fields['employee'].queryset = Employee.objects.none()
         else:
+            print("No user provided to form")
             # No user - no access
             self.fields['employee'].queryset = Employee.objects.none()
+        
+        print(f"Final employee queryset: {list(self.fields['employee'].queryset.values_list('id', 'name'))}")
+        print(f"===========================\n")
         
         closed_periods = PayrollPeriod.objects.filter(is_closed=True).order_by('-year', '-month')
 
@@ -396,6 +449,12 @@ class AttendanceForm(forms.ModelForm):
             print("No user provided to form")
             
         print(f"Final employee queryset: {list(self.fields['employee'].queryset.values_list('id', 'name'))}")
+        
+        # For new forms, always show empty borongan queryset
+        # Borongan options will be loaded dynamically via JavaScript
+        self.fields['borongan'].queryset = Borongan.objects.none()
+        print("Borongan queryset set to none (will be loaded dynamically)")
+        
         print(f"===========================\n")
 
 

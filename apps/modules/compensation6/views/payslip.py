@@ -80,6 +80,18 @@ def payslip_pdf(request, employee_id, month, year):
 
 # Payslip: select and preview
 def payslip_select(request):
+    print(f"\n=== PAYSLIP VIEW DEBUG ===")
+    print(f"Request user: {request.user}")
+    person = getattr(request.user, 'person', None)
+    print(f"Person: {person}")
+    
+    if person:
+        print(f"Person has subordinates: {person.subordinates.exists()}")
+        if person.subordinates.exists():
+            print(f"Direct subordinates: {list(person.subordinates.all())}")
+    
+    print(f"===========================\n")
+    
     form = PayslipSelectionForm(request.POST or None, user=request.user)
 
     if request.method == 'POST' and form.is_valid():

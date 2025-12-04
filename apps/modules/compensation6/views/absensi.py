@@ -130,42 +130,230 @@ def absensi_harian(request):
     })
 
 
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_GET
+import json
+
+
+@require_GET
+@csrf_exempt
+def get_borongan_by_employee(request):
+    """API endpoint to get borongan options for a specific employee"""
+    employee_id = request.GET.get('employee_id')
+    
+    if not employee_id:
+        return JsonResponse({'borongan_options': []})
+    
+    try:
+        employee = Employee.objects.get(id=employee_id)
+        borongans = Borongan.objects.filter(employee=employee).order_by('pekerjaan')
+        
+        options = []
+        for borongan in borongans:
+            options.append({
+                'id': borongan.id,
+                'pekerjaan': borongan.pekerjaan,
+                'satuan': borongan.satuan,
+                'harga_borongan': float(borongan.harga_borongan)
+            })
+        
+        return JsonResponse({'borongan_options': options})
+    
+    except Employee.DoesNotExist:
+        return JsonResponse({'borongan_options': []})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
 def riwayat_absensi(request):
     """View for displaying attendance history."""
     
-    # Get current user's employee if applicable
+    print(f"\n=== RIWAYAT ABSENSI DEBUG ===")
+    print(f"User: {request.user}")
+    
+    # Get filter parameters
+    selected_employee_id = request.GET.get('employee')
+    selected_month = request.GET.get('month')
+    selected_year = request.GET.get('year')
+    
+    print(f"Filters - Employee: {selected_employee_id}, Month: {selected_month}, Year: {selected_year}")
+    
+    # Get current user's person
     person = getattr(request.user, 'person', None)
     is_owner = getattr(request.user, 'is_owner', False)
+    is_owner = is_owner() if callable(is_owner) else is_owner
     
+    print(f"Person: {person}")
+    print(f"Is Owner: {is_owner}")
+    
+    if person:
+        print(f"Person has subordinates: {person.subordinates.exists()}")
+        if person.subordinates.exists():
+            print(f"Direct subordinates: {list(person.subordinates.all())}")
+    
+    # Owner tidak boleh akses riwayat absensi (hanya supervisor dan employee)
     if is_owner:
-        # Owner sees all attendances
-        attendances = Attendance.objects.all().select_related('employee', 'borongan').order_by('-date')
-    elif person and hasattr(person, 'employee'):
-        # Regular employee or Supervisor
-        employee = person.employee
-        
-        # Get all subordinates recursively
-        def get_descendants(emp):
-            descendants = set()
-            direct_subs = emp.subordinates.all()
-            for sub in direct_subs:
-                descendants.add(sub.id)
-                descendants.update(get_descendants(sub))
-            return descendants
-        
-        subordinate_ids = get_descendants(employee)
-        # Include self and subordinates
-        allowed_ids = subordinate_ids | {employee.id}
-        
-        attendances = Attendance.objects.filter(
-            employee__id__in=allowed_ids
-        ).select_related('employee', 'borongan').order_by('-date')
-    else:
-        # Fallback for users without employee record
+        print("Branch: OWNER - NO ACCESS")
         attendances = Attendance.objects.none()
+        messages.info(request, 'Owner tidak dapat mengakses riwayat absensi. Hanya supervisor dan karyawan yang dapat mengakses.')
+    elif person:
+        print("Branch: HAS PERSON")
+        # Check if person is an employee (supervisor or regular employee)
+        has_employee = hasattr(person, 'employee')
+        print(f"Has employee attribute: {has_employee}")
+        
+        if has_employee:
+            print("Sub-branch: PERSON IS EMPLOYEE")
+            # Person is an employee - can be supervisor or regular employee
+            employee = person.employee
+            
+            # Get all subordinates recursively
+            def get_descendants(emp):
+                descendants = set()
+                direct_subs = emp.subordinates.all()
+                print(f"Direct subordinates of {emp.name}: {list(direct_subs)}")
+                for sub in direct_subs:
+                    descendants.add(sub.id)
+                    descendants.update(get_descendants(sub))
+                return descendants
+            
+            subordinate_ids = get_descendants(employee)
+            # Include self for supervisor and regular employee
+            allowed_ids = subordinate_ids | {employee.id}
+            
+            print(f"Allowed employee IDs: {allowed_ids}")
+            
+            # Build attendance query with filters
+            attendances = Attendance.objects.filter(
+                employee__id__in=allowed_ids
+            ).select_related('employee', 'borongan').order_by('-date')
+            
+            # Apply filters if provided
+            if selected_employee_id:
+                attendances = attendances.filter(employee__id=selected_employee_id)
+                print(f"Filtered by employee: {selected_employee_id}")
+            
+            if selected_month and selected_year:
+                attendances = attendances.filter(date__month=selected_month, date__year=selected_year)
+                print(f"Filtered by month/year: {selected_month}/{selected_year}")
+                
+        else:
+            print("Sub-branch: PERSON WITHOUT EMPLOYEE RECORD")
+            # Person without employee record - supervisor yang hanya Person
+            # Include self if exists as Employee
+            allowed_ids = set()
+            
+            # Check if person exists as employee (by same ID)
+            try:
+                self_employee = Employee.objects.get(id=person.id)
+                allowed_ids.add(self_employee.id)
+                print(f"Found self as employee: {self_employee.id} - {self_employee.name}")
+            except Employee.DoesNotExist:
+                print("Self not found as employee")
+            
+            # Get all person subordinates and check if they're employees
+            person_subordinates = person.subordinates.all()
+            print(f"Person subordinates: {list(person_subordinates)}")
+            
+            for subordinate in person_subordinates:
+                print(f"  Checking subordinate: {subordinate}")
+                # Check if this person is also an employee
+                if hasattr(subordinate, 'employee'):
+                    allowed_ids.add(subordinate.employee.id)
+                    print(f"    Found as employee via attribute: {subordinate.employee.id}")
+                else:
+                    # Person subordinate might have the same ID as Employee
+                    try:
+                        emp = Employee.objects.get(id=subordinate.id)
+                        allowed_ids.add(emp.id)
+                        print(f"    Found as employee by ID: {emp.id} - {emp.name}")
+                    except Employee.DoesNotExist:
+                        print(f"    Not found as employee")
+            
+            print(f"Final allowed employee IDs: {allowed_ids}")
+            
+            if allowed_ids:
+                attendances = Attendance.objects.filter(
+                    employee__id__in=allowed_ids
+                ).select_related('employee', 'borongan').order_by('-date')
+                
+                # Apply filters if provided
+                if selected_employee_id:
+                    attendances = attendances.filter(employee__id=selected_employee_id)
+                    print(f"Filtered by employee: {selected_employee_id}")
+                
+                if selected_month and selected_year:
+                    attendances = attendances.filter(date__month=selected_month, date__year=selected_year)
+                    print(f"Filtered by month/year: {selected_month}/{selected_year}")
+                    
+                print(f"Attendances count: {attendances.count()}")
+            else:
+                attendances = Attendance.objects.none()
+                print("No allowed IDs - empty queryset")
+    else:
+        print("Branch: NO PERSON - NO ACCESS")
+        # No person record - no access
+        attendances = Attendance.objects.none()
+        messages.error(request, 'Profil karyawan tidak ditemukan. Tidak dapat mengakses riwayat absensi.')
+
+    print(f"Final attendances count: {attendances.count()}")
+    print(f"===========================\n")
+
+    # Get available employees for filter dropdown
+    if person and hasattr(person, 'employee'):
+        employee = person.employee
+        subordinate_ids = set()
+        direct_subs = employee.subordinates.all()
+        for sub in direct_subs:
+            subordinate_ids.add(sub.id)
+            # Get recursive subordinates
+            def get_recursive_descendants(emp):
+                descendants = set()
+                for sub_emp in emp.subordinates.all():
+                    descendants.add(sub_emp.id)
+                    descendants.update(get_recursive_descendants(sub_emp))
+                return descendants
+            subordinate_ids.update(get_recursive_descendants(sub))
+        
+        allowed_ids = subordinate_ids | {employee.id}
+        available_employees = Employee.objects.filter(id__in=allowed_ids).order_by('name')
+    elif person:
+        # Person without employee record
+        allowed_ids = set()
+        try:
+            self_employee = Employee.objects.get(id=person.id)
+            allowed_ids.add(self_employee.id)
+        except Employee.DoesNotExist:
+            pass
+        
+        for subordinate in person.subordinates.all():
+            if hasattr(subordinate, 'employee'):
+                allowed_ids.add(subordinate.employee.id)
+            else:
+                try:
+                    emp = Employee.objects.get(id=subordinate.id)
+                    allowed_ids.add(emp.id)
+                except Employee.DoesNotExist:
+                    pass
+        
+        available_employees = Employee.objects.filter(id__in=allowed_ids).order_by('name')
+    else:
+        available_employees = Employee.objects.none()
+
+    # Get available months and years for filter dropdowns
+    attendance_dates = attendances.values_list('date', flat=True)
+    available_months = sorted(set(date.month for date in attendance_dates))
+    available_years = sorted(set(date.year for date in attendance_dates), reverse=True)
 
     return render(request, 'compensation6/riwayat_abensi.html', {
         'attendances': attendances,
+        'available_employees': available_employees,
+        'available_months': available_months,
+        'available_years': available_years,
+        'selected_employee_id': selected_employee_id,
+        'selected_month': selected_month,
+        'selected_year': selected_year,
     })
 
 

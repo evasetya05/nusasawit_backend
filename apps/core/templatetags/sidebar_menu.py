@@ -61,10 +61,10 @@ def create_menu(user):
         {'label': '. Kompensasi', 'id': 'modul6', 'sub': [
             {"label": "Payroll Period", "url": "compensation6:payroll_period_list"},
             {"label": "Komponen Gaji", "url": "compensation6:komponen_gaji"},
-            {"label": "Absensi Harian", "url": "compensation6:absensi_harian"},
+            {"label": "Absensi Pemborong", "url": "compensation6:absensi_harian"},
             {"label": "Riwayat Absensi", "url": "compensation6:riwayat_absensi"},
             {"label": "Pengajuan Cuti", "url": "compensation6:pengajuan_cuti"},
-            {"label": "Slip Gaji", "url": "compensation6:payslip_select"},
+            {"label": "Slip Borongan", "url": "compensation6:payslip_select"},
             {"label": "Kalender", "url": "compensation6:work_calendar"}
         ]},
         {'label': '7. Industrial Relation', 'id': 'modul8', 'sub': [

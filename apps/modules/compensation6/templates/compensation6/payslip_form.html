@@ -7,9 +7,9 @@
   <div class="row justify-content-center">
     <div class="col-lg-7 col-md-9">
       <div class="text-center mb-4">
-        <span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-2">Slip Gaji</span>
-        <h2 class="mt-3 mb-2 fw-semibold">Pilih Karyawan &amp; Periode</h2>
-        <p class="text-muted mb-0">Gunakan form di bawah untuk melihat rincian slip gaji dan mengunduh PDF.</p>
+        
+        <h2 class="mt-3 mb-2 fw-semibold">Pilih Mitra &amp; Periode</h2>
+        <p class="text-muted mb-0">Gunakan form di bawah untuk melihat rincian pendapatan borongan dan mengunduh PDF.</p>
       </div>
 
       <div class="card shadow-sm border-0">
@@ -29,14 +29,13 @@
             {% csrf_token %}
             <div class="row g-3">
               <div class="col-12">
-                <label class="form-label fw-semibold">Karyawan</label>
+                <label class="form-label fw-semibold">Mitra Borongan</label>
                 {{ form.employee|add_class:"form-select form-select-lg" }}
                 {% if form.employee.errors %}
                   <div class="invalid-feedback d-block small">
                     {% for error in form.employee.errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
                   </div>
-                {% else %}
-                  <div class="form-text">Supervisor dapat melihat slip miliknya sendiri dan bawahannya. Karyawan biasa hanya melihat slip miliknya sendiri.</div>
+                
                 {% endif %}
               </div>
 
@@ -62,14 +61,7 @@
             </div>
 
             <div class="d-flex flex-column flex-sm-row gap-2 justify-content-between align-items-stretch align-items-sm-center mt-4 pt-2">
-              <div class="text-muted small">
-                <span class="d-block">📄 Slip akan menampilkan:</span>
-                <ul class="list-unstyled mb-0 ps-3">
-                  <li>• Rincian gaji pokok &amp; tunjangan</li>
-                  <li>• Potongan dan net salary</li>
-                  <li>• Tombol unduh PDF</li>
-                </ul>
-              </div>
+              
               <div class="d-flex gap-2">
                 <a href="{% url 'compensation6:komponen_gaji' %}" class="btn btn-light border">Kembali</a>
                 <button type="submit" class="btn btn-primary">Tampilkan Slip</button>
@@ -79,9 +71,7 @@
         </div>
       </div>
 
-      <div class="alert alert-info border-0 mt-3" role="alert">
-        <strong>Tips:</strong> Jika slip tidak muncul, pastikan payroll periode tersebut sudah digenerate di menu <em>Periode Gaji</em> dan Anda memiliki hak akses sesuai peran.
-      </div>
+      
     </div>
   </div>
 </div>

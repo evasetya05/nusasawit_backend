@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework_nested import routers
-from .views import ConsultantViewSet, ConsultationViewSet, ConsultationMessageViewSet
+from .views import ConsultantViewSet, ConsultationViewSet, ConsultationMessageViewSet, ConsultantDashboardView
 
 # Router utama
 router = routers.DefaultRouter()
@@ -14,4 +14,7 @@ consultations_router.register(r'messages', ConsultationMessageViewSet, basename=
 urlpatterns = [
     path('', include(router.urls)),
     path('', include(consultations_router.urls)),
+    path('consultant-dashboard/', ConsultantDashboardView.as_view(), name='consultant_dashboard'),
 ]
+# untuk cek
+# http://127.0.0.1:8000/api/consultation/consultant-dashboard/

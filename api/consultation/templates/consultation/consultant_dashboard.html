@@ -1,0 +1,117 @@
+{% extends 'dashboard/base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1">Dashboard Konsultan</h2>
+      <p class="text-muted mb-0">Balas pesan dari petani langsung melalui antarmuka ini.</p>
+    </div>
+    {% if consultant %}
+      <div class="text-end">
+        <div class="fw-semibold">{{ consultant.name|default:'Konsultan' }}</div>
+        <small class="text-muted">{{ consultant.institution_name|default:'-' }}</small>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if error_message %}
+    <div class="alert alert-warning">{{ error_message }}</div>
+  {% else %}
+    <div class="row g-3">
+      <div class="col-lg-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-header bg-white">
+            <h5 class="card-title mb-0">Daftar Konsultasi</h5>
+          </div>
+          <div class="list-group list-group-flush" style="max-height:70vh;overflow:auto;">
+            {% if consultations %}
+              {% for c in consultations %}
+                <a href="?consultation={{ c.id }}" class="list-group-item list-group-item-action {% if c.id == active_consultation.id %}active{% endif %}">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="fw-semibold">{{ c.farmer.identifier|default:c.farmer.email }}</div>
+                      <small class="d-block">Topik: {{ c.topic|default:'-' }}</small>
+                    </div>
+                    <small class="text-muted">{{ c.created_at|date:'d M Y' }}</small>
+                  </div>
+                  <span class="badge bg-{{ c.status == 'closed'|yesno:'secondary,success' }} mt-2 text-capitalize">{{ c.status }}</span>
+                </a>
+              {% endfor %}
+            {% else %}
+              <div class="p-3 text-muted">Belum ada konsultasi.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-8">
+        <div class="card shadow-sm h-100">
+          {% if active_consultation %}
+          <div class="card-header bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="mb-1">Percakapan dengan {{ active_consultation.farmer.identifier|default:active_consultation.farmer.email }}</h5>
+                <small class="text-muted">Topik: {{ active_consultation.topic|default:'-' }}</small>
+              </div>
+              <span class="badge bg-{{ active_consultation.status == 'closed'|yesno:'secondary,success' }} text-capitalize">{{ active_consultation.status }}</span>
+            </div>
+          </div>
+
+          <div class="card-body d-flex flex-column" style="max-height:70vh;">
+            <div class="flex-grow-1 overflow-auto pe-2" id="message-container">
+              {% for message in messages %}
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between">
+                    <div class="fw-semibold">{{ message.sender_label }}</div>
+                    <small class="text-muted">{{ message.created_at|date:'d M Y H:i' }}</small>
+                  </div>
+                  <div class="bg-light rounded p-3 mt-1">
+                    {{ message.content|linebreaks }}
+                    {% if message.image %}
+                      <div class="mt-2">
+                        <a href="{{ message.image.url }}" target="_blank" class="btn btn-sm btn-outline-secondary">Lihat Lampiran</a>
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+              {% empty %}
+                <div class="text-center text-muted py-5">Belum ada pesan.</div>
+              {% endfor %}
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="mt-3 border-top pt-3">
+              {% csrf_token %}
+              <input type="hidden" name="consultation_id" value="{{ active_consultation.id }}">
+              <div class="mb-3">
+                <label class="form-label">Balasan</label>
+                <textarea name="content" class="form-control" rows="4" placeholder="Tulis balasan..."></textarea>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Lampiran (opsional)</label>
+                <input type="file" name="image" class="form-control">
+              </div>
+              <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary">Kirim Balasan</button>
+              </div>
+            </form>
+          </div>
+          {% else %}
+            <div class="card-body d-flex align-items-center justify-content-center text-muted" style="min-height:300px;">
+              Pilih konsultasi di panel kiri untuk melihat percakapan.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+<script>
+  const container = document.getElementById('message-container');
+  if (container) {
+    container.scrollTop = container.scrollHeight;
+  }
+</script>
+{% endblock %}

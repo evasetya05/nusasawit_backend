@@ -1,0 +1,111 @@
+{% extends 'dashboard/base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1">Dashboard Kontributor Tip</h2>
+      <p class="text-muted mb-0">Bagikan wawasan lapangan untuk petani secara cepat.</p>
+    </div>
+    {% if contributor %}
+      <div class="text-end">
+        <div class="fw-semibold">{{ contributor.name|default:'Kontributor' }}</div>
+        <small class="text-muted">{{ contributor.consultant_name|default:'-' }}</small>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if error_message %}
+    <div class="alert alert-warning">{{ error_message }}</div>
+  {% else %}
+    <div class="row g-4">
+      <div class="col-lg-5">
+        <div class="card shadow-sm">
+          <div class="card-header bg-white border-0">
+            <h5 class="mb-0">Tulis Tip Baru</h5>
+            <small class="text-muted">Pastikan isi singkat, jelas, dan praktis.</small>
+          </div>
+          <div class="card-body">
+            <form method="post" novalidate>
+              {% csrf_token %}
+              <div class="mb-3">
+                <label class="form-label">Judul</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                  <div class="invalid-feedback d-block">
+                    {{ form.title.errors|join:', ' }}
+                  </div>
+                {% endif %}
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Kategori</label>
+                {{ form.category }}
+                {% if form.category.errors %}
+                  <div class="invalid-feedback d-block">
+                    {{ form.category.errors|join:', ' }}
+                  </div>
+                {% endif %}
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Konten</label>
+                {{ form.content }}
+                <small class="text-muted">Berikan langkah-langkah, dosis, durasi, atau catatan penting.</small>
+                {% if form.content.errors %}
+                  <div class="invalid-feedback d-block">
+                    {{ form.content.errors|join:', ' }}
+                  </div>
+                {% endif %}
+              </div>
+              <div class="mb-3">
+                <label class="form-label">URL Gambar (opsional)</label>
+                {{ form.image_url }}
+                {% if form.image_url.errors %}
+                  <div class="invalid-feedback d-block">
+                    {{ form.image_url.errors|join:', ' }}
+                  </div>
+                {% endif %}
+              </div>
+              <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary">Publikasikan Tip</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-7">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Tip Saya</h5>
+            <span class="badge bg-primary">{{ tips|length }} Tip</span>
+          </div>
+          <div class="card-body" style="max-height:70vh; overflow:auto;">
+            {% if tips %}
+              {% for tip in tips %}
+                <div class="border rounded p-3 mb-3">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <h6 class="mb-1">{{ tip.title }}</h6>
+                      <span class="badge bg-light text-dark">{{ tip.category }}</span>
+                    </div>
+                    <small class="text-muted">{{ tip.created_at|date:'d M Y' }}</small>
+                  </div>
+                  <p class="mt-2 mb-2 text-muted" style="white-space:pre-line;">{{ tip.content|truncatechars:200 }}</p>
+                  {% if tip.image_url %}
+                    <a href="{{ tip.image_url }}" target="_blank" class="btn btn-sm btn-outline-secondary">Lihat Gambar</a>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="text-center text-muted py-5">
+                Belum ada tip yang dipublikasikan. Mulai dengan menulis tip pertama Anda!
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

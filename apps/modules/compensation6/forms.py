@@ -237,6 +237,43 @@ class AttendanceForm(forms.ModelForm):
             'realisasi': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0', 'placeholder': '0'}),
         }
 
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if user:
+            person = getattr(user, 'person', None)
+            is_owner = getattr(user, 'is_owner', False)
+            
+            if is_owner:
+                # Owner sees all active employees in their company
+                self.fields['employee'].queryset = Employee.objects.filter(
+                    company=user.company, 
+                    is_active=True
+                ).order_by('name')
+            elif person and hasattr(person, 'employee'):
+                # Regular employee or Supervisor
+                employee = person.employee
+                
+                # Get all subordinates recursively
+                def get_descendants(emp):
+                    descendants = set()
+                    direct_subs = emp.subordinates.all()
+                    for sub in direct_subs:
+                        descendants.add(sub.id)
+                        descendants.update(get_descendants(sub))
+                    return descendants
+                
+                subordinate_ids = get_descendants(employee)
+                # Include self
+                allowed_ids = subordinate_ids | {employee.id}
+                
+                self.fields['employee'].queryset = Employee.objects.filter(
+                    id__in=allowed_ids,
+                    is_active=True
+                ).order_by('name')
+            else:
+                # Fallback for users without employee record
+                self.fields['employee'].queryset = Employee.objects.none()
+
 
 class WorkRequestForm(forms.ModelForm):
     class Meta:

@@ -65,7 +65,7 @@ def absensi_harian(request):
     else:
         messages.warning(request, 'Tidak ada periode penggajian yang aktif. Silakan buka periode baru untuk mencatat absensi.')
 
-    form = AttendanceForm(request.POST or None)
+    form = AttendanceForm(request.POST or None, user=request.user)
 
     # Terapkan batasan tanggal ke widget form
     if min_date and max_date:
@@ -98,6 +98,45 @@ def absensi_harian(request):
         'form': form,
         'attendances': attendances,
         'borongan_options': borongan_options,
+    })
+
+
+def riwayat_absensi(request):
+    """View for displaying attendance history."""
+    
+    # Get current user's employee if applicable
+    person = getattr(request.user, 'person', None)
+    is_owner = getattr(request.user, 'is_owner', False)
+    
+    if is_owner:
+        # Owner sees all attendances
+        attendances = Attendance.objects.all().select_related('employee', 'borongan').order_by('-date')
+    elif person and hasattr(person, 'employee'):
+        # Regular employee or Supervisor
+        employee = person.employee
+        
+        # Get all subordinates recursively
+        def get_descendants(emp):
+            descendants = set()
+            direct_subs = emp.subordinates.all()
+            for sub in direct_subs:
+                descendants.add(sub.id)
+                descendants.update(get_descendants(sub))
+            return descendants
+        
+        subordinate_ids = get_descendants(employee)
+        # Include self and subordinates
+        allowed_ids = subordinate_ids | {employee.id}
+        
+        attendances = Attendance.objects.filter(
+            employee__id__in=allowed_ids
+        ).select_related('employee', 'borongan').order_by('-date')
+    else:
+        # Fallback for users without employee record
+        attendances = Attendance.objects.none()
+
+    return render(request, 'compensation6/riwayat_abensi.html', {
+        'attendances': attendances,
     })
 
 

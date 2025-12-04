@@ -32,6 +32,7 @@ urlpatterns = [
    
     # absensi and cuti
     path('absensi-harian/', absensi.absensi_harian, name='absensi_harian'),
+    path('riwayat-absensi/', absensi.riwayat_absensi, name='riwayat_absensi'),
     path('work-calendar/', absensi.WorkCalendarView.as_view(), name='work_calendar'),
     path('pengajuan-cuti/', cuti.pengajuan_cuti, name='pengajuan_cuti'),
     path('leave-approvals/', cuti.leave_approvals, name='leave_approvals'),

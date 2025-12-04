@@ -1,0 +1,347 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Organization Chart - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Organization Chart</h1>
+        <div class="d-flex align-items-center">
+            <div class="me-3">
+                <span class="badge bg-primary">Total Borongan: {{ total_employees }}</span>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Struktur Organisasi Lengkap</h6>
+        </div>
+        <div class="card-body">
+            <div class="organization-chart">
+                {% if top_level %}
+                {% for employee in top_level %}
+                <div class="org-tree">
+                    <div class="alert alert-warning">
+                        Debug: Processing {{ employee.name }} (ID: {{ employee.id }})
+                        Children: {{ employee.child_nodes|length }}
+                    </div>
+                    <!-- TEST INCLUDE REPLACEMENT -->
+                    <div style="border: 2px solid red; padding: 10px;">
+                        <h3>Test Node: {{ employee.name }}</h3>
+                        {% include 'm3onboarding/struktur_organisasi/parts/employee_node.html' with employee=employee
+                        level=0 manager_dict=manager_dict %}
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Belum ada data karyawan dalam struktur organisasi.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .organization-chart {
+        overflow-x: auto;
+        padding: 20px;
+        background-color: #f8f9fc;
+        border-radius: 8px;
+        min-height: 300px;
+    }
+
+    .org-tree {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .employee-node {
+        margin: 10px 0;
+        text-align: center;
+    }
+
+    .children-container {
+        display: flex;
+        justify-content: center;
+        position: relative;
+        margin-top: 20px;
+        padding-top: 20px;
+    }
+
+    .children-container:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 2px;
+        height: 20px;
+        background-color: #ccc;
+    }
+
+    .child-node {
+        margin: 0 15px;
+        position: relative;
+    }
+
+    .child-node:before {
+        content: '';
+        position: absolute;
+        top: -20px;
+        left: 50%;
+        width: 2px;
+        height: 20px;
+        background-color: #ccc;
+    }
+
+    .employee-card {
+        border: 1px solid #d1d3e2;
+        border-radius: 8px;
+        padding: 15px;
+        background: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        min-width: 200px;
+        transition: all 0.3s ease;
+    }
+
+    .employee-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .employee-photo {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        font-size: 24px;
+        font-weight: bold;
+        color: #666;
+        overflow: hidden;
+    }
+
+    .employee-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .employee-name {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .employee-position,
+    .employee-department {
+        font-size: 13px;
+        color: #6e707e;
+        margin-bottom: 3px;
+    }
+
+    .org-tree {
+        display: flex;
+        justify-content: center;
+        min-width: 100%;
+    }
+
+    .employee-node {
+        display: inline-block;
+        vertical-align: top;
+        text-align: center;
+        padding: 10px;
+    }
+
+    .employee-card {
+        background: white;
+        border: 2px solid #e3e6f0;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        min-width: 200px;
+        max-width: 250px;
+    }
+
+    .employee-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        border-color: #4e73df;
+    }
+
+    .employee-card.top-level {
+        border-color: #1cc88a;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fc 100%);
+    }
+
+    .employee-card.manager {
+        border-color: #36b9cc;
+    }
+
+    .employee-card.staff {
+        border-color: #6f42c1;
+    }
+
+    .employee-photo {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        margin-bottom: 10px;
+        background-color: #e3e6f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        font-weight: bold;
+        color: #5a5c69;
+        margin: 0 auto 10px;
+    }
+
+    .employee-photo img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .employee-name {
+        font-weight: bold;
+        color: #5a5c69;
+        margin-bottom: 5px;
+        font-size: 14px;
+    }
+
+    .employee-position {
+        color: #858796;
+        font-size: 12px;
+        margin-bottom: 3px;
+    }
+
+    .employee-department {
+        color: #858796;
+        font-size: 11px;
+        font-style: italic;
+    }
+
+    .children-container {
+        display: flex;
+        justify-content: center;
+        position: relative;
+        margin-top: 40px;
+    }
+
+    .children-container::before {
+        content: '';
+        position: absolute;
+        top: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 2px;
+        height: 20px;
+        background-color: #e3e6f0;
+    }
+
+    .child-node {
+        position: relative;
+        margin: 0 20px;
+    }
+
+    .child-node::before {
+        content: '';
+        position: absolute;
+        top: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 2px;
+        height: 20px;
+        background-color: #e3e6f0;
+    }
+
+    .children-container>.child-node:first-child::before,
+    .children-container>.child-node:last-child::before {
+        width: 50%;
+    }
+
+    .children-container>.child-node:first-child::before {
+        left: 50%;
+    }
+
+    .children-container>.child-node:last-child::before {
+        right: 50%;
+        left: auto;
+    }
+
+    .children-container>.child-node:only-child::before {
+        width: 2px;
+        left: 50%;
+    }
+
+    @media (max-width: 768px) {
+        .organization-chart {
+            overflow-x: scroll;
+        }
+
+        .employee-card {
+            min-width: 150px;
+            max-width: 180px;
+            padding: 10px;
+        }
+
+        .employee-photo {
+            width: 40px;
+            height: 40px;
+            font-size: 16px;
+        }
+
+        .employee-name {
+            font-size: 12px;
+        }
+
+        .employee-position {
+            font-size: 10px;
+        }
+
+        .children-container {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .child-node {
+            margin: 10px 0;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Add interactive features
+        const employeeCards = document.querySelectorAll('.employee-card');
+
+        employeeCards.forEach(card => {
+            card.addEventListener('click', function () {
+                // Toggle highlight
+                this.classList.toggle('highlighted');
+            });
+        });
+
+        // Smooth scroll to employee if hash in URL
+        if (window.location.hash) {
+            const targetEmployee = document.querySelector(window.location.hash);
+            if (targetEmployee) {
+                targetEmployee.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                targetEmployee.classList.add('highlighted');
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends 'dashboard/base.html' %}
+{% load humanize %}
+{% block content %}
+
+<div class="container" style="max-width:1200px;margin:auto;padding:20px;">
+  <h2 style="text-align:center;margin-bottom:20px;">Riwayat Absensi</h2>
+
+  <div
+    style="background:#fff;border:1px solid #eee;border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+    {% if attendances %}
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover">
+        <thead>
+          <tr style="background:#f8f9fa;">
+            <th>Tanggal</th>
+            <th>Karyawan</th>
+            <th>Clock In</th>
+            <th>Clock Out</th>
+            <th>Status</th>
+            <th>Borongan</th>
+            <th>Realisasi</th>
+            <th>Harga</th>
+            <th>Hasil Akhir</th>
+            <th>Catatan</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in attendances %}
+          <tr>
+            <td>{{ a.date }}</td>
+            <td>{{ a.employee }}</td>
+            <td>{{ a.clock_in|default:'-' }}</td>
+            <td>{{ a.clock_out|default:'-' }}</td>
+            <td>{{ a.get_status_display }}</td>
+            <td>
+              {% if a.borongan %}
+              <strong>{{ a.borongan.pekerjaan }}</strong><br><small class="text-muted">({{ a.borongan.satuan }})</small>
+              {% else %}
+              -
+              {% endif %}
+            </td>
+            <td class="text-center">
+              {% if a.borongan %}
+              {{ a.realisasi|floatformat:0|intcomma }}
+              {% else %}
+              -
+              {% endif %}
+            </td>
+            <td class="text-right">
+              {% if a.borongan %}
+              Rp {{ a.borongan.harga_borongan|floatformat:0|intcomma }}
+              {% else %}
+              -
+              {% endif %}
+            </td>
+            <td class="text-right font-weight-bold" style="background:#f0f8ff;">
+              {% if a.borongan and a.realisasi %}
+              Rp {{ a.get_hasil_akhir|floatformat:0|intcomma }}
+              {% else %}
+              -
+              {% endif %}
+            </td>
+            <td>{{ a.notes|default:'-' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-center">Belum ada data absensi.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

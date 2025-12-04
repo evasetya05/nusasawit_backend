@@ -3,9 +3,10 @@ from django import template
 register = template.Library()
 
 SUPERVISOR_MENU_PERMISSIONS = {
-    'modul3': {'m3onboarding:struktur_organisasi'},
+
+    'modul3': {'m3onboarding:organization_chart'},
     'modul6': {
-        'compensation6:komponen_gaji',
+
         'compensation6:absensi_harian',
         'compensation6:payslip_select',
         'compensation6:work_calendar',
@@ -43,8 +44,9 @@ def create_menu(user):
             {'label': 'Link Kandidat', 'url': 'generate_link'},
             {'label': 'Matrix Interview', 'url': 'pertanyaan_interviews'},
         ]},
-        {'label': '3. Onboarding', 'id': 'modul3', 'sub': [
-            {'label': 'Struktur Organisasi', 'url': 'm3onboarding:struktur_organisasi'},
+        {'label': '. Onboarding', 'id': 'modul3', 'sub': [
+            {'label': 'Tabel Struktur Org', 'url': 'm3onboarding:struktur_organisasi'},
+            {'label': 'Struktur Org', 'url': 'm3onboarding:organization_chart'},
             {'label': 'Dokumen Standar', 'url': 'm3onboarding:document'},
         ]},
         {'label': '4. Manajemen Kinerja', 'id': 'modul4', 'sub': [
@@ -56,10 +58,11 @@ def create_menu(user):
             {"label": "Analisis Kebutuhan Pelatihan", "url": "learning5:trainingneed_list"},
             {"label": "Kompetensi", "url": "learning5:competency_add"},
         ]},
-        {'label': '6. Kompensasi', 'id': 'modul6', 'sub': [
+        {'label': '. Kompensasi', 'id': 'modul6', 'sub': [
             {"label": "Payroll Period", "url": "compensation6:payroll_period_list"},
             {"label": "Komponen Gaji", "url": "compensation6:komponen_gaji"},
             {"label": "Absensi Harian", "url": "compensation6:absensi_harian"},
+            {"label": "Riwayat Absensi", "url": "compensation6:riwayat_absensi"},
             {"label": "Pengajuan Cuti", "url": "compensation6:pengajuan_cuti"},
             {"label": "Slip Gaji", "url": "compensation6:payslip_select"},
             {"label": "Kalender", "url": "compensation6:work_calendar"}

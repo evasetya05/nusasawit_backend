@@ -1,0 +1,29 @@
+<!-- Employee Node: {{ employee.name }} (ID:{{ employee.id }}) -->
+<div class="employee-node" id="employee-{{ employee.id }}">
+    <div
+        class="employee-card {% if level == 0 %}top-level{% elif employee.child_nodes %}manager{% else %}staff{% endif %}">
+        <div class="employee-photo">
+            {% if employee.photo %}
+            <img src="{{ employee.photo.url }}" alt="{{ employee.name }}">
+            {% else %}
+            {{ employee.name|first|upper }}
+            {% endif %}
+        </div>
+        <div class="employee-name">{{ employee.name }}</div>
+        <div class="employee-position">{{ employee.position.name|default:"-" }}</div>
+        <div class="employee-department">{{ employee.department.name|default:"-" }}</div>
+        <div class="employee-id small text-muted">ID: {{ employee.id }}</div>
+    </div>
+
+    {% if employee.child_nodes %}
+    <div class="children-container">
+        {% for subordinate in employee.child_nodes %}
+        <div class="child-node">
+            <!-- Child: {{ subordinate.name }} -->
+            {% include "m3onboarding/struktur_organisasi/parts/employee_node.html" with employee=subordinate
+            level=level|add:1 manager_dict=manager_dict %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>

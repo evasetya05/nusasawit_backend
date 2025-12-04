@@ -41,6 +41,31 @@
     <h4>Catat Absensi</h4>
     <form method="post">
       {% csrf_token %}
+      
+      <!-- Display form errors -->
+      {% if form.non_field_errors %}
+      <div class="alert alert-danger" style="margin-bottom:15px;">
+        <strong>Error:</strong>
+        <ul style="margin-bottom:0;">
+          {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      
+      {% for field in form %}
+        {% if field.errors %}
+      <div class="alert alert-danger" style="margin-bottom:15px;">
+        <strong>{{ field.label }}:</strong>
+        <ul style="margin-bottom:0;">
+          {% for error in field.errors %}
+          <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+        {% endif %}
+      {% endfor %}
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px;">
         <div>{{ form.employee.label }}: {{ form.employee }}</div>
         <div>{{ form.date.label }}: {{ form.date }}</div>
@@ -57,10 +82,7 @@
         <div style="display:grid;grid-template-columns:2fr 1fr;gap:15px;">
           <div>
             <label class="form-label">Pekerjaan Borongan:</label>
-            <select name="borongan" class="form-control" id="id_borongan" style="width:100%;">
-              <option value="">--- Pilih Borongan ---</option>
-              <!-- Options will be populated dynamically -->
-            </select>
+            {{ form.borongan }}
           </div>
           <div>
             <label class="form-label">Realisasi (Satuan):</label>
@@ -77,14 +99,14 @@
       <script>
         document.addEventListener('DOMContentLoaded', function () {
           const employeeSelect = document.querySelector('select[name="employee"]');
-          const boronganSelect = document.getElementById('id_borongan');
+          const boronganSelect = document.querySelector('select[name="borongan"]');
           const realisasiInput = document.querySelector('input[name="realisasi"]');
 
           // Function to update borongan options based on selected employee
           async function updateBoronganOptions() {
             const employeeId = employeeSelect.value;
 
-            // Clear current options
+            // Clear current options and add default option
             boronganSelect.innerHTML = '<option value="">--- Pilih Borongan ---</option>';
 
             if (!employeeId) {

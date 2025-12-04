@@ -78,11 +78,28 @@ def absensi_harian(request):
 
     if request.method == 'POST' and open_periods: # Hanya proses jika ada periode aktif
         if form.is_valid():
-            attendance = form.save()
-            messages.success(request, f'Absensi untuk {attendance.employee} pada {attendance.date} berhasil disimpan.')
-            return redirect('compensation6:absensi_harian')
+            try:
+                attendance = form.save()
+                messages.success(request, f'Absensi untuk {attendance.employee} pada {attendance.date} berhasil disimpan.')
+                return redirect('compensation6:absensi_harian')
+            except Exception as e:
+                # Handle database integrity errors and other exceptions
+                if 'unique constraint' in str(e).lower() or 'already exists' in str(e).lower():
+                    messages.error(request, f'Absensi untuk {form.cleaned_data.get("employee", "karyawan")} pada tanggal {form.cleaned_data.get("date", "tanggal tersebut")} sudah ada. Tidak dapat membuat duplikat.')
+                else:
+                    messages.error(request, f'Terjadi kesalahan saat menyimpan: {str(e)}')
         else:
-            messages.error(request, 'Gagal menyimpan. Periksa kembali input Anda.')
+            # Display specific form validation errors
+            error_messages = []
+            for field, errors in form.errors.items():
+                for error in errors:
+                    if field == '__all__':
+                        error_messages.append(error)
+                    else:
+                        field_label = form.fields[field].label if field in form.fields else field
+                        error_messages.append(f'{field_label}: {error}')
+            
+            messages.error(request, 'Gagal menyimpan. ' + '; '.join(error_messages))
 
 
     # Get current user's employee if applicable

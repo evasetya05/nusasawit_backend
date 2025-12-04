@@ -340,7 +340,6 @@ class AttendanceForm(forms.ModelForm):
             'date': forms.DateInput(attrs={'type': 'date'}),
             'clock_in': forms.TimeInput(attrs={'type': 'time'}),
             'clock_out': forms.TimeInput(attrs={'type': 'time'}),
-            'borongan': forms.Select(attrs={'class': 'form-control'}),
             'realisasi': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0', 'placeholder': '0'}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Catatan tambahan...'}),
         }
@@ -357,6 +356,13 @@ class AttendanceForm(forms.ModelForm):
 
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        # Replace the borongan field with a CharField to avoid choice validation issues
+        self.fields['borongan'] = forms.CharField(
+            required=False,
+            widget=forms.Select(attrs={'class': 'form-control'}),
+            label='Pekerjaan Borongan'
+        )
         
         print(f"\n=== ATTENDANCE FORM DEBUG ===")
         print(f"User: {user}")
@@ -461,12 +467,45 @@ class AttendanceForm(forms.ModelForm):
             
         print(f"Final employee queryset: {list(self.fields['employee'].queryset.values_list('id', 'name'))}")
         
-        # For new forms, always show empty borongan queryset
-        # Borongan options will be loaded dynamically via JavaScript
-        self.fields['borongan'].queryset = Borongan.objects.none()
-        print("Borongan queryset set to none (will be loaded dynamically)")
-        
         print(f"===========================\n")
+
+    def clean_borongan(self):
+        """Custom validation for borongan field to handle dynamically loaded options"""
+        borongan_id = self.cleaned_data.get('borongan')
+        employee = self.cleaned_data.get('employee')
+        
+        if borongan_id and borongan_id.strip() and employee:
+            try:
+                # Convert the string ID back to Borongan object
+                borongan = Borongan.objects.get(id=int(borongan_id), employee=employee)
+                return borongan
+            except (ValueError, Borongan.DoesNotExist):
+                raise forms.ValidationError(
+                    'Pekerjaan borongan yang dipilih tidak valid untuk karyawan ini.'
+                )
+        
+        return None  # Return None if no selection or empty string
+
+    def clean(self):
+        cleaned_data = super().clean()
+        employee = cleaned_data.get('employee')
+        date = cleaned_data.get('date')
+        
+        # Check for duplicate attendance records
+        if employee and date:
+            # Check if attendance already exists for this employee and date
+            existing_attendance = Attendance.objects.filter(
+                employee=employee,
+                date=date
+            ).exclude(pk=self.instance.pk if self.instance.pk else None)
+            
+            if existing_attendance.exists():
+                raise forms.ValidationError(
+                    f'Absensi untuk {employee.name} pada tanggal {date.strftime("%d/%m/%Y")} sudah ada. '
+                    'Setiap karyawan hanya dapat memiliki satu catatan absensi per hari.'
+                )
+        
+        return cleaned_data
 
 
 

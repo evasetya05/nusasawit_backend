@@ -86,7 +86,7 @@
                   <span>{{ allowance.name }}</span>
                   {% if allowance.borongan_dates %}
                   <div style="font-size: 0.85em; color: #666; margin-top: 4px;">
-                    <strong>Hari:</strong> {{ allowance.borongan_dates|join:", " }}
+                    <strong>Tanggal:</strong> {{ allowance.borongan_dates.0 }}
                   </div>
                   {% endif %}
                 </div>

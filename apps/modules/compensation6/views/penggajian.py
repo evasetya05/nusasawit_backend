@@ -83,41 +83,31 @@ def generate_payroll(request, period_id):
                     amount=default_allowance
                 )
 
-        # Create borongan allowances from attendance records (not from employee.borongan)
+        # Create borongan allowances from attendance records - one allowance per date
         attendances = Attendance.objects.filter(employee=emp, date__year=period.year, date__month=period.month)
         
-        # Group borongan by borongan record to consolidate same borongan
-        borongan_dict = {}
+        # Create separate allowance for each attendance with borongan
         for att in attendances:
             if att.borongan:
                 borongan = att.borongan
-                key = borongan.id
-                if key not in borongan_dict:
-                    borongan_dict[key] = {
-                        'borongan': borongan,
-                        'total_harga': Decimal('0'),
-                        'dates': []
-                    }
-                borongan_dict[key]['total_harga'] += att.get_hasil_akhir()
-                borongan_dict[key]['dates'].append(str(att.date))
-        
-        # Create allowances for each borongan
-        for borongan_id, borongan_data in borongan_dict.items():
-            borongan = borongan_data['borongan']
-            allowance_name = f"Borongan: {borongan.pekerjaan} ({borongan.satuan})"
-            if not Allowance.objects.filter(
-                employee=emp,
-                period=period,
-                name=allowance_name
-            ).exists():
-                # Create allowance with dates info stored
-                allowance = Allowance.objects.create(
+                allowance_name = f"Borongan: {borongan.pekerjaan} ({borongan.satuan})"
+                hasil_akhir = att.get_hasil_akhir()
+                
+                # Check if allowance for this specific date already exists
+                if not Allowance.objects.filter(
                     employee=emp,
                     period=period,
                     name=allowance_name,
-                    amount=borongan_data['total_harga'],
-                    borongan_dates=borongan_data['dates']
-                )
+                    borongan_dates__contains=[str(att.date)]
+                ).exists():
+                    # Create allowance for this specific date
+                    Allowance.objects.create(
+                        employee=emp,
+                        period=period,
+                        name=allowance_name,
+                        amount=hasil_akhir,
+                        borongan_dates=[str(att.date)]
+                    )
 
         # Calculate daily salary
         daily_salary = Decimal(payroll.basic_salary or 0) / Decimal(cfg.working_days_per_month if cfg else 30)

@@ -5,7 +5,10 @@ from ..models import Test, Question, TestResult, UserTest, UserAnswerInterview
 class InterviewService:
     @staticmethod
     def get_interview_test():
-        return get_object_or_404(Test, name="Interview")
+        try:
+            return Test.objects.get(name="Interview")
+        except Test.DoesNotExist:
+            return None
 
     @staticmethod
     def get_questions(interview_test):
@@ -14,6 +17,9 @@ class InterviewService:
     @staticmethod
     def get_available_tests(company):
         interview_test = InterviewService.get_interview_test()
+        if not interview_test:
+            return TestResult.objects.none()
+            
         tests_qs = TestResult.objects.filter(company=company).select_related("user")
 
         interviewed_test_ids = UserTest.objects.filter(
@@ -43,6 +49,10 @@ class InterviewService:
             return None
 
         interview_test = InterviewService.get_interview_test()
+        if not interview_test:
+            form.add_error(None, "Daftar pertanyaan belum dibuat.")
+            return None
+            
         user_test = UserTest.objects.create(
             result=selected_applicant,
             test=interview_test,

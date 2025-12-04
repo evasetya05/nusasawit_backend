@@ -19,6 +19,41 @@ from django.template.loader import render_to_string
 
 def absensi_harian(request):
     """Absensi harian: form clock in/out, list attendance."""
+    
+    # Debug: Print user information
+    print(f"=== USER DEBUG INFO ===")
+    print(f"User: {request.user}")
+    print(f"User ID: {request.user.id}")
+    print(f"Username: {request.user.username}")
+    print(f"Email: {request.user.email}")
+    print(f"Is Owner: {getattr(request.user, 'is_owner', False)()}")
+    person = getattr(request.user, 'person', None)
+    is_supervisor = bool(person and person.subordinates.exists())
+    print(f"Is Supervisor: {is_supervisor}")
+    print(f"Is Staff: {request.user.is_staff}")
+    print(f"Is Superuser: {request.user.is_superuser}")
+    
+    # Check if user has person
+    try:
+        person = request.user.person
+        print(f"Has Person: YES")
+        print(f"Person: {person}")
+        print(f"Person Name: {person.name if hasattr(person, 'name') else 'N/A'}")
+        print(f"Person Company: {person.company if hasattr(person, 'company') else 'N/A'}")
+    except AttributeError:
+        print(f"Has Person: NO")
+        person = None
+    
+    # Check if person is employee
+    if person and hasattr(person, 'employee'):
+        print(f"Is Employee: YES")
+        print(f"Employee: {person.employee}")
+        print(f"Employee Position: {person.employee.position if person.employee.position else 'N/A'}")
+    else:
+        print(f"Is Employee: NO")
+    
+    print(f"========================")
+    
     # Temukan periode penggajian yang aktif untuk membatasi input tanggal
     open_periods = PayrollPeriod.objects.filter(is_closed=False)
     min_date, max_date = None, None
@@ -74,6 +109,38 @@ class WorkCalendarView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
+        # Debug: Print user information
+        print(f"=== WORK CALENDAR VIEW USER DEBUG ===")
+        print(f"User: {self.request.user}")
+        print(f"User ID: {self.request.user.id}")
+        print(f"Username: {self.request.user.username}")
+        print(f"Email: {self.request.user.email}")
+        print(f"Is Owner: {getattr(self.request.user, 'is_owner', False)}")
+        print(f"Is Supervisor: {getattr(self.request.user, 'is_supervisor', False)}")
+        print(f"Is Staff: {self.request.user.is_staff}")
+        print(f"Is Superuser: {self.request.user.is_superuser}")
+        
+        # Check if user has person
+        try:
+            person = self.request.user.person
+            print(f"Has Person: YES")
+            print(f"Person: {person}")
+            print(f"Person Name: {person.name if hasattr(person, 'name') else 'N/A'}")
+            print(f"Person Company: {person.company if hasattr(person, 'company') else 'N/A'}")
+        except AttributeError:
+            print(f"Has Person: NO")
+            person = None
+        
+        # Check if person is employee
+        if person and hasattr(person, 'employee'):
+            print(f"Is Employee: YES")
+            print(f"Employee: {person.employee}")
+            print(f"Employee Position: {person.employee.position if person.employee.position else 'N/A'}")
+        else:
+            print(f"Is Employee: NO")
+        
+        print(f"=======================================")
 
         initial = {}
         employee_param = self.request.GET.get('employee')

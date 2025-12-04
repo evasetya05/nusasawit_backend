@@ -262,6 +262,17 @@ class PertanyaanInterviewView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         interview_test = self.service.get_interview_test()
+        
+        # Jika interview test tidak ada, tampilkan pesan yang sesuai
+        if not interview_test:
+            return render(request, self.template_name, {
+                "error_message": "daftar pertanyaan belum dibuat",
+                "form": None,
+                "selected_applicant": None,
+                "has_available": False,
+                "question_entries": []
+            })
+        
         questions = self.service.get_questions(interview_test)
         available_tests = self.service.get_available_tests(request.user.company)
 
@@ -281,6 +292,17 @@ class PertanyaanInterviewView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         interview_test = self.service.get_interview_test()
+        
+        # Jika interview test tidak ada, tampilkan pesan yang sesuai
+        if not interview_test:
+            return render(request, self.template_name, {
+                "error_message": "daftar pertanyaan belum dibuat",
+                "form": None,
+                "selected_applicant": None,
+                "has_available": False,
+                "question_entries": []
+            })
+        
         questions = self.service.get_questions(interview_test)
         available_tests = self.service.get_available_tests(request.user.company)
 

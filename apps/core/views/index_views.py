@@ -18,6 +18,12 @@ def index(request):
     if request.user.is_authenticated:
         current_user = request.user
         
+        if hasattr(current_user, 'consultant_profile'):
+             return redirect('consultation:consultant_dashboard')
+
+        if hasattr(current_user, 'tip_contributor_profile'):
+             return redirect('tips:tip_contributor_dashboard')
+        
         # Debug: Show user role information
         person = getattr(current_user, 'person', None)
         is_supervisor = bool(person and person.subordinates.exists())

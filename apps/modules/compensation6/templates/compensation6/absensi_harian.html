@@ -83,19 +83,19 @@
           // Function to update borongan options based on selected employee
           async function updateBoronganOptions() {
             const employeeId = employeeSelect.value;
-            
+
             // Clear current options
             boronganSelect.innerHTML = '<option value="">--- Pilih Borongan ---</option>';
-            
+
             if (!employeeId) {
               updateBoronganInfo();
               return;
             }
-            
+
             try {
               const response = await fetch(`/compensation/api/get-borongan-by-employee/?employee_id=${employeeId}`);
               const data = await response.json();
-              
+
               if (data.borongan_options) {
                 data.borongan_options.forEach(borongan => {
                   const option = document.createElement('option');
@@ -109,7 +109,7 @@
             } catch (error) {
               console.error('Error fetching borongan options:', error);
             }
-            
+
             updateBoronganInfo();
           }
 
@@ -141,77 +141,18 @@
     </form>
   </div>
 
-  <!-- List Absensi -->
+  <!-- Link to Riwayat Absensi -->
   <div
-    style="background:#fff;border:1px solid #eee;border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
-    <h4>Riwayat Absensi</h4>
-    {% if attendances %}
-    <table style="width:100%;border-collapse:collapse;font-size:0.9em;">
-      <thead>
-        <tr style="background:#f8f9fa;">
-          <th style="border:1px solid #ddd;padding:8px;">Tanggal</th>
-          <th style="border:1px solid #ddd;padding:8px;">Karyawan</th>
-          <th style="border:1px solid #ddd;padding:8px;">Clock In</th>
-          <th style="border:1px solid #ddd;padding:8px;">Clock Out</th>
-          <th style="border:1px solid #ddd;padding:8px;">Status</th>
-          <th style="border:1px solid #ddd;padding:8px;">Borongan</th>
-          <th style="border:1px solid #ddd;padding:8px;">Realisasi</th>
-          <th style="border:1px solid #ddd;padding:8px;">Harga</th>
-          <th style="border:1px solid #ddd;padding:8px;">Hasil Akhir</th>
-          <th style="border:1px solid #ddd;padding:8px;">Catatan</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for a in attendances %}
-        <tr>
-          <td style="border:1px solid #ddd;padding:8px;">{{ a.date }}</td>
-          <td style="border:1px solid #ddd;padding:8px;">{{ a.employee }}</td>
-          <td style="border:1px solid #ddd;padding:8px;">{{ a.clock_in|default:'-' }}</td>
-          <td style="border:1px solid #ddd;padding:8px;">{{ a.clock_out|default:'-' }}</td>
-          <td style="border:1px solid #ddd;padding:8px;">{{ a.get_status_display }}</td>
-          <td style="border:1px solid #ddd;padding:8px;">
-            {% if a.borongan %}
-            <strong>{{ a.borongan.pekerjaan }}</strong><br><small style="color:#666;">({{ a.borongan.satuan }})</small>
-            {% else %}
-            -
-            {% endif %}
-          </td>
-          <td style="border:1px solid #ddd;padding:8px;text-align:center;">
-            {% if a.borongan %}
-            {{ a.realisasi|floatformat:0|intcomma }}
-            {% else %}
-            -
-            {% endif %}
-          </td>
-          <td style="border:1px solid #ddd;padding:8px;text-align:right;">
-            {% if a.borongan %}
-            Rp {{ a.borongan.harga_borongan|floatformat:0|intcomma }}
-            {% else %}
-            -
-            {% endif %}
-          </td>
-          <td style="border:1px solid #ddd;padding:8px;text-align:right;font-weight:bold;background:#f0f8ff;">
-            {% if a.borongan and a.realisasi %}
-            Rp {{ a.get_hasil_akhir|floatformat:0|intcomma }}
-            {% else %}
-            -
-            {% endif %}
-          </td>
-          <td style="border:1px solid #ddd;padding:8px;">{{ a.notes|default:'-' }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    <p>Belum ada data absensi.</p>
-    {% endif %}
-  </div>
-
-  <div style="text-align:center;margin-top:30px;">
-    <a href="{% url 'compensation6:komponen_gaji' %}"
-      style="display:inline-block;background:#6c757d;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;">
-      ← Kembali ke Komponen Gaji
+    style="background:#fff;border:1px solid #eee;border-radius:10px;padding:30px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+    <h4 style="margin-bottom:15px;">Lihat Riwayat Absensi</h4>
+    <p style="color:#666;margin-bottom:20px;">Klik tombol di bawah untuk melihat riwayat absensi lengkap dengan filter
+    </p>
+    <a href="{% url 'compensation6:riwayat_absensi' %}"
+      style="display:inline-block;background:#2563eb;color:white;padding:12px 30px;border-radius:6px;text-decoration:none;font-weight:500;">
+      <i class="fas fa-history"></i> Buka Riwayat Absensi
     </a>
   </div>
+
+
 </div>
 {% endblock %}

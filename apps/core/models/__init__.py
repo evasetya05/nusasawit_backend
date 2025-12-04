@@ -6,6 +6,7 @@ from .person import Person
 from .position import Position
 from .order import Order  # noqa: F401
 from .consultant import Consultant
+from .contributor import TipContributor
 
 __all__ = [
     'Person',
@@ -15,4 +16,5 @@ __all__ = [
     'Employee',
     'Borongan',
     'Consultant',
+    'TipContributor',
 ]

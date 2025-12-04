@@ -2,6 +2,8 @@ from django.urls import path, include
 from rest_framework_nested import routers
 from .views import ConsultantViewSet, ConsultationViewSet, ConsultationMessageViewSet, ConsultantDashboardView
 
+app_name = 'consultation'
+
 # Router utama
 router = routers.DefaultRouter()
 router.register(r'consultants', ConsultantViewSet)

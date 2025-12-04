@@ -44,7 +44,7 @@ class TipForm(forms.ModelForm):
 
 
 class TipContributorDashboardView(LoginRequiredMixin, TemplateView):
-    template_name = 'consultation/tip_contributor_dashboard.html'
+    template_name = 'tips/tip_contributor_dashboard.html'
 
     def dispatch(self, request, *args, **kwargs):
         self.contributor = getattr(request.user, 'tip_contributor_profile', None)

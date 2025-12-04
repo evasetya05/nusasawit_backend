@@ -342,6 +342,17 @@ class AttendanceForm(forms.ModelForm):
             'clock_out': forms.TimeInput(attrs={'type': 'time'}),
             'borongan': forms.Select(attrs={'class': 'form-control'}),
             'realisasi': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0', 'placeholder': '0'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Catatan tambahan...'}),
+        }
+        labels = {
+            'employee': 'Pemborong',
+            'date': 'Tanggal',
+            'clock_in': 'Jam Masuk',
+            'clock_out': 'Jam Keluar',
+            'status': 'Status',
+            'borongan': 'Pekerjaan Borongan',
+            'realisasi': 'Realisasi',
+            'notes': 'Catatan',
         }
 
     def __init__(self, *args, user=None, **kwargs):

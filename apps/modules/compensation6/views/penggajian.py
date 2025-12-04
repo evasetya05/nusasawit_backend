@@ -98,7 +98,7 @@ def generate_payroll(request, period_id):
                         'total_harga': Decimal('0'),
                         'dates': []
                     }
-                borongan_dict[key]['total_harga'] += Decimal(borongan.harga_borongan)
+                borongan_dict[key]['total_harga'] += att.get_hasil_akhir()
                 borongan_dict[key]['dates'].append(str(att.date))
         
         # Create allowances for each borongan

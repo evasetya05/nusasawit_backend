@@ -60,21 +60,34 @@ def payslip_preview(request, employee_id, month, year):
 
 
 def payslip_pdf(request, employee_id, month, year):
+    print(f"PDF Request - Employee: {employee_id}, Month: {month}, Year: {year}")
+    
     try:
         ctx = _get_payroll_bundle(employee_id, month, year)
+        print(f"Context loaded for employee: {ctx['employee'].name}")
     except Exception as e:
+        print(f"Context error: {e}")
         return HttpResponseBadRequest(str(e))
-    html = render_to_string('compensation6/payslip_pdf.html', {**ctx, 'preview': False}, request=request)
+    
+    # Use clean template for PDF (no layout, no navigation)
+    html = render_to_string('compensation6/payslip_pdf_clean.html', {**ctx, 'preview': False}, request=request)
+    print(f"HTML rendered, length: {len(html)}")
+    
     try:
         from weasyprint import HTML
         pdf = HTML(string=html).write_pdf()
+        print(f"PDF generated, size: {len(pdf)} bytes")
+        
         response = HttpResponse(pdf, content_type='application/pdf')
-        filename = f"slip_gaji_{ctx['employee'].id}_{int(month):02d}-{year}.pdf"
+        filename = f"slip_borongan_{ctx['employee'].name}_{int(month):02d}-{year}.pdf"
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        print(f"Returning PDF with filename: {filename}")
         return response
-    except Exception:
-        # Fallback: provide HTML with a note
-        messages.warning(request, 'WeasyPrint tidak tersedia. Tampilkan versi HTML. Install weasyprint untuk PDF.')
+    except Exception as e:
+        print(f"WeasyPrint error: {e}")
+        import traceback
+        traceback.print_exc()
+        messages.warning(request, f'PDF generation failed: {str(e)}')
         return HttpResponse(html)
 
 

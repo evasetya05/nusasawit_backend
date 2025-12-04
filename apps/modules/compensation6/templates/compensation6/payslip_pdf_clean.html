@@ -1,0 +1,225 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Slip Borongan - {{ employee.name }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background: white;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 20px;
+        }
+        
+        .header h1 {
+            color: #2563eb;
+            margin: 0;
+            font-size: 28px;
+        }
+        
+        .header .subtitle {
+            color: #666;
+            margin: 5px 0;
+        }
+        
+        .employee-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .employee-info .left {
+            flex: 1;
+        }
+        
+        .employee-info .right {
+            text-align: right;
+        }
+        
+        .employee-info h3 {
+            margin: 0 0 10px 0;
+            color: #2563eb;
+        }
+        
+        .employee-info p {
+            margin: 5px 0;
+            color: #666;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+        }
+        
+        .section h3 {
+            margin: 0 0 15px 0;
+            color: #2563eb;
+            font-size: 18px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+        
+        .list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .list li:last-child {
+            border-bottom: none;
+        }
+        
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            padding: 10px 0;
+            border-top: 2px solid #2563eb;
+            margin-top: 10px;
+            color: #2563eb;
+        }
+        
+        .summary {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            color: white;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .summary h2 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+        }
+        
+        .summary .amount {
+            font-size: 32px;
+            font-weight: bold;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .empty {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-style: italic;
+        }
+        
+        @media print {
+            body { margin: 0; }
+            .page-break { page-break-before: always; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Slip Borongan</h1>
+        <div class="subtitle">Periode: {{ period.month|floatformat:0 }}/{{ period.year }}</div>
+        <div class="subtitle">ID Mitra: {{ employee.id }} | Tanggal Cetak: {{ period.year }}-{{ period.month|floatformat:0 }}</div>
+    </div>
+
+    <div class="employee-info">
+        <div class="left">
+            <h3>{{ employee.name }}</h3>
+            {% if employee.position %}
+                <p>{{ employee.position }}</p>
+            {% endif %}
+            {% if employee.department %}
+                <p>Desa: {{ employee.department }}</p>
+            {% endif %}
+        </div>
+        <div class="right">
+            <p><strong>Periode:</strong> {{ period.month|floatformat:0 }}/{{ period.year }}</p>
+            <p><strong>Status:</strong> {{ employee.is_active|yesno:"Aktif,Tidak Aktif" }}</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Pendapatan Borongan</h3>
+        {% if allowances %}
+            <ul class="list">
+                {% for a in allowances %}
+                <li>
+                    <span>{{ a.name }}</span>
+                    <span>Rp {{ a.amount|floatformat:0|intcomma }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="empty">Tidak ada pendapatan borongan.</div>
+        {% endif %}
+        <div class="total-row">
+            <span>Total Borongan</span>
+            <span>Rp {{ payroll.total_allowance|floatformat:0|intcomma }}</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Potongan</h3>
+        {% if deductions %}
+            <ul class="list">
+                {% for d in deductions %}
+                <li>
+                    <span>{{ d.name }}</span>
+                    <span>Rp {{ d.amount|floatformat:0|intcomma }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="empty">Tidak ada potongan.</div>
+        {% endif %}
+        <div class="total-row">
+            <span>Total Potongan</span>
+            <span>Rp {{ payroll.total_deduction|floatformat:0|intcomma }}</span>
+        </div>
+    </div>
+
+    <div class="summary">
+        <h2>Ringkasan Borongan</h2>
+        <p>Total bersih borongan untuk periode ini.</p>
+        <div class="amount">Rp {{ payroll.net_salary|floatformat:0|intcomma }}</div>
+    </div>
+
+    <div class="footer">
+        <p>Dokumen ini dicetak secara otomatis pada {{ "now"|date:"d/m/Y H:i" }}</p>
+       
+    </div>
+</body>
+</html>

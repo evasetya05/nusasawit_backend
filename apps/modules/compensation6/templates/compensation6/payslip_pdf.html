@@ -73,10 +73,10 @@
   <div class="summary-card">
     <div class="summary-header">
       <div>
-        <h1>Slip Gaji</h1>
+        <h1>Slip Borongan</h1>
         <div class="muted">Periode: {{ period.month|floatformat:0 }}/{{ period.year }}</div>
         <div class="chips">
-          <span class="chip">ID Karyawan: {{ employee.id }}</span>
+          <span class="chip">ID Mitra: {{ employee.id }}</span>
           <span class="chip">Tanggal Cetak: {{ period.year }}-{{ period.month|floatformat:0 }}</span>
         </div>
       </div>
@@ -87,28 +87,15 @@
           <div class="muted">{{ employee.position }}</div>
         {% endif %}
         {% if employee.department %}
-          <div class="muted">Departemen: {{ employee.department }}</div>
+          <div class="muted">Desa: {{ employee.department }}</div>
         {% endif %}
       </div>
     </div>
 
-    <div class="salary-highlight">
-      <div class="salary-box">
-        <span class="label">Gaji Pokok</span>
-        <span class="value">Rp {{ payroll.basic_salary|floatformat:0|intcomma }}</span>
-        <span class="muted">Jumlah dasar sebelum tunjangan &amp; potongan.</span>
-      </div>
-      <div class="salary-box" style="background: rgba(16,185,129,0.25);">
-        <span class="label">Gaji Bersih</span>
-        <span class="value">Rp {{ payroll.net_salary|floatformat:0|intcomma }}</span>
-        <span class="muted">Dibayarkan setelah tunjangan dan potongan.</span>
-      </div>
-    </div>
-  </div>
 
   <div class="cards-row">
     <div class="card">
-      <h3>Tunjangan &amp; Lembur</h3>
+      <h3>Pendapatan Borongan</h3>
       {% if allowances %}
         <ul class="list">
           {% for a in allowances %}
@@ -126,11 +113,11 @@
       {% else %}
         <div class="empty">Tidak ada tunjangan atau lembur.</div>
       {% endif %}
-      <div class="total-row"><span>Total Tunjangan</span><span>Rp {{ payroll.total_allowance|floatformat:0|intcomma }}</span></div>
+      <div class="total-row"><span>Total Borongan</span><span>Rp {{ payroll.total_allowance|floatformat:0|intcomma }}</span></div>
     </div>
 
     <div class="card">
-      <h3>Potongan &amp; Pajak</h3>
+      <h3>Potongan </h3>
       {% if deductions %}
         <ul class="list">
           {% for d in deductions %}
@@ -146,22 +133,10 @@
 
   <div class="net-summary">
     <div>
-      <h2>Ringkasan Pembayaran</h2>
-      <div class="muted">Total bersih yang diterima karyawan untuk periode ini.</div>
+      <h2>Ringkasan Borongan</h2>
+      <div class="muted">Total bersih borongan untuk periode ini.</div>
     </div>
     <div class="amount">Rp {{ payroll.net_salary|floatformat:0|intcomma }}</div>
-  </div>
-
-  <div class="contrib-card">
-    <h3>Kontribusi Perusahaan (Tidak Mengurangi Gaji Bersih)</h3>
-    <ul class="list">
-      <li><span>BPJS TK - JKK</span><span>Rp {{ tk_jkk_company|floatformat:0|intcomma }}</span></li>
-      <li><span>BPJS TK - JKM</span><span>Rp {{ tk_jkm_company|floatformat:0|intcomma }}</span></li>
-      <li><span>BPJS TK - JHT</span><span>Rp {{ tk_jht_company|floatformat:0|intcomma }}</span></li>
-      <li><span>BPJS TK - JP</span><span>Rp {{ tk_jp_company|floatformat:0|intcomma }}</span></li>
-      <li><span>BPJS Kesehatan</span><span>Rp {{ jkn_company|floatformat:0|intcomma }}</span></li>
-    </ul>
-    <div class="total-row"><span>Total Kontribusi Perusahaan</span><span>Rp {{ total_employer_contrib|floatformat:0|intcomma }}</span></div>
   </div>
 
   {% if preview %}

@@ -85,12 +85,12 @@ class Payroll(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     def calculate_totals(self):
-        # Hitung total allowance dan deduction berdasarkan employee
+        # Hitung total allowance dan deduction berdasarkan employee DAN period
         self.total_allowance = sum(
-            a.amount for a in Allowance.objects.filter(employee=self.employee)
+            a.amount for a in Allowance.objects.filter(employee=self.employee, period=self.period)
         )
         self.total_deduction = sum(
-            d.amount for d in Deduction.objects.filter(employee=self.employee)
+            d.amount for d in Deduction.objects.filter(employee=self.employee, period=self.period)
         )
         # ✅ Total gaji bersih = gaji pokok + tunjangan - potongan
         self.net_salary = self.basic_salary + self.total_allowance - self.total_deduction

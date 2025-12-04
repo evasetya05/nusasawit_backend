@@ -434,7 +434,86 @@ class WorkCalendarView(TemplateView):
             for offset in range((active_period.end_date - active_period.start_date).days + 1)
         ]
 
-        employees = Employee.objects.filter(is_active=True).order_by('name')
+        # Filter employees based on user role (similar to other views)
+        person = getattr(self.request.user, 'person', None)
+        is_owner_attr = getattr(self.request.user, 'is_owner', False)
+        is_owner = is_owner_attr() if callable(is_owner_attr) else is_owner_attr
+        
+        print(f"Work Calendar - Is Owner: {is_owner}, Person: {person}")
+        
+        if is_owner:
+            # Owner sees all employees
+            employees = Employee.objects.filter(is_active=True).order_by('name')
+            print("Work Calendar - Owner sees all employees")
+        elif person:
+            # Check if person is an employee (supervisor or regular employee)
+            has_employee = hasattr(person, 'employee')
+            print(f"Work Calendar - Has employee attribute: {has_employee}")
+            
+            if has_employee:
+                # Person is an employee - can be supervisor or regular employee
+                employee = person.employee
+                
+                # Get all subordinates recursively
+                def get_descendants(emp):
+                    descendants = set()
+                    direct_subs = emp.subordinates.all()
+                    print(f"Direct subordinates of {emp.name}: {list(direct_subs)}")
+                    for sub in direct_subs:
+                        descendants.add(sub.id)
+                        descendants.update(get_descendants(sub))
+                    return descendants
+                
+                subordinate_ids = get_descendants(employee)
+                # Include self for supervisor and regular employee
+                allowed_ids = subordinate_ids | {employee.id}
+                
+                print(f"Work Calendar - Allowed employee IDs: {allowed_ids}")
+                employees = Employee.objects.filter(
+                    id__in=allowed_ids,
+                    is_active=True
+                ).order_by('name')
+                print(f"Work Calendar - Employees count: {employees.count()}")
+            else:
+                # Person without employee record - supervisor yang hanya Person
+                allowed_ids = set()
+                
+                # Check if person exists as employee (by same ID)
+                try:
+                    self_employee = Employee.objects.get(id=person.id)
+                    allowed_ids.add(self_employee.id)
+                    print(f"Work Calendar - Found self as employee: {self_employee.id}")
+                except Employee.DoesNotExist:
+                    print("Work Calendar - Self not found as employee")
+                
+                # Get all person subordinates and check if they're employees
+                person_subordinates = person.subordinates.all()
+                print(f"Work Calendar - Person subordinates: {list(person_subordinates)}")
+                
+                for subordinate in person_subordinates:
+                    if hasattr(subordinate, 'employee'):
+                        allowed_ids.add(subordinate.employee.id)
+                    else:
+                        try:
+                            emp = Employee.objects.get(id=subordinate.id)
+                            allowed_ids.add(emp.id)
+                        except Employee.DoesNotExist:
+                            pass
+                
+                print(f"Work Calendar - Final allowed employee IDs: {allowed_ids}")
+                
+                if allowed_ids:
+                    employees = Employee.objects.filter(
+                        id__in=allowed_ids,
+                        is_active=True
+                    ).order_by('name')
+                else:
+                    employees = Employee.objects.none()
+        else:
+            # No person record - no access
+            employees = Employee.objects.none()
+            print("Work Calendar - No person record - no access")
+
         work_requests = (
             WorkRequest.objects.filter(
                 employee__in=employees,

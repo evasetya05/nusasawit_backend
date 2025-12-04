@@ -2,6 +2,14 @@ echo $DJANGO_SETTINGS_MODULE
 
 export DJANGO_SETTINGS_MODULE=config.settings.production
 
+Hubungan antara pengguna dan perusahaan diperiksa melalui rantai: user -> person -> company.
+
+Secara visual, alurnya seperti ini: request.user (Objek SystemUser) → .person (Objek Person/Employee) → .company (Objek Company)
+
+update COMPANY KE USER HARUS 2 KALI 
+PERTAMA DI EMPLOYEE MODEL
+DAN DY SYSTEM USER
+
 === ATTENDANCE FORM DEBUG ===
 User: pengecek1
 Person: pengecek1

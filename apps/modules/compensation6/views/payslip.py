@@ -80,18 +80,7 @@ def payslip_pdf(request, employee_id, month, year):
 
 # Payslip: select and preview
 def payslip_select(request):
-    if request.user.is_owner:
-        form = PayslipSelectionForm(request.POST or None)
-    else:
-        # For non-owners, limit to their own employee
-        person = getattr(request.user, 'person', None)
-        if person:
-            form = PayslipSelectionForm(request.POST or None)
-            form.fields['employee'].queryset = Employee.objects.filter(id=person.id)
-        else:
-            # No person, can't access
-            messages.error(request, 'Profil karyawan tidak ditemukan.')
-            return redirect('compensation6:compensation_dashboard')
+    form = PayslipSelectionForm(request.POST or None, user=request.user)
 
     if request.method == 'POST' and form.is_valid():
         emp_id = form.cleaned_data['employee'].id

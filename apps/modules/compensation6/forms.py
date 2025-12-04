@@ -172,9 +172,63 @@ class PayslipSelectionForm(forms.Form):
     month = forms.ChoiceField()
     year = forms.ChoiceField()
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
-
+        
+        # Filter employees based on user role
+        if user:
+            person = getattr(user, 'person', None)
+            is_owner_attr = getattr(user, 'is_owner', False)
+            is_owner = is_owner_attr() if callable(is_owner_attr) else is_owner_attr
+            
+            if is_owner:
+                # Owner sees all employees in their company
+                self.fields['employee'].queryset = Employee.objects.filter(
+                    company=user.company, 
+                    is_active=True
+                ).order_by('name')
+            elif person:
+                # Check if person is an employee (supervisor or regular employee)
+                has_employee = hasattr(person, 'employee')
+                
+                if has_employee:
+                    # Person is an employee - can be supervisor or regular employee
+                    employee = person.employee
+                    
+                    # Get all subordinates recursively
+                    def get_descendants(emp):
+                        descendants = set()
+                        direct_subs = emp.subordinates.all()
+                        for sub in direct_subs:
+                            descendants.add(sub.id)
+                            descendants.update(get_descendants(sub))
+                        return descendants
+                    
+                    subordinate_ids = get_descendants(employee)
+                    # Include self for supervisor and regular employee
+                    allowed_ids = subordinate_ids | {employee.id}
+                    
+                    self.fields['employee'].queryset = Employee.objects.filter(
+                        id__in=allowed_ids,
+                        is_active=True
+                    ).order_by('name')
+                else:
+                    # Person without employee record - fallback to self only
+                    try:
+                        self_employee = Employee.objects.get(id=person.id)
+                        self.fields['employee'].queryset = Employee.objects.filter(
+                            id=self_employee.id,
+                            is_active=True
+                        )
+                    except Employee.DoesNotExist:
+                        self.fields['employee'].queryset = Employee.objects.none()
+            else:
+                # No person record - no access
+                self.fields['employee'].queryset = Employee.objects.none()
+        else:
+            # No user - no access
+            self.fields['employee'].queryset = Employee.objects.none()
+        
         closed_periods = PayrollPeriod.objects.filter(is_closed=True).order_by('-year', '-month')
 
         month_choices = []

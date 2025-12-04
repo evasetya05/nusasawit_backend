@@ -6,8 +6,8 @@ SUPERVISOR_MENU_PERMISSIONS = {
 
     'modul3': {'m3onboarding:organization_chart'},
     'modul6': {
-
         'compensation6:absensi_harian',
+        'compensation6:riwayat_absensi',
         'compensation6:payslip_select',
         'compensation6:work_calendar',
     },
@@ -15,7 +15,7 @@ SUPERVISOR_MENU_PERMISSIONS = {
 
 EMPLOYEE_MENU_PERMISSIONS = {
     'modul6': {
-        'compensation6:absensi_harian',
+        'compensation6:riwayat_absensi',
         'compensation6:payslip_select',
     }
 }

@@ -10,7 +10,7 @@ class ProvinsiSerializer(serializers.ModelSerializer):
 
 
 class KabupatenKotaSerializer(serializers.ModelSerializer):
-    provinsi_id = serializers.IntegerField(source="provinsi_id", read_only=True)
+    provinsi_id = serializers.IntegerField(read_only=True)
     provinsi = ProvinsiSerializer(read_only=True)
 
     class Meta:

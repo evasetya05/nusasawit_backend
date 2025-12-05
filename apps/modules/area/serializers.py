@@ -19,7 +19,7 @@ class KabupatenKotaSerializer(serializers.ModelSerializer):
 
 
 class KecamatanSerializer(serializers.ModelSerializer):
-    kabupaten_kota_id = serializers.IntegerField(source="kabupaten_kota_id", read_only=True)
+    kabupaten_kota_id = serializers.IntegerField(read_only=True)
     kabupaten_kota = KabupatenKotaSerializer(read_only=True)
 
     class Meta:
@@ -28,7 +28,7 @@ class KecamatanSerializer(serializers.ModelSerializer):
 
 
 class DesaSerializer(serializers.ModelSerializer):
-    kecamatan_id = serializers.IntegerField(source="kecamatan_id", read_only=True)
+    kecamatan_id = serializers.IntegerField(read_only=True)
     kecamatan = KecamatanSerializer(read_only=True)
 
     class Meta:

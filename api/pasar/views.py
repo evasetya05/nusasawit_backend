@@ -78,7 +78,9 @@ class MarketplaceItemCommentListCreateView(APIView):
     def get(self, request, pk):
         item = get_object_or_404(MarketplaceItem, pk=pk)
         comments = item.comments.all().order_by("created_at")
-        serializer = MarketplaceCommentSerializer(comments, many=True)
+        serializer = MarketplaceCommentSerializer(
+            comments, many=True, context={"request": request}
+        )
         return Response(serializer.data)
 
     def post(self, request, pk):

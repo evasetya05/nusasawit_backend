@@ -1,11 +1,37 @@
 from rest_framework import serializers
 
+from apps.modules.area.models import Provinsi, KabupatenKota, Kecamatan, Desa
+from apps.modules.area.serializers import (
+    ProvinsiSerializer,
+    KabupatenKotaSerializer,
+    KecamatanSerializer,
+    DesaSerializer,
+)
+
 from .models import MarketplaceComment, MarketplaceItem
 
 
 class MarketplaceItemSerializer(serializers.ModelSerializer):
     photo_1_url = serializers.SerializerMethodField()
     photo_2_url = serializers.SerializerMethodField()
+    provinsi = serializers.PrimaryKeyRelatedField(
+        queryset=Provinsi.objects.all(), required=False, allow_null=True
+    )
+    provinsi_detail = ProvinsiSerializer(source="provinsi", read_only=True)
+    kabupaten_kota = serializers.PrimaryKeyRelatedField(
+        queryset=KabupatenKota.objects.all(), required=False, allow_null=True
+    )
+    kabupaten_kota_detail = KabupatenKotaSerializer(
+        source="kabupaten_kota", read_only=True
+    )
+    kecamatan = serializers.PrimaryKeyRelatedField(
+        queryset=Kecamatan.objects.all(), required=False, allow_null=True
+    )
+    kecamatan_detail = KecamatanSerializer(source="kecamatan", read_only=True)
+    desa = serializers.PrimaryKeyRelatedField(
+        queryset=Desa.objects.all(), required=False, allow_null=True
+    )
+    desa_detail = DesaSerializer(source="desa", read_only=True)
 
     class Meta:
         model = MarketplaceItem
@@ -21,6 +47,14 @@ class MarketplaceItemSerializer(serializers.ModelSerializer):
             "is_sold",
             "sold_at",
             "seller_identifier",
+            "provinsi",
+            "provinsi_detail",
+            "kabupaten_kota",
+            "kabupaten_kota_detail",
+            "kecamatan",
+            "kecamatan_detail",
+            "desa",
+            "desa_detail",
             "created_at",
             "updated_at",
         ]
@@ -32,6 +66,10 @@ class MarketplaceItemSerializer(serializers.ModelSerializer):
             "updated_at",
             "photo_1_url",
             "photo_2_url",
+            "provinsi_detail",
+            "kabupaten_kota_detail",
+            "kecamatan_detail",
+            "desa_detail",
         ]
 
     def _build_photo_url(self, obj, attr: str) -> str | None:
@@ -75,6 +113,7 @@ class MarketplaceItemSerializer(serializers.ModelSerializer):
 
 
 class MarketplaceCommentSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = MarketplaceComment
         fields = [

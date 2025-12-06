@@ -52,6 +52,35 @@ class MarketplaceItem(models.Model):
         null=True,
     )
 
+    provinsi = models.ForeignKey(
+        'area.Provinsi', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='marketplace_items'
+    )
+    kabupaten_kota = models.ForeignKey(
+        'area.KabupatenKota', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='marketplace_items'
+    )
+    kecamatan = models.ForeignKey(
+        'area.Kecamatan', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='marketplace_items'
+    )
+    desa = models.ForeignKey(
+        'area.Desa', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='marketplace_items'
+    )
+
     is_sold = models.BooleanField(default=False)
     sold_at = models.DateTimeField(blank=True, null=True)
 
@@ -90,6 +119,10 @@ class MarketplaceComment(models.Model):
     )
     buyer_identifier = models.CharField(max_length=255, blank=True)
     message = models.TextField()
+
+    
+
+    # ... rest of the model ...
     is_purchase_intent = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)

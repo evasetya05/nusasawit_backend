@@ -12,6 +12,11 @@ class Tip(models.Model):
         ('Pemupukan', 'Pemupukan'),
         ('Perawatan', 'Perawatan'),
         ('Panen', 'Panen'),
+        ('Pengolahan', 'Pengolahan'),
+        ('Manajemen', 'Manajemen'),
+        ('Pemasaran', 'Pemasaran'),
+        ('Teknologi', 'Teknologi'),
+        ('Lainnya', 'Lainnya'),
     ]
 
     title = models.CharField(max_length=255)

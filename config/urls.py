@@ -30,6 +30,7 @@ urlpatterns = [
     path('continues_improvement/', include('apps.modules.m9improvement.urls'),
          name="continues_improvement"),
     path('area/', include('apps.modules.area.urls'), name="area"),
+    path('inbox/', include('apps.modules.inbox.urls'), name="inbox"),
 
 
     path('psychometric/', include('apps.extras.psychometric.urls'),

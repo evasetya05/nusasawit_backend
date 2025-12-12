@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'apps.modules.ir8',
     'apps.modules.m9improvement',
     'apps.modules.area',
+    'apps.modules.inbox',
 
     'api.tips', 
     'api.mitra_borongan', 

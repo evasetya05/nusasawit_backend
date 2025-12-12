@@ -8,6 +8,9 @@ SUPERVISOR_MENU_PERMISSIONS = {
         'm3onboarding:organization_chart',
         'm3onboarding:struktur_organisasi',
     },
+    'inbox': {
+        'inbox:thread_list',
+    },
     'modul6': {
         'compensation6:absensi_harian',
         'compensation6:riwayat_absensi',
@@ -77,6 +80,9 @@ def create_menu(user):
             {'label':'OCAI', 'url': 'm9improvement:dashboard'},
             {'label':'Link Test OCAI', 'url': 'm9improvement:ocai_form'},
             {'label':'Hasil Test OCAI', 'url': 'm9improvement:result_ocai'},
+        ]},
+        {'label': 'Inbox', 'id': 'inbox', 'sub': [
+            {'label': 'Percakapan', 'url': 'inbox:thread_list'},
         ]},
     ]
 

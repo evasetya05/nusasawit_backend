@@ -56,7 +56,10 @@ class EmployeeListView(LoginRequiredMixin, ListView):
         queryset = Employee.objects.filter(company=self.request.user.company)
         
         # If not owner, filter based on supervisor hierarchy
-        if not self.request.user.is_owner:
+        is_owner_attr = getattr(self.request.user, 'is_owner', False)
+        is_owner = is_owner_attr() if callable(is_owner_attr) else is_owner_attr
+        
+        if not is_owner:
             person = getattr(self.request.user, 'person', None)
             if person:
                 # Get all subordinate IDs recursively
@@ -65,6 +68,13 @@ class EmployeeListView(LoginRequiredMixin, ListView):
                 # Include self if person is also an employee
                 if hasattr(person, 'employee'):
                     allowed_ids.add(person.employee.id)
+                else:
+                    # Check if person exists as employee by ID
+                    try:
+                        self_employee = Employee.objects.get(id=person.id)
+                        allowed_ids.add(self_employee.id)
+                    except Employee.DoesNotExist:
+                        pass
                 
                 # Get all subordinates recursively
                 def get_descendants(person_obj):
@@ -194,7 +204,10 @@ class EmployeeDetailView(LoginRequiredMixin, DetailView):
         queryset = Employee.objects.filter(company=self.request.user.company)
         
         # If not owner, filter based on supervisor hierarchy
-        if not self.request.user.is_owner:
+        is_owner_attr = getattr(self.request.user, 'is_owner', False)
+        is_owner = is_owner_attr() if callable(is_owner_attr) else is_owner_attr
+        
+        if not is_owner:
             person = getattr(self.request.user, 'person', None)
             if person:
                 # Get all subordinate IDs recursively
@@ -203,6 +216,13 @@ class EmployeeDetailView(LoginRequiredMixin, DetailView):
                 # Include self if person is also an employee
                 if hasattr(person, 'employee'):
                     allowed_ids.add(person.employee.id)
+                else:
+                    # Check if person exists as employee by ID
+                    try:
+                        self_employee = Employee.objects.get(id=person.id)
+                        allowed_ids.add(self_employee.id)
+                    except Employee.DoesNotExist:
+                        pass
                 
                 # Get all subordinates recursively
                 def get_descendants(person_obj):

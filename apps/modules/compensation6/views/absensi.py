@@ -209,11 +209,22 @@ def riwayat_absensi(request):
         if person.subordinates.exists():
             print(f"Direct subordinates: {list(person.subordinates.all())}")
     
-    # Owner tidak boleh akses riwayat absensi (hanya supervisor dan employee)
+    # Owner bisa mengakses seluruh riwayat absensi
     if is_owner:
-        print("Branch: OWNER - NO ACCESS")
-        attendances = Attendance.objects.none()
-        messages.info(request, 'Owner tidak dapat mengakses riwayat absensi. Hanya supervisor dan karyawan yang dapat mengakses.')
+        print("Branch: OWNER - FULL ACCESS")
+        # Owner sees all attendance records
+        attendances = Attendance.objects.select_related('employee', 'borongan').order_by('-date')
+        
+        # Apply filters if provided
+        if selected_employee_id:
+            attendances = attendances.filter(employee__id=selected_employee_id)
+            print(f"Filtered by employee: {selected_employee_id}")
+        
+        if selected_month and selected_year:
+            attendances = attendances.filter(date__month=selected_month, date__year=selected_year)
+            print(f"Filtered by month/year: {selected_month}/{selected_year}")
+            
+        print(f"Attendances count: {attendances.count()}")
     elif person:
         print("Branch: HAS PERSON")
         # Check if person is an employee (supervisor or regular employee)
@@ -318,7 +329,10 @@ def riwayat_absensi(request):
     print(f"===========================\n")
 
     # Get available employees for filter dropdown
-    if person and hasattr(person, 'employee'):
+    if is_owner:
+        # Owner sees all employees
+        available_employees = Employee.objects.filter(is_active=True).order_by('name')
+    elif person and hasattr(person, 'employee'):
         employee = person.employee
         subordinate_ids = set()
         direct_subs = employee.subordinates.all()
@@ -359,9 +373,16 @@ def riwayat_absensi(request):
         available_employees = Employee.objects.none()
 
     # Get available months and years for filter dropdowns
-    attendance_dates = attendances.values_list('date', flat=True)
-    available_months = sorted(set(date.month for date in attendance_dates))
-    available_years = sorted(set(date.year for date in attendance_dates), reverse=True)
+    if is_owner:
+        # For owners, get all attendance dates for full range
+        all_attendance_dates = Attendance.objects.values_list('date', flat=True)
+        available_months = sorted(set(date.month for date in all_attendance_dates))
+        available_years = sorted(set(date.year for date in all_attendance_dates), reverse=True)
+    else:
+        # For other users, use filtered attendance dates
+        attendance_dates = attendances.values_list('date', flat=True)
+        available_months = sorted(set(date.month for date in attendance_dates))
+        available_years = sorted(set(date.year for date in attendance_dates), reverse=True)
 
     return render(request, 'compensation6/riwayat_abensi.html', {
         'attendances': attendances,

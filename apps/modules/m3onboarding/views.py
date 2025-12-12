@@ -53,7 +53,47 @@ class EmployeeListView(LoginRequiredMixin, ListView):
     context_object_name = 'employees'
 
     def get_queryset(self):
-        return Employee.objects.filter(company=self.request.user.company)
+        queryset = Employee.objects.filter(company=self.request.user.company)
+        
+        # If not owner, filter based on supervisor hierarchy
+        if not self.request.user.is_owner:
+            person = getattr(self.request.user, 'person', None)
+            if person:
+                # Get all subordinate IDs recursively
+                allowed_ids = set()
+                
+                # Include self if person is also an employee
+                if hasattr(person, 'employee'):
+                    allowed_ids.add(person.employee.id)
+                
+                # Get all subordinates recursively
+                def get_descendants(person_obj):
+                    descendants = set()
+                    for subordinate in person_obj.subordinates.all():
+                        # Check if subordinate is also an employee
+                        if hasattr(subordinate, 'employee'):
+                            descendants.add(subordinate.employee.id)
+                        # Also check by ID match
+                        try:
+                            emp = Employee.objects.get(id=subordinate.id)
+                            descendants.add(emp.id)
+                        except Employee.DoesNotExist:
+                            pass
+                        # Recursively get subordinates of this subordinate
+                        descendants.update(get_descendants(subordinate))
+                    return descendants
+                
+                subordinate_ids = get_descendants(person)
+                allowed_ids.update(subordinate_ids)
+                
+                # Filter queryset to only include allowed employees
+                if allowed_ids:
+                    queryset = queryset.filter(id__in=allowed_ids)
+                else:
+                    # If no allowed IDs, return empty queryset
+                    queryset = queryset.none()
+        
+        return queryset
 
     def get_template_names(self):
         if self.request.user.is_owner:
@@ -151,7 +191,47 @@ class EmployeeDetailView(LoginRequiredMixin, DetailView):
     pk_url_kwarg = 'id'
 
     def get_queryset(self):
-        return Employee.objects.filter(company=self.request.user.company)
+        queryset = Employee.objects.filter(company=self.request.user.company)
+        
+        # If not owner, filter based on supervisor hierarchy
+        if not self.request.user.is_owner:
+            person = getattr(self.request.user, 'person', None)
+            if person:
+                # Get all subordinate IDs recursively
+                allowed_ids = set()
+                
+                # Include self if person is also an employee
+                if hasattr(person, 'employee'):
+                    allowed_ids.add(person.employee.id)
+                
+                # Get all subordinates recursively
+                def get_descendants(person_obj):
+                    descendants = set()
+                    for subordinate in person_obj.subordinates.all():
+                        # Check if subordinate is also an employee
+                        if hasattr(subordinate, 'employee'):
+                            descendants.add(subordinate.employee.id)
+                        # Also check by ID match
+                        try:
+                            emp = Employee.objects.get(id=subordinate.id)
+                            descendants.add(emp.id)
+                        except Employee.DoesNotExist:
+                            pass
+                        # Recursively get subordinates of this subordinate
+                        descendants.update(get_descendants(subordinate))
+                    return descendants
+                
+                subordinate_ids = get_descendants(person)
+                allowed_ids.update(subordinate_ids)
+                
+                # Filter queryset to only include allowed employees
+                if allowed_ids:
+                    queryset = queryset.filter(id__in=allowed_ids)
+                else:
+                    # If no allowed IDs, return empty queryset
+                    queryset = queryset.none()
+        
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -204,7 +284,47 @@ class EmployeeUpdateView(LoginRequiredMixin, UpdateView):
     permission_denied_message = "You don't have permission to update this employee's data."
 
     def get_queryset(self):
-        return Employee.objects.filter(company=self.request.user.company)
+        queryset = Employee.objects.filter(company=self.request.user.company)
+        
+        # If not owner, filter based on supervisor hierarchy
+        if not self.request.user.is_owner:
+            person = getattr(self.request.user, 'person', None)
+            if person:
+                # Get all subordinate IDs recursively
+                allowed_ids = set()
+                
+                # Include self if person is also an employee
+                if hasattr(person, 'employee'):
+                    allowed_ids.add(person.employee.id)
+                
+                # Get all subordinates recursively
+                def get_descendants(person_obj):
+                    descendants = set()
+                    for subordinate in person_obj.subordinates.all():
+                        # Check if subordinate is also an employee
+                        if hasattr(subordinate, 'employee'):
+                            descendants.add(subordinate.employee.id)
+                        # Also check by ID match
+                        try:
+                            emp = Employee.objects.get(id=subordinate.id)
+                            descendants.add(emp.id)
+                        except Employee.DoesNotExist:
+                            pass
+                        # Recursively get subordinates of this subordinate
+                        descendants.update(get_descendants(subordinate))
+                    return descendants
+                
+                subordinate_ids = get_descendants(person)
+                allowed_ids.update(subordinate_ids)
+                
+                # Filter queryset to only include allowed employees
+                if allowed_ids:
+                    queryset = queryset.filter(id__in=allowed_ids)
+                else:
+                    # If no allowed IDs, return empty queryset
+                    queryset = queryset.none()
+        
+        return queryset
 
     def dispatch(self, request, *args, **kwargs):
         # Debug: Print user information
@@ -244,8 +364,40 @@ class EmployeeUpdateView(LoginRequiredMixin, UpdateView):
         # Get the employee object being updated
         self.object = self.get_object()
 
-        # Allow access if user is the owner (checking company) or updating their own data
-        if not (request.user.is_owner or request.user == self.object.user):
+        # Check if user has permission to update this employee
+        has_permission = False
+        
+        # Owner can update anyone
+        if request.user.is_owner:
+            has_permission = True
+        # User can update their own data
+        elif request.user == self.object.user:
+            has_permission = True
+        # Supervisor can update their subordinates
+        else:
+            person = getattr(request.user, 'person', None)
+            if person:
+                # Check if the target employee is a subordinate
+                def is_subordinate(person_obj, target_employee):
+                    for subordinate in person_obj.subordinates.all():
+                        # Check by employee attribute
+                        if hasattr(subordinate, 'employee') and subordinate.employee.id == target_employee.id:
+                            return True
+                        # Check by ID match
+                        try:
+                            emp = Employee.objects.get(id=subordinate.id)
+                            if emp.id == target_employee.id:
+                                return True
+                        except Employee.DoesNotExist:
+                            pass
+                        # Recursively check
+                        if is_subordinate(subordinate, target_employee):
+                            return True
+                    return False
+                
+                has_permission = is_subordinate(person, self.object)
+
+        if not has_permission:
             messages.error(request, self.permission_denied_message)
             return redirect('m3onboarding:struktur_organisasi')
 

@@ -4,7 +4,10 @@ register = template.Library()
 
 SUPERVISOR_MENU_PERMISSIONS = {
 
-    'modul3': {'m3onboarding:organization_chart'},
+    'modul3': {
+        'm3onboarding:organization_chart',
+        'm3onboarding:struktur_organisasi',
+    },
     'modul6': {
         'compensation6:absensi_harian',
         'compensation6:riwayat_absensi',

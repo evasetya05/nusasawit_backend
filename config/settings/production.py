@@ -2,7 +2,7 @@ from .base import *
 from decouple import config
 
 DEBUG = False
-ALLOWED_HOSTS = ['nusasawit.sdmportabel.com', 'www.nusasawit.sdmportabel.com', "testserver"]
+ALLOWED_HOSTS = ['nusasawit.com', 'www.nusasawit.com']
 
 # PostgreSQL
 DATABASES = {

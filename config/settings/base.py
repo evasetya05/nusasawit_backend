@@ -119,10 +119,11 @@ USE_TZ = True
 
 # Static and media files
 
-
 STATIC_URL = '/static/'
 # STATIC_ROOT should be defined in production.py
 # STATIC_ROOT = '/home/sdmporta/nusasawit.com/staticfiles'
+
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 MEDIA_URL = '/media/'
 # MEDIA_ROOT should be defined in production.py

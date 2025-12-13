@@ -26,3 +26,5 @@ EMAIL_HOST_PASSWORD = 'dummy'  # bisa kosong juga
 # Disable debug toolbar for API testing
 DEBUG_TOOLBAR = False
 INTERNAL_IPS = []
+
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]

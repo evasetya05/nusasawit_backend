@@ -15,3 +15,10 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+
+
+STATIC_URL = '/static/'
+STATIC_ROOT = '/home/sdmporta/nusasawit.com/staticfiles'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = '/home/sdmporta/nusasawit.com/media'

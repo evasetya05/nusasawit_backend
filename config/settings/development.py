@@ -27,4 +27,5 @@ EMAIL_HOST_PASSWORD = 'dummy'  # bisa kosong juga
 DEBUG_TOOLBAR = False
 INTERNAL_IPS = []
 
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]

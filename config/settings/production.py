@@ -1,7 +1,7 @@
 from .base import *
 from decouple import config
 
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = ['nusasawit.com', 'www.nusasawit.com']
 
 # PostgreSQL

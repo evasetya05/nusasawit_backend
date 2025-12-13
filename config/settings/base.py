@@ -6,7 +6,10 @@ from django.urls import reverse_lazy
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Secret key
-SECRET_KEY = 'replace_this'
+# SECRET_KEY = 'replace_this'
+# SECURITY WARNING: keep the secret key used in production secret!
+# It's recommended to load this from an environment variable.
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-fallback-key-for-c75e0c6b')
 
 APP_SECRET_KEY = "NUSA-APP-KEY-15c9f3fd8c8943f8a3bcd871df1b6f49"
 
@@ -118,11 +121,12 @@ USE_TZ = True
 
 
 STATIC_URL = '/static/'
-STATIC_ROOT = '/home/sdmporta/nusasawit.com/staticfiles'
+# STATIC_ROOT should be defined in production.py
+# STATIC_ROOT = '/home/sdmporta/nusasawit.com/staticfiles'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = '/home/sdmporta/nusasawit.com/media'
-
+# MEDIA_ROOT should be defined in production.py
+# MEDIA_ROOT = '/home/sdmporta/nusasawit.com/media'
 
 
 # Auth

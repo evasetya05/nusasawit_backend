@@ -36,6 +36,7 @@ urlpatterns = [
     path('psychometric/', include('apps.extras.psychometric.urls'),
          name="psychometric"),
     path('blog/', include('apps.extras.blog.urls')),  # Tambahkan ini
+    path('', include('apps.extras.syarat_ketentuan.urls'), name="syarat_ketentuan"),
 
     path('api/tips/', include('api.tips.urls')),
     path('api/mitra/', include('api.mitra_borongan.urls')),

@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'apps.extras.psychometric',
     'apps.extras.blog',
     'apps.extras.legal',
+    'apps.extras.syarat_ketentuan',
     'apps.modules.m1planning',
     'apps.modules.m2recruit',
     'apps.modules.m3onboarding',

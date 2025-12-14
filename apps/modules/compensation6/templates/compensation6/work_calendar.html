@@ -8,6 +8,85 @@
 <div class="container" style="max-width:1200px;margin:auto;padding:20px;">
   <h2 style="text-align:center;margin-bottom:20px;">Kalender Kerja</h2>
 
+  <!-- Pending Work Requests Section -->
+  {% if pending_requests %}
+    <div class="card mb-4" style="border:1px solid #ffc107;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.08);">
+      <div class="card-header" style="padding:16px;border-bottom:1px solid #ffc107;background:#fff3cd;">
+        <h5 class="mb-0" style="color:#856404;">
+          <i class="fas fa-clock me-2"></i>Work Request Menunggu Persetujuan ({{ pending_requests|length }})
+        </h5>
+      </div>
+      <div class="card-body" style="padding:16px;">
+        <div class="table-responsive">
+          <table class="table table-sm table-hover">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Employee</th>
+                <th>Title</th>
+                <th>Period</th>
+                <th>Flutter User</th>
+                <th>Created</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for request in pending_requests %}
+                <tr>
+                  <td><span class="badge bg-warning">#{{ request.id }}</span></td>
+                  <td>{{ request.employee.name }}</td>
+                  <td>
+                    <strong>{{ request.title }}</strong>
+                    {% if request.description %}
+                      <br><small class="text-muted">{{ request.description|truncatewords:10 }}</small>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if request.start_date == request.end_date %}
+                      {{ request.start_date|date:"d M Y" }}
+                    {% else %}
+                      {{ request.start_date|date:"d M Y" }} - {{ request.end_date|date:"d M Y" }}
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if request.flutter_user %}
+                      <small class="text-muted">
+                        {% if request.flutter_user.email %}{{ request.flutter_user.email }}{% endif %}
+                        {% if request.flutter_user.email and request.flutter_user.phone_number %} | {% endif %}
+                        {% if request.flutter_user.phone_number %}{{ request.flutter_user.phone_number }}{% endif %}
+                      </small>
+                    {% else %}
+                      <span class="text-muted">-</span>
+                    {% endif %}
+                  </td>
+                  <td><small>{{ request.created_at|date:"d M Y H:i" }}</small></td>
+                  <td class="text-center">
+                    {% if request.user.is_owner %}
+                      <form method="post" action="{% url 'compensation6:approve-work-request' request.id %}" class="d-inline" onsubmit="return confirm('Setujui work request ini?')">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-success me-1" title="Setujui">
+                          <i class="fas fa-check"></i>
+                        </button>
+                      </form>
+                      <form method="post" action="{% url 'compensation6:reject-work-request' request.id %}" class="d-inline" onsubmit="return confirm('Tolak work request ini?')">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-danger" title="Tolak">
+                          <i class="fas fa-times"></i>
+                        </button>
+                      </form>
+                    {% else %}
+                      <span class="badge bg-secondary">Menunggu</span>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
   {% if active_period %}
     <div class="row" style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:24px;">
       <div class="card" style="flex:1 1 360px;border:1px solid #dee2e6;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.05);">

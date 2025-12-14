@@ -260,25 +260,19 @@ class EmployeeDetailView(LoginRequiredMixin, DetailView):
         print(f"=== EMPLOYEE DETAIL VIEW USER DEBUG ===")
         print(f"User: {self.request.user}")
         print(f"User ID: {self.request.user.id}")
-        print(f"Username: {self.request.user.username}")
-        print(f"Email: {self.request.user.email}")
-        print(f"Is Owner: {getattr(self.request.user, 'is_owner', False)()}")
-        person = getattr(self.request.user, 'person', None)
-        is_supervisor = bool(person and person.subordinates.exists())
-        print(f"Is Supervisor: {is_supervisor}")
-        print(f"Is Staff: {self.request.user.is_staff}")
-        print(f"Is Superuser: {self.request.user.is_superuser}")
+        print(f"User company: {self.request.user.company}")
         
-        # Check if user has person
-        try:
-            person = self.request.user.person
-            print(f"Has Person: YES")
+        # Check if user has person attribute
+        person = getattr(self.request.user, 'person', None)
+        if person:
             print(f"Person: {person}")
-            print(f"Person Name: {person.name if hasattr(person, 'name') else 'N/A'}")
-            print(f"Person Company: {person.company if hasattr(person, 'company') else 'N/A'}")
-        except AttributeError:
-            print(f"Has Person: NO")
-            person = None
+            print(f"Person ID: {person.id}")
+            
+            # Check if person is also an employee
+            if hasattr(person, 'employee'):
+                print(f"Is Employee: YES - {person.employee.name}")
+            else:
+                print(f"Is Employee: NO")
         
         # Check if person is employee
         if person and hasattr(person, 'employee'):
@@ -289,6 +283,19 @@ class EmployeeDetailView(LoginRequiredMixin, DetailView):
             print(f"Is Employee: NO")
         
         print(f"======================================")
+        
+        # Debug: Check borongan data
+        print(f"=== BORONGAN DATA DEBUG ===")
+        print(f"Employee: {self.object.name} (ID: {self.object.id})")
+        print(f"Borongan count: {self.object.borongan.count()}")
+        
+        # Print each borongan
+        for i, borongan in enumerate(self.object.borongan.all()):
+            print(f"Borongan {i+1}: {borongan.pekerjaan} - {borongan.satuan} - {borongan.harga_borongan}")
+        
+        # Check if borongan data is in context
+        print(f"Context keys: {list(context.keys())}")
+        print(f"===============================")
         
         context['recruitment_tests'] = get_recruitment_tests(self.object)
         context['employee_age'] = self.object.age
@@ -479,20 +486,28 @@ class BoronganCreateView(LoginRequiredMixin, FormView):
     def post(self, request, *args, **kwargs):
         employee_id = request.POST.get('employee_id')
         
+        print(f"=== BORONGAN CREATE DEBUG ===")
+        print(f"Request method: {request.method}")
+        print(f"Employee ID: {employee_id}")
+        print(f"POST data: {request.POST}")
+        print(f"User: {request.user}")
+        print(f"User company: {request.user.company}")
+        
         # Validasi employee_id ada
         if not employee_id:
+            print("ERROR: Employee ID tidak ditemukan")
             messages.error(request, 'Employee ID tidak ditemukan')
             return redirect('m3onboarding:struktur_organisasi')
         
         try:
             employee = Employee.objects.get(id=employee_id, company=request.user.company)
+            print(f"Employee found: {employee.name} (ID: {employee.id})")
         except Employee.DoesNotExist:
+            print("ERROR: Employee tidak ditemukan atau tidak memiliki akses")
             messages.error(request, 'Employee tidak ditemukan atau Anda tidak memiliki akses')
             return redirect('m3onboarding:struktur_organisasi')
         
         form = BoronganForm(request.POST)
-        # Debug: Print form data and errors
-        print(f"Form data: {request.POST}")
         print(f"Form is valid: {form.is_valid()}")
         if not form.is_valid():
             print(f"Form errors: {form.errors}")
@@ -501,7 +516,19 @@ class BoronganCreateView(LoginRequiredMixin, FormView):
             borongan = form.save(commit=False)
             borongan.employee = employee  # Set employee explicitly
             borongan.save()
+            
+            print(f"Borongan saved: {borongan.pekerjaan} for {borongan.employee.name}")
+            print(f"Total borongan for this employee: {employee.borongan.count()}")
+            
+            # Verify the data is actually in database
+            try:
+                saved_borongan = Borongan.objects.get(id=borongan.id)
+                print(f"Verified borongan in DB: {saved_borongan.pekerjaan}")
+            except Borongan.DoesNotExist:
+                print("ERROR: Borongan not found in database after save!")
+            
             messages.success(request, 'Borongan berhasil ditambahkan')
+            print("Redirecting to employee-update page")
             return redirect('m3onboarding:employee-update', id=employee_id)
         else:
             # Redirect back dengan error messages
@@ -509,6 +536,7 @@ class BoronganCreateView(LoginRequiredMixin, FormView):
                 for error in errors:
                     messages.error(request, f'{field}: {error}')
             messages.error(request, 'Gagal menambahkan borongan. Periksa kembali input Anda.')
+            print("Form validation failed, redirecting back")
             return redirect('m3onboarding:employee-update', id=employee_id)
 
 

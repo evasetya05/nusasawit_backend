@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import penggajian, bpjs_tax, payslip, absensi, cuti
+from .views.calendar import approve_work_request, reject_work_request
 
 app_name = 'compensation6'
 
@@ -35,6 +36,8 @@ urlpatterns = [
     path('riwayat-absensi/', absensi.riwayat_absensi, name='riwayat_absensi'),
     path('api/get-borongan-by-employee/', absensi.get_borongan_by_employee, name='get_borongan_by_employee'),
     path('work-calendar/', absensi.WorkCalendarView.as_view(), name='work_calendar'),
+    path('work-request/<int:work_request_id>/approve/', approve_work_request, name='approve-work-request'),
+    path('work-request/<int:work_request_id>/reject/', reject_work_request, name='reject-work-request'),
     path('pengajuan-cuti/', cuti.pengajuan_cuti, name='pengajuan_cuti'),
     path('leave-approvals/', cuti.leave_approvals, name='leave_approvals'),
     path('leave-approve/<int:leave_id>/<str:action>/', cuti.approve_leave, name='approve_leave'),

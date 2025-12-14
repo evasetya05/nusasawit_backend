@@ -51,8 +51,8 @@ def create_menu(user):
             {'label': 'Matrix Interview', 'url': 'pertanyaan_interviews'},
         ]},
         {'label': '. Onboarding', 'id': 'modul3', 'sub': [
-            {'label': 'Tabel Struktur Org', 'url': 'm3onboarding:struktur_organisasi'},
-            {'label': 'Struktur Org', 'url': 'm3onboarding:organization_chart'},
+            {'label': 'Tabel Struktur Mitra', 'url': 'm3onboarding:struktur_organisasi'},
+            {'label': 'Struktur Mitra', 'url': 'm3onboarding:organization_chart'},
             {'label': 'Dokumen Standar', 'url': 'm3onboarding:document'},
         ]},
         {'label': '4. Manajemen Kinerja', 'id': 'modul4', 'sub': [

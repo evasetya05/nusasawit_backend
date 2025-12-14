@@ -199,6 +199,21 @@
             <h6 class="m-0 font-weight-bold text-primary">Borongan</h6>
           </div>
           <div class="card-body">
+            <!-- DEBUG: Template debug info -->
+            <div style="background: #f0f0f0; padding: 10px; margin-bottom: 10px; font-size: 12px;">
+              <strong>DEBUG TEMPLATE:</strong><br>
+              Employee ID: {{ employee.id }}<br>
+              Employee Name: {{ employee.name }}<br>
+              Borongan Count: {{ employee.borongan.all|length }}<br>
+              Borongan Query: {{ employee.borongan.all }}<br>
+              {% if employee.borongan.all %}
+                Borongan Items:
+                {% for borongan in employee.borongan.all %}
+                  {{ forloop.counter }}: {{ borongan.pekerjaan }}<br>
+                {% endfor %}
+              {% endif %}
+            </div>
+            
             {% if employee.borongan.all %}
               <div class="table-responsive">
                 <table class="table table-sm table-hover">

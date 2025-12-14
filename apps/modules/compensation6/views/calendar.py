@@ -3,12 +3,15 @@ from django.contrib import messages
 from django.utils import timezone
 from decimal import Decimal
 from datetime import date, timedelta
+from django.core.cache import cache
 from apps.core.models import Employee, Borongan
 from ..models import Payroll, PayrollPeriod, Allowance, Deduction, BPJSConfig, Attendance, LeaveRequest, WorkRequest
 from ..forms import WorkRequestForm
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.template.loader import render_to_string
 from django.views.generic import TemplateView
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 
 
 class WorkCalendarView(TemplateView):
@@ -54,7 +57,9 @@ class WorkCalendarView(TemplateView):
         ]
 
         employees = Employee.objects.filter(is_active=True).order_by('name')
-        work_requests = (
+        
+        # Get all work requests in the period
+        all_work_requests = (
             WorkRequest.objects.filter(
                 employee__in=employees,
                 start_date__lte=active_period.end_date,
@@ -63,6 +68,10 @@ class WorkCalendarView(TemplateView):
             .select_related('employee', 'flutter_user')
             .order_by('employee__name', 'start_date')
         )
+        
+        # Filter out pending requests (only show approved ones)
+        pending_ids = cache.get('pending_work_requests', [])
+        work_requests = all_work_requests.exclude(id__in=pending_ids)
 
         request_map = {}
         for wr in work_requests:
@@ -85,6 +94,7 @@ class WorkCalendarView(TemplateView):
         context['date_range'] = date_range
         context['calendar_data'] = calendar_data
         context['work_requests'] = work_requests
+        context['pending_requests'] = get_pending_requests()
 
         edit_instance = kwargs.get('edit_instance')
         edit_form = kwargs.get('edit_form')
@@ -129,9 +139,83 @@ class WorkCalendarView(TemplateView):
 
         form = WorkRequestForm(request.POST, user=request.user)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Work request berhasil ditambahkan.')
+            work_request = form.save()
+            
+            # If created by Flutter user, add to pending for approval
+            if work_request.flutter_user:
+                add_to_pending(work_request)
+                messages.info(request, 'Work request dari Flutter user menunggu persetujuan.')
+            else:
+                messages.success(request, 'Work request berhasil ditambahkan.')
+            
             return redirect('compensation6:work_calendar')
 
         context = self.get_context_data(form=form)
         return self.render_to_response(context)
+
+
+# Helper functions for approval system (without modifying model)
+def get_pending_requests():
+    """Get pending work requests from session or database"""
+    from django.core.cache import cache
+    pending_ids = cache.get('pending_work_requests', [])
+    return WorkRequest.objects.filter(id__in=pending_ids)
+
+def add_to_pending(work_request):
+    """Add work request to pending list"""
+    from django.core.cache import cache
+    pending_ids = cache.get('pending_work_requests', [])
+    if work_request.id not in pending_ids:
+        pending_ids.append(work_request.id)
+        cache.set('pending_work_requests', pending_ids, timeout=3600)  # 1 hour timeout
+
+def remove_from_pending(work_request_id):
+    """Remove work request from pending list"""
+    from django.core.cache import cache
+    pending_ids = cache.get('pending_work_requests', [])
+    if work_request_id in pending_ids:
+        pending_ids.remove(work_request_id)
+        cache.set('pending_work_requests', pending_ids, timeout=3600)
+
+def is_pending(work_request_id):
+    """Check if work request is pending"""
+    from django.core.cache import cache
+    pending_ids = cache.get('pending_work_requests', [])
+    return work_request_id in pending_ids
+
+
+@login_required
+@require_POST
+def approve_work_request(request, work_request_id):
+    """Approve a work request"""
+    work_request = get_object_or_404(WorkRequest, pk=work_request_id)
+    
+    # Check if user has permission to approve
+    if not request.user.is_owner:
+        messages.error(request, 'Hanya owner yang dapat menyetujui work request.')
+        return redirect('compensation6:work_calendar')
+    
+    # Remove from pending list (approved)
+    remove_from_pending(work_request_id)
+    
+    messages.success(request, f'Work request "{work_request.title}" telah disetujui.')
+    return redirect('compensation6:work_calendar')
+
+
+@login_required
+@require_POST
+def reject_work_request(request, work_request_id):
+    """Reject a work request"""
+    work_request = get_object_or_404(WorkRequest, pk=work_request_id)
+    
+    # Check if user has permission to reject
+    if not request.user.is_owner:
+        messages.error(request, 'Hanya owner yang dapat menolak work request.')
+        return redirect('compensation6:work_calendar')
+    
+    # Delete the work request (rejected)
+    work_request.delete()
+    remove_from_pending(work_request_id)
+    
+    messages.success(request, f'Work request "{work_request.title}" telah ditolak dan dihapus.')
+    return redirect('compensation6:work_calendar')

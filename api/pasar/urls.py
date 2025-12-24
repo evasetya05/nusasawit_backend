@@ -20,4 +20,5 @@ urlpatterns = [
         name="item_comments",
     ),
     path("item/<int:pk>/", marketplace_item_deep_link, name="item_deep_link"),
+    path("item/<int:pk>", marketplace_item_deep_link, name="item_deep_link_no_slash"),
 ]

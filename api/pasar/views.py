@@ -98,13 +98,23 @@ def marketplace_item_deep_link(request, pk):
     """
     Handle deep link from WhatsApp sharing.
     Renders HTML page that redirects to Flutter app with the item ID.
+    Only requires the item ID; if the item no longer exists we still show a fallback page.
     """
-    item = get_object_or_404(MarketplaceItem, pk=pk)
-    
+
+    item = MarketplaceItem.objects.filter(pk=pk).select_related("seller").first()
+
+    image_url = ""
+    if item and item.photo_1:
+        image_url = request.build_absolute_uri(item.photo_1.url)
+
     context = {
-        'item': item,
-        'item_id': pk,
-        'app_scheme': 'nusasawit',
+        "item": item,
+        "item_id": pk,
+        "app_scheme": "nusasawit",
+        "item_title": getattr(item, "title", "Item Pasar NusaSawit"),
+        "item_price": getattr(item, "price", None),
+        "item_description": getattr(item, "description", ""),
+        "item_image_url": image_url,
     }
-    
-    return render(request, 'api/pasar/deep_link.html', context)
+
+    return render(request, "api/pasar/deep_link.html", context)

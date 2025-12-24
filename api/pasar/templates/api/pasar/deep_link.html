@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ item.title }} - NusaSawit</title>
-    <meta property="og:title" content="{{ item.title }}">
-    <meta property="og:description" content="{{ item.description|truncatewords:20 }}">
-    <meta property="og:image" content="{{ item.image.url if item.image else '' }}">
+    <title>{{ item_title }} - NusaSawit</title>
+    <meta property="og:title" content="{{ item_title }}">
+    <meta property="og:description" content="{{ item_description|truncatewords:20 }}">
+    <meta property="og:image" content="{{ item_image_url }}">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:type" content="website">
     
@@ -100,9 +100,9 @@
         <h1>Buka di NusaSawit</h1>
         
         <div class="item-info">
-            <div class="item-title">{{ item.title }}</div>
-            <div class="item-price">Rp {{ item.price|floatformat:0 }}</div>
-            <div style="color: #666; font-size: 14px;">{{ item.description|truncatewords:15 }}</div>
+            <div class="item-title">{{ item_title }}</div>
+            <div class="item-price">{% if item_price %}Rp {{ item_price|floatformat:0 }}{% endif %}</div>
+            <div style="color: #666; font-size: 14px;">{{ item_description|truncatewords:15 }}</div>
         </div>
         
         <button class="open-app-btn" onclick="openApp()">

@@ -9,7 +9,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'nusasawit_db',   # nama database sesuai PostgreSQL
         'USER': 'eva',             # owner database
-        'PASSWORD': 'toor',        # ganti dengan password user eva
+        'PASSWORD': 'abc',        # ganti dengan password user eva
         'HOST': 'localhost',
         'PORT': '5432',
     }

@@ -134,13 +134,25 @@
             const deepLink = '{{ app_scheme }}://pasar/item/{{ item_id }}';
             const fallbackUrl = 'https://play.google.com/store/apps/details?id=com.nusasawit.app';
             
-            // Try to open the app
-            window.location.href = deepLink;
+            // For HTTPS context, use window.open instead of direct assignment
+            const isHttps = window.location.protocol === 'https:';
             
-            // Fallback to app store after 2 seconds
-            setTimeout(() => {
-                window.location.href = fallbackUrl;
-            }, 2000);
+            if (isHttps) {
+                // On HTTPS, try opening app in new window first
+                const appWindow = window.open(deepLink, '_blank');
+                setTimeout(() => {
+                    if (appWindow && !appWindow.closed) {
+                        appWindow.close();
+                    }
+                    window.location.href = fallbackUrl;
+                }, 1500);
+            } else {
+                // On HTTP, use direct assignment
+                window.location.href = deepLink;
+                setTimeout(() => {
+                    window.location.href = fallbackUrl;
+                }, 2000);
+            }
         }
         
         // Start countdown

@@ -1,3 +1,5 @@
+import logging
+
 from django.shortcuts import get_object_or_404, render
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -11,6 +13,9 @@ from .serializers import (
     MarketplaceItemDetailSerializer,
     MarketplaceItemSerializer,
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 class MarketplaceItemListCreateView(generics.ListCreateAPIView):
@@ -107,14 +112,38 @@ def marketplace_item_deep_link(request, pk):
     if item and item.photo_1:
         image_url = request.build_absolute_uri(item.photo_1.url)
 
+    app_scheme = "nusasawit"
+    deep_link_url = f"{app_scheme}://pasar/item/{pk}"
+    fallback_url = "https://play.google.com/store/apps/details?id=com.nusasawit.app"
+
+    debug_mode = request.GET.get("debug") == "1"
+
     context = {
         "item": item,
         "item_id": pk,
-        "app_scheme": "nusasawit",
+        "app_scheme": app_scheme,
         "item_title": getattr(item, "title", "Item Pasar NusaSawit"),
         "item_price": getattr(item, "price", None),
         "item_description": getattr(item, "description", ""),
         "item_image_url": image_url,
+        "deep_link_url": deep_link_url,
+        "fallback_url": fallback_url,
+        "debug_mode": debug_mode,
     }
+
+    if debug_mode:
+        debug_info = {
+            "request_is_secure": request.is_secure(),
+            "request_scheme": request.scheme,
+            "host": request.get_host(),
+            "path": request.get_full_path(),
+            "user_agent": request.headers.get("User-Agent"),
+            "referer": request.headers.get("Referer"),
+            "deep_link_url": deep_link_url,
+            "fallback_url": fallback_url,
+            "item_exists": bool(item),
+        }
+        context["debug_info"] = debug_info
+        logger.info("pasar deep link debug", extra={"debug": debug_info})
 
     return render(request, "api/pasar/deep_link.html", context)

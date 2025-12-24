@@ -44,6 +44,7 @@ urlpatterns = [
     path('api/sertifikasi/', include('api.sertifikasi.urls')),
     path('api/pasar/', include('api.pasar.urls')),
     path('api/petunjuk/', include('api.petunjuk.urls')),
+    path('peta/', include('api.waypoint.urls')),
     
 
     path('ckeditor/', include('ckeditor_uploader.urls')),

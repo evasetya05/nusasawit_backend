@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -92,3 +92,19 @@ class MarketplaceItemCommentListCreateView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save(item=item)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+def marketplace_item_deep_link(request, pk):
+    """
+    Handle deep link from WhatsApp sharing.
+    Renders HTML page that redirects to Flutter app with the item ID.
+    """
+    item = get_object_or_404(MarketplaceItem, pk=pk)
+    
+    context = {
+        'item': item,
+        'item_id': pk,
+        'app_scheme': 'nusasawit',
+    }
+    
+    return render(request, 'api/pasar/deep_link.html', context)

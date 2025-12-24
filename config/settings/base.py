@@ -58,7 +58,8 @@ INSTALLED_APPS = [
     'api.sertifikasi',
     'api.user_flutter',
     'api.pasar',
-    'api.petunjuk'
+    'api.petunjuk',
+    'api.waypoint',
 ]
 
 # Crispy Forms Configuration

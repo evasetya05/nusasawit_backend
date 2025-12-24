@@ -5,6 +5,7 @@ from .views import (
     MarketplaceItemDetailView,
     MarketplaceItemListCreateView,
     MarketplaceItemMarkSoldView,
+    marketplace_item_deep_link,
 )
 
 app_name = "pasar"
@@ -18,4 +19,5 @@ urlpatterns = [
         MarketplaceItemCommentListCreateView.as_view(),
         name="item_comments",
     ),
+    path("item/<int:pk>/", marketplace_item_deep_link, name="item_deep_link"),
 ]

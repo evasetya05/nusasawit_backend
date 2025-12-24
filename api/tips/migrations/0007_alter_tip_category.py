@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tips', '0006_alter_tip_contributor_delete_tipcontributor'),
+        ('tips', '0001_initial'),
     ]
 
     operations = [

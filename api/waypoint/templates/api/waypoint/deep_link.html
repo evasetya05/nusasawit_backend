@@ -115,8 +115,28 @@
         </div>
     </div>
 
+    {% if debug_mode %}
+        <div class="card" style="margin-top: 24px; text-align: left;">
+            <h2 style="margin-bottom: 12px; color: #0f4292;">Debug Information</h2>
+            <pre style="background: #0f172a; color: #e2e8f0; padding: 16px; border-radius: 8px; overflow-x: auto;">
+Deep Link URL : {{ deep_link_url }}
+Fallback URL  : {{ fallback_url }}
+Request HTTPS : {{ debug_info.request_is_secure }}
+Scheme        : {{ debug_info.request_scheme }}
+Host          : {{ debug_info.host }}
+Path          : {{ debug_info.path }}
+User-Agent    : {{ debug_info.user_agent }}
+Referer       : {{ debug_info.referer }}
+Waypoint param: {{ debug_info.waypoint_present }}
+            </pre>
+            <p style="font-size: 13px; color: #64748b; margin-top: 8px;">
+                Debug aktif karena parameter <code>?debug=1</code> ada pada URL ini. Hapus parameter tersebut untuk kembali ke tampilan normal.
+            </p>
+        </div>
+    {% endif %}
+
     <script>
-        const deepLink = "{{ app_url|escapejs }}";
+        const deepLink = "{{ deep_link_url|escapejs }}";
         const fallbackUrl = "{{ fallback_url|escapejs }}";
         const countdownEl = document.getElementById("countdown");
         let seconds = 3;
@@ -133,10 +153,22 @@
         }
 
         function openApp() {
-            window.location.href = deepLink;
-            setTimeout(() => {
-                window.location.href = fallbackUrl;
-            }, 1800);
+            const isHttps = window.location.protocol === "https:";
+
+            if (isHttps) {
+                const appWindow = window.open(deepLink, "_blank");
+                setTimeout(() => {
+                    if (appWindow && !appWindow.closed) {
+                        appWindow.close();
+                    }
+                    window.location.href = fallbackUrl;
+                }, 1500);
+            } else {
+                window.location.href = deepLink;
+                setTimeout(() => {
+                    window.location.href = fallbackUrl;
+                }, 2000);
+            }
         }
 
         tick();

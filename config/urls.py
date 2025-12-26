@@ -3,9 +3,11 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
 from debug_toolbar.toolbar import debug_toolbar_urls
+from config.views import assetlinks
 
 
 urlpatterns = [
+    path('.well-known/assetlinks.json', assetlinks, name='assetlinks'),
     path('admin/', admin.site.urls),
     path('i18n/', include('django.conf.urls.i18n')),
     path("accounts/", include("apps.account.urls"), name='accounts'),

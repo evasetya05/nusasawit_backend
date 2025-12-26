@@ -12,7 +12,7 @@ DATABASES = {
         'NAME': 'sdmporta_nusasawit',
         'USER': 'sdmporta_nusasawit_user',
         'PASSWORD': '@Pontianak123',
-        'HOST': 'localhost',
+        'HOST': '127.0.0.1',
         'PORT': '5432',
     }
 }

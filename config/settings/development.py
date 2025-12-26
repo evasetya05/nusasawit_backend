@@ -10,7 +10,7 @@ DATABASES = {
         'NAME': 'nusasawit_db',   # nama database sesuai PostgreSQL
         'USER': 'eva',             # owner database
         'PASSWORD': 'abc',        # ganti dengan password user eva
-        'HOST': 'localhost',
+        'HOST': '127.0.0.1',
         'PORT': '5432',
     }
 }

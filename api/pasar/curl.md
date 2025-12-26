@@ -1,5 +1,5 @@
 # ✅ GET: Get all marketplace items (working)
-curl -X GET http://localhost:8000/api/pasar/ \
+curl -X GET http://nusasawit.com/api/pasar/ \
   -H "X-APP-KEY: NUSA-APP-KEY-15c9f3fd8c8943f8a3bcd871df1b6f49"
 
 # ❌ POST: Create new marketplace item (requires photo files)

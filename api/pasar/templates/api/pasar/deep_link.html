@@ -7,7 +7,7 @@
     <meta property="og:title" content="{{ item_title }}">
     <meta property="og:description" content="{{ item_description|truncatewords:20 }}">
     <meta property="og:image" content="{{ item_image_url }}">
-    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:url" content="{{ request.get_full_path }}">
     <meta property="og:type" content="website">
     
     <style>

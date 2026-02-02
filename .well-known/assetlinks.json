@@ -4,9 +4,8 @@
     "target": {
       "namespace": "android_app",
       "package_name": "com.nusasawit.app",
-      "sha256_cert_fingerprints": [
-        "AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99"
-      ]
+      "sha256_cert_fingerprints":
+        ["F0:20:8D:39:07:4A:97:CE:19:71:DA:E4:1F:83:D7:5C:44:99:ED:6F:98:5E:61:8C:1F:93:CA:7E:6E:FD:0B:51"]
     }
   }
 ]

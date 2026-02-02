@@ -6,7 +6,7 @@ from django.core.wsgi import get_wsgi_application
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Set the Django settings module
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.development')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.production')
 
 # Get the WSGI application
 application = get_wsgi_application()

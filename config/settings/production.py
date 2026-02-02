@@ -3,7 +3,7 @@ from decouple import config
 import os
 
 DEBUG = True
-ALLOWED_HOSTS = ['nusasawit.com', 'www.nusasawit.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'nusasawit.com', 'www.nusasawit.com']
 
 # PostgreSQL
 DATABASES = {

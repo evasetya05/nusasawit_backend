@@ -8,7 +8,7 @@ from .views import (
     marketplace_item_deep_link,
 )
 
-app_name = "pasar"
+app_name = "api_pasar"
 
 urlpatterns = [
     path("", MarketplaceItemListCreateView.as_view(), name="item_list_create"),

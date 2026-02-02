@@ -5,35 +5,7 @@
 <div class="container" style="max-width:900px;margin:auto;padding:20px;">
   <h2 style="text-align:center;margin-bottom:20px;">Absensi Harian</h2>
 
-  <!-- Debug Info Panel -->
-  <div class="alert alert-info" style="margin-bottom:20px;">
-    <h5>Debug Information</h5>
-    <ul style="margin-bottom:0;">
-      <li><strong>User:</strong> {{ debug_info.user.username }} (ID: {{ debug_info.user.id }})</li>
-      <li><strong>Is Owner:</strong> {{ debug_info.is_owner }}</li>
-      <li><strong>Has Person:</strong> {{ debug_info.has_person }}</li>
-      <li><strong>Is Employee:</strong> {{ debug_info.is_employee }}</li>
-      <li><strong>Is Supervisor:</strong> {{ debug_info.is_supervisor }}</li>
-      {% if debug_info.employee %}
-      <li><strong>Employee:</strong> {{ debug_info.employee.name }} (ID: {{ debug_info.employee.id }})</li>
-      <li><strong>Manager:</strong> {{ debug_info.manager|default:"None" }}</li>
-      <li><strong>Subordinates (Employee):</strong>
-        {% if debug_info.subordinates %}
-        {% for sub in debug_info.subordinates %}{{ sub.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
-        {% else %}
-        None
-        {% endif %}
-      </li>
-      {% endif %}
-      <li><strong>Person Subordinates:</strong>
-        {% if debug_info.person_subordinates %}
-        {% for sub in debug_info.person_subordinates %}{{ sub.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
-        {% else %}
-        None
-        {% endif %}
-      </li>
-    </ul>
-  </div>
+  
 
   <!-- Form Clock In/Out -->
   <div

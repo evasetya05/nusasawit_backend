@@ -1,5 +1,11 @@
 from django.contrib import admin
 from .models import Tip, TipDiscussion
 
-admin.site.register(Tip)
-admin.site.register(TipDiscussion)
+@admin.register(Tip)
+class TipAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', 'category', 'contributor')
+    search_fields = ('title',)
+
+@admin.register(TipDiscussion)
+class TipDiscussionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'tip', 'flutter_user', 'created_at')

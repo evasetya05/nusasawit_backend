@@ -20,7 +20,7 @@ with open(csv_file, newline='', encoding='utf-8-sig') as f:
         prov_nama = row['Provinsi'].strip()
         kab_kode = row['kode kabupaten'].strip()
         kab_nama = row['Kabupaten'].strip()
-        kec_kode = row['kode kecamatan'].strip()
+        kec_kode = row['kode kecamatan'].strip()[:6]  # Truncate ke 6 chars
         kec_nama = row['Kecamatan'].strip()
         desa_kode = row['kode desa'].strip()
         desa_nama = row['Desa'].strip()
@@ -51,9 +51,16 @@ with open(csv_file, newline='', encoding='utf-8-sig') as f:
             """, (kab_nama, prov_id))
             kab_res = cur.fetchone()
         
+        # If still not found, auto-insert kabupaten baru
         if not kab_res:
-            print(f"⚠ Kabupaten '{kab_nama}' tidak ditemukan di provinsi {prov_nama}, skip")
-            continue
+            cur.execute("""
+                INSERT INTO area_kabupatenkota (kode, nama, provinsi_id, jenis)
+                VALUES (%s, %s, %s, %s)
+                RETURNING id
+            """, (kab_kode, kab_nama, prov_id, 'KABUPATEN'))
+            kab_res = cur.fetchone()
+            print(f"✨ Kabupaten baru '{kab_nama}' ({kab_kode}) berhasil dibuat")
+        
         kab_id = kab_res[0]
 
         # --- Lookup kecamatan_id ---
@@ -70,9 +77,17 @@ with open(csv_file, newline='', encoding='utf-8-sig') as f:
                 WHERE nama=%s AND kabupaten_kota_id=%s
             """, (kec_nama, kab_id))
         kec_res = cur.fetchone()
+        
+        # If not found, auto-insert kecamatan baru
         if not kec_res:
-            print(f"⚠ Kecamatan '{kec_nama}' ({kec_kode}) di kabupaten {kab_nama} tidak ditemukan, skip")
-            continue
+            cur.execute("""
+                INSERT INTO area_kecamatan (kode, nama, kabupaten_kota_id)
+                VALUES (%s, %s, %s)
+                RETURNING id
+            """, (kec_kode, kec_nama, kab_id))
+            kec_res = cur.fetchone()
+            print(f"✨ Kecamatan baru '{kec_nama}' ({kec_kode}) berhasil dibuat")
+        
         kec_id = kec_res[0]
 
         # --- Tentukan jenis desa ---

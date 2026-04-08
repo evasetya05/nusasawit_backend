@@ -8,4 +8,4 @@ class TipAdmin(admin.ModelAdmin):
 
 @admin.register(TipDiscussion)
 class TipDiscussionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'tip', 'flutter_user', 'created_at')
+    list_display = ('id', 'tip', 'user_identifier', 'created_at')

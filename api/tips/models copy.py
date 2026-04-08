@@ -20,21 +20,20 @@ class Tip(models.Model):
         ('Manajemen', 'Manajemen'),
         ('Pemasaran', 'Pemasaran'),
         ('Teknologi', 'Teknologi'),
-        ('Berita', 'Berita'),
         ('Lainnya', 'Lainnya'),
     ]
 
     title = models.CharField(max_length=255)
     content = models.TextField()
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
-    image_url = models.ImageField(upload_to='tips/', blank=True, null=True)
+    image = models.ImageField(upload_to='tips/', blank=True, null=True)
     contributor = models.ForeignKey(TipContributor, on_delete=models.CASCADE, related_name="tips", null=True, blank=True)
     discussion = models.TextField(blank=True, null=True, help_text="Identifier dari user flutter untuk diskusi")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
-        if self.image_url:
-            img = Image.open(self.image_url)
+        if self.image:
+            img = Image.open(self.image)
             
             # Convert to RGB if necessary (for PNG with transparency)
             if img.mode in ('RGBA', 'LA', 'P'):
@@ -74,7 +73,7 @@ class Tip(models.Model):
                 quality -= 5
             
             # Save the processed image
-            self.image_url.save(os.path.basename(self.image_url.name), ContentFile(output.read()), save=False)
+            self.image.save(os.path.basename(self.image.name), ContentFile(output.read()), save=False)
         
         super().save(*args, **kwargs)
 

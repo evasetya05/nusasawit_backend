@@ -1,0 +1,10 @@
+scp -i ~/domainesia.pem -P 64000 ~/tes/import.py sdmporta@202.155.132.38:/home/sdmporta/nusasawit/^C
+
+ssh -i /home/eva/domainesia.pem -p 64000 sdmporta@202.155.132.38
+
+source /home/sdmporta/virtualenv/nusasawit/3.13/bin/activate && cd /home/sdmporta/nusasawit
+
+
+echo $DJANGO_SETTINGS_MODULE
+
+export DJANGO_SETTINGS_MODULE=nusasawit.settings.production

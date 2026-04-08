@@ -74,7 +74,10 @@ class Tip(models.Model):
                 quality -= 5
             
             # Save the processed image
-            self.image_url.save(os.path.basename(self.image_url.name), ContentFile(output.read()), save=False)
+            output.seek(0)
+            base, _ext = os.path.splitext(os.path.basename(self.image_url.name))
+            filename = f"{base}.jpg"
+            self.image_url.save(filename, ContentFile(output.read()), save=False)
         
         super().save(*args, **kwargs)
 

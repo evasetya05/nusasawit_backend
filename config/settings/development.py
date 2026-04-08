@@ -7,9 +7,9 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'nusasawit_db',   # nama database sesuai PostgreSQL
-        'USER': 'eva',             # owner database
-        'PASSWORD': 'abc',        # ganti dengan password user eva
+        'NAME': 'sdmporta_nusasawit',
+        'USER': 'sdmporta_nusasawit_user',
+        'PASSWORD': '@Pontianak123',
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }

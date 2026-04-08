@@ -16,7 +16,7 @@ from api.permission import HasValidAppKey
 def tips_list(request):
     if request.method == 'GET':
         tips = Tip.objects.all().order_by('-created_at')
-        serializer = TipSerializer(tips, many=True)
+        serializer = TipSerializer(tips, many=True, context={'request': request})
         return Response(serializer.data)
     elif request.method == 'POST':
         # Get user identifier from request headers
@@ -24,7 +24,7 @@ def tips_list(request):
         if user_identifier:
             request.data['discussion'] = user_identifier
         
-        serializer = TipSerializer(data=request.data)
+        serializer = TipSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=201)

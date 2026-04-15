@@ -14,6 +14,24 @@
   .hero-bg {
     background-image: linear-gradient(90deg, rgba(16, 185, 129, 0.06), rgba(6, 95, 70, 0.04));
   }
+
+ 
+  /* Minor custom styles */
+  .glass {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(6px);
+  }
+
+  .hero-bg {
+    background-image: linear-gradient(90deg, rgba(16, 185, 129, 0.06), rgba(6, 95, 70, 0.04));
+  }
+
+  /* 🔥 Fix scroll agar tidak ketutup header */
+  section {
+    scroll-margin-top: 90px; /* sesuaikan tinggi header */
+  }
+
+
 </style>
 {% endblock %}
 
@@ -26,10 +44,21 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Nusasawit — Mendukung Petani Kelapa Sawit</title>
   <meta name="description"
-    content="Nusasawit: platform untuk membantu petani sawit dengan marketplace, harga TBS, pelatihan, sertifikasi, dan konsultasi." />
+    content="Nusasawit: platform untuk membantu petani sawit meningkatkan Produksi kebunnya " />
 </head>
 
 <body class="antialiased text-slate-800 bg-gradient-to-b from-green-50 to-white min-h-screen">
+
+  <!-- 🔥 Banner Playstore + Icon -->
+  <div class="bg-green-600 text-white text-center py-4">
+    <a href="https://play.google.com/store/apps/details?id=com.nusasawit.app" target="_blank"
+      class="flex flex-col items-center justify-center gap-2">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
+        alt="Get it on Google Play" class="h-16">
+      <span class="font-semibold underline">Install Aplikasi Nusasawit di Playstore</span>
+    </a>
+  </div>
+
   <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b">
     <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
       <a href="#" class="flex items-center gap-3">
@@ -52,7 +81,7 @@
     <div id="mobileMenu" class="hidden md:hidden bg-white/90 border-t">
       <div class="px-4 py-3 flex flex-col gap-2">
         <a href="#marketplace">Marketplace</a>
-        <a href="#harga-tbs">Harga TBS</a>
+        <a href="#harga-tbs">Job Market</a>
         <a href="#pelatihan">Pelatihan</a>
         <a href="#sertifikasi">Sertifikasi</a>
         <a href="{% url 'login' %}" class="text-white bg-green-600 px-3 py-1 rounded-md text-center">Masuk</a>
@@ -60,35 +89,13 @@
     </div>
   </header>
 
-  <!-- Debug User Role Information -->
-  {% if debug_user %}
-  <div class="max-w-6xl mx-auto px-4 py-4">
-    <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-      <h4 class="font-semibold text-yellow-800 mb-2">Debug User Role Information:</h4>
-      <ul class="text-sm text-yellow-700 space-y-1">
-        <li><strong>Username:</strong> {{ debug_user.username }}</li>
-        <li><strong>is_owner:</strong> {{ debug_is_owner }}</li>
-        <li><strong>is_employee:</strong> {{ debug_is_employee }}</li>
-        <li><strong>is_supervisor:</strong> {{ debug_is_supervisor }}</li>
-        {% if debug_person %}
-        <li><strong>Person Name:</strong> {{ debug_person.name }}</li>
-        <li><strong>Has Subordinates:</strong> {{ debug_person.subordinates.exists }}</li>
-        <li><strong>Subordinate Count:</strong> {{ debug_person.subordinates.count }}</li>
-        {% endif %}
-      </ul>
-    </div>
-  </div>
-  {% endif %}
-
   <main class="max-w-6xl mx-auto px-4 py-8">
-    <section class="hero-bg rounded-2xl p-8 md:p-12 shadow-sm">
+    <section id="home" class="hero-bg rounded-2xl p-8 md:p-12 shadow-sm">
       <div class="md:flex md:gap-8 items-center">
         <div class="md:w-1/2">
           <h1 class="text-3xl md:text-4xl font-extrabold leading-tight">Nusasawit — Mendukung Petani Kelapa Sawit</h1>
-          <p class="mt-4 text-slate-700">Platform lokal untuk jual-beli hasil panen, pantauan harga Tandan Buah Segar
-            (TBS), akses pelatihan & sertifikasi, serta konsultasi teknis agar petani menghasilkan panen lebih baik dan
-            berkelanjutan.</p>
-
+          <p class="mt-4 text-slate-700">Platform lokal untuk meningkatkan produksi Tandan Buah Segar Petani
+            dengan akses pencatatan, pelatihan, sertifikasi serta konsultasi teknis.
           <div class="mt-6 flex gap-3">
             <a href="#marketplace" class="inline-block bg-green-600 text-white px-4 py-2 rounded-md shadow">Lihat
               Marketplace</a>
@@ -100,17 +107,16 @@
             <li>📈 Pantauan harga TBS</li>
             <li>📚 Pelatihan & modul</li>
             <li>🛡️ Bantu urus sertifikasi</li>
-            <li>🗺️ Pemetaan lahan & rawan banjir</li>
             <li>📞 Konsultasi lapangan</li>
           </ul>
         </div>
 
         <div class="md:w-1/2 mt-6 md:mt-0">
+          {% load static %}
+
           <div class="rounded-xl overflow-hidden shadow-lg">
-            <img src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1400&q=60"
-              alt="Petani sawit" class="w-full h-56 object-cover">
+            <img src="{% static 'images/sawit.jpg' %}" alt="Petani sawit" class="w-full h-56 object-cover">
           </div>
-        </div>
       </div>
     </section>
 
@@ -118,49 +124,6 @@
       <h2 class="text-2xl font-semibold">Marketplace Lokal</h2>
       <p class="mt-2 text-slate-600">Jual hasil panen langsung ke pembeli lokal — tanpa perantara berlebihan. Tampilkan
         foto, berat, lokasi pickup, dan harga.</p>
-
-      <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Example product cards -->
-        <article class="border rounded-lg p-4 glass">
-          <img class="w-full h-36 object-cover rounded-md"
-            src="https://images.unsplash.com/photo-1582515073490-399813e82791?auto=format&fit=crop&w=800&q=60"
-            alt="TBS sample">
-          <h3 class="mt-3 font-medium">Tandan Buah Segar - 1000 kg</h3>
-          <p class="text-sm text-slate-600 mt-1">Lokasi: Pekanbaru • Kualitas: Grade A</p>
-          <div class="mt-3 flex items-center justify-between">
-            <div class="text-lg font-semibold">Rp 1.450.000</div>
-            <a href="#" class="text-sm px-3 py-1 border rounded">Lihat</a>
-          </div>
-        </article>
-
-        <article class="border rounded-lg p-4 glass">
-          <img class="w-full h-36 object-cover rounded-md"
-            src="https://images.unsplash.com/photo-1506806732259-39c2d0268443?auto=format&fit=crop&w=800&q=60"
-            alt="CPO sample">
-          <h3 class="mt-3 font-medium">CPO - Minyak Sawit</h3>
-          <p class="text-sm text-slate-600 mt-1">Lokasi: Lampung • Packing: Drum 200L</p>
-          <div class="mt-3 flex items-center justify-between">
-            <div class="text-lg font-semibold">Rp 25.000 / kg</div>
-            <a href="#" class="text-sm px-3 py-1 border rounded">Pesan</a>
-          </div>
-        </article>
-
-        <article class="border rounded-lg p-4 glass">
-          <img class="w-full h-36 object-cover rounded-md"
-            src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=800&q=60"
-            alt="Alat pertanian">
-          <h3 class="mt-3 font-medium">Alat Pemanen Portable</h3>
-          <p class="text-sm text-slate-600 mt-1">Stok: 12 • Garansi 6 bulan</p>
-          <div class="mt-3 flex items-center justify-between">
-            <div class="text-lg font-semibold">Rp 1.100.000</div>
-            <a href="#" class="text-sm px-3 py-1 border rounded">Beli</a>
-          </div>
-        </article>
-      </div>
-
-      <div class="mt-4 text-right">
-        <a href="#" class="text-sm underline">Lihat semua produk →</a>
-      </div>
     </section>
 
     <section id="harga-tbs" class="mt-10 grid md:grid-cols-2 gap-6">
@@ -169,55 +132,8 @@
         <p class="mt-2 text-slate-600">Harga harian/weekly TBS dari pasar terdekat. (Data dapat diintegrasikan lewat API
           atau input manual oleh admin.)</p>
 
-        <table class="w-full mt-4 text-sm">
-          <thead class="text-left text-slate-600">
-            <tr>
-              <th>Lokasi</th>
-              <th>Harga (Rp/kg)</th>
-              <th>Tanggal</th>
-            </tr>
-          </thead>
-          <tbody class="mt-2">
-            <tr class="border-t">
-              <td>Pekanbaru</td>
-              <td class="font-medium">1.450</td>
-              <td>2025-12-01</td>
-            </tr>
-            <tr class="border-t">
-              <td>Lampung</td>
-              <td class="font-medium">1.420</td>
-              <td>2025-12-01</td>
-            </tr>
-            <tr class="border-t">
-              <td>Jambi</td>
-              <td class="font-medium">1.430</td>
-              <td>2025-12-01</td>
-            </tr>
-          </tbody>
-        </table>
-
         <p class="mt-3 text-xs text-slate-500">*Perbarui secara otomatis lewat integrasi API pasar atau input manual
           dari petugas lokal.</p>
-      </div>
-
-      <div class="border rounded-lg p-4">
-        <h3 class="text-xl font-semibold">Alat Bantu untuk Petani</h3>
-        <ul class="mt-3 list-disc list-inside text-slate-700">
-          <li>Checklist panen & mutu</li>
-          <li>Panduan sederhana K3 pertanian</li>
-          <li>Tutorial pemupukan & pengendalian hama</li>
-          <li>Form permohonan konsultasi lapangan</li>
-        </ul>
-
-        <form class="mt-4 grid gap-2">
-          <input type="text" placeholder="Nama" class="border rounded px-3 py-2" />
-          <input type="tel" placeholder="No. HP (contoh: +628)" class="border rounded px-3 py-2" />
-          <textarea placeholder="Sampaikan singkat masalah Anda" class="border rounded px-3 py-2"></textarea>
-          <div class="flex gap-2">
-            <button type="button" class="bg-green-600 text-white px-4 py-2 rounded">Kirim Konsultasi</button>
-            <button type="button" class="border px-4 py-2 rounded">Reset</button>
-          </div>
-        </form>
       </div>
     </section>
 
@@ -238,7 +154,7 @@
         </div>
         <div class="border rounded-lg p-4 glass">
           <h3 class="font-medium">Persiapan Sertifikasi</h3>
-          <p class="text-sm mt-2">Langkah awal untuk sertifikasi (ISPO, K3, Halal).</p>
+          <p class="text-sm mt-2">Langkah awal untuk sertifikasi (ISPO atau lainnya).</p>
           <div class="mt-3 text-sm"><a href="#">Daftar →</a></div>
         </div>
       </div>
@@ -252,7 +168,7 @@
       <ul class="mt-4 grid sm:grid-cols-2 gap-3 text-slate-700">
         <li class="border rounded p-3">• ISPO (Indonesian Sustainable Palm Oil)</li>
         <li class="border rounded p-3">• K3 Pertanian (Keselamatan & Kesehatan Kerja)</li>
-        <li class="border rounded p-3">• Halal (untuk pasar tertentu)</li>
+        
         <li class="border rounded p-3">• GAP (Good Agricultural Practices)</li>
       </ul>
     </section>
@@ -264,9 +180,17 @@
 
         <dl class="mt-4 text-sm text-slate-700">
           <dt class="font-medium">Email</dt>
-          <dd>info@nusasawit.local</dd>
+          <dd>
+            <a href="mailto:nusasawit538@gmail.com" class="text-green-600 underline">
+              nusasawit538@gmail.com
+            </a>
+          </dd>
           <dt class="font-medium mt-3">Telp / WhatsApp</dt>
-          <dd>+62 812-3456-7890</dd>
+          <dd>
+            <a href="https://wa.me/6282191076285" target="_blank" class="text-green-600 underline">
+              +62 821-9107-6285
+            </a>
+          </dd>
           <dt class="font-medium mt-3">Alamat kantor</dt>
           <dd>Jalan Sawit No. 10, Pekanbaru</dd>
         </dl>
@@ -293,7 +217,6 @@
   </footer>
 
   <script>
-    // mobile menu toggle
     const menuBtn = document.getElementById('menuBtn');
     const mobileMenu = document.getElementById('mobileMenu');
     menuBtn && menuBtn.addEventListener('click', () => {
@@ -301,11 +224,11 @@
     });
 
     function actionChatForDemo() {
-      const phoneNumber = "+6285348178999";
-      const message = encodeURIComponent("Halo, saya ingin konsultasi mengenai demo SDM Portabel.");
+      const phoneNumber = "6282191076285";
+      const message = encodeURIComponent("Halo, saya ingin konsultasi mengenai Nusasawit.");
       const whatsappURL = `https://wa.me/${phoneNumber}?text=${message}`;
       window.open(whatsappURL, "_blank");
     }
   </script>
 
-  {% endblock %}
+{% endblock %}
